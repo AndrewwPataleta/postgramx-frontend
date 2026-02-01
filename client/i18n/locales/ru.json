@@ -192,6 +192,7 @@
   "deals.stage.adminApproval.rejectedToast": "Сделка отклонена.",
   "deals.stage.adminApproval.requestError": "Не удалось запросить правки.",
   "deals.stage.adminApproval.requestedToast": "Запрос на правки отправлен.",
+  "deals.stage.confirmPost.title": "Подвердить пост",
   "deals.stage.adminApproval.timeLeft": "Осталось времени на проверку: {{time}}",
   "deals.stage.adminApproval.title": "Одобрение администратора",
   "deals.stage.confirmPost.confirmError": "Не удалось подтвердить пост.",
