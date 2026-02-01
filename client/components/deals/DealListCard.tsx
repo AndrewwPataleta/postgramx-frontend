@@ -1,8 +1,15 @@
-import { memo, useState } from "react";
+
+import { memo, useMemo, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import type { DealEntity } from "@/models/entities";
 import { formatDate, formatDateTime, formatTon } from "@/i18n/formatters";
-import { getDealRoleLabel, getEscrowStatusLabel, getListingFormatLabel, getPinnedDurationLabel, getVisibilityDurationLabel } from "@/i18n/labels";
+import {
+  getDealRoleLabel,
+  getEscrowStatusLabel,
+  getListingFormatLabel,
+  getPinnedDurationLabel,
+  getVisibilityDurationLabel,
+} from "@/i18n/labels";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { USER_ROLE } from "@/constants/roles";
 import { useAuth } from "@/components/auth/AuthProvider";
@@ -19,24 +26,51 @@ interface DealListCardProps {
 }
 
 const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
-  const resolvedDeal = deal;
   const { t, language } = useLanguage();
   const { user } = useAuth();
   const [expanded, setExpanded] = useState(false);
-  const listingSnapshot = resolvedDeal.listingSnapshot;
+
+  const currentUserId = (user as { id?: string } | null)?.id;
+
+  // ✅ Защита от "частичных" объектов
+  const channelTitle = deal?.channel?.title ?? t("common.emptyValue");
+  const channelUsername = deal?.channel?.username ?? "";
+  const channelInitial = channelTitle?.trim()?.[0] ?? "•";
+
+  const listingSnapshot = deal?.listingSnapshot;
+
   const visibilityLabel = listingSnapshot?.visibilityDurationHours
     ? getVisibilityDurationLabel(t, listingSnapshot.visibilityDurationHours)
     : null;
+
   const pinnedLabel = listingSnapshot?.pinDurationHours
     ? getPinnedDurationLabel(t, listingSnapshot.pinDurationHours)
     : null;
+
   const detailLine = [visibilityLabel, pinnedLabel].filter(Boolean).join(" • ");
-  const escrowText = getEscrowStatusLabel(t, resolvedDeal.escrow.status);
-  const currentUserId = (user as { id?: string } | null)?.id;
+
+  // ✅ Самая важная правка: escrow может отсутствовать
+  // Подстрахуемся ещё escrowStatus (если у тебя где-то так называется в DTO)
+  const escrowStatus =
+    (deal as any)?.escrow?.status ?? (deal as any)?.escrowStatus ?? null;
+
+  const escrowText = escrowStatus
+    ? getEscrowStatusLabel(t, escrowStatus)
+    : t("common.emptyValue");
+
   const resolvedRole =
-    currentUserId && currentUserId === resolvedDeal.advertiserUserId
+    currentUserId && currentUserId === deal?.advertiserUserId
       ? USER_ROLE.ADVERTISER
       : USER_ROLE.PUBLISHER;
+
+  // (опционально) полезно быстро найти "битые" сделки
+  useMemo(() => {
+    if (!deal?.escrow && !(deal as any)?.escrowStatus) {
+      // eslint-disable-next-line no-console
+      console.warn("[DealListCard] deal without escrow:", deal?.id, deal);
+    }
+    return null;
+  }, [deal]);
 
   return (
     <div
@@ -45,29 +79,32 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
       }`}
       role={onSelect ? "button" : undefined}
       tabIndex={onSelect ? 0 : undefined}
-      onClick={() => onSelect(resolvedDeal)}
+      onClick={() => onSelect(deal)}
       onKeyDown={(event) => {
-        if (!onSelect) {
-          return;
-        }
+        if (!onSelect) return;
         if (event.key === "Enter" || event.key === " ") {
           event.preventDefault();
-          onSelect(resolvedDeal);
+          onSelect(deal);
         }
       }}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
           <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-secondary/60 text-lg font-semibold text-muted-foreground">
-            {resolvedDeal.channel.title.slice(0, 1)}
+            {channelInitial}
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-              <span className="truncate">{resolvedDeal.channel.title}</span>
+              <span className="truncate">{channelTitle}</span>
             </div>
-            <p className="text-xs text-muted-foreground">@{resolvedDeal.channel.username}</p>
+            {channelUsername ? (
+              <p className="text-xs text-muted-foreground">@{channelUsername}</p>
+            ) : (
+              <p className="text-xs text-muted-foreground">{t("common.emptyValue")}</p>
+            )}
           </div>
         </div>
+
         <span
           className={`max-w-[160px] truncate whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold ${roleToneMap[resolvedRole]}`}
           style={{ textOverflow: "ellipsis" }}
@@ -83,6 +120,7 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
         >
           {escrowText}
         </span>
+
         <span className="text-xs text-muted-foreground">
           {listingSnapshot?.priceNano
             ? formatTon(listingSnapshot.priceNano, language)
@@ -92,12 +130,11 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
       </div>
 
       <div className="mt-3 space-y-1">
-        {detailLine ? (
-          <p className="text-xs text-muted-foreground">{detailLine}</p>
-        ) : null}
-        {resolvedDeal.scheduledAt ? (
+        {detailLine ? <p className="text-xs text-muted-foreground">{detailLine}</p> : null}
+
+        {deal?.scheduledAt ? (
           <p className="text-xs text-muted-foreground">
-            {t("deals.scheduledAt")}: {formatDateTime(resolvedDeal.scheduledAt, language)}
+            {t("deals.scheduledAt")}: {formatDateTime(deal.scheduledAt, language)}
           </p>
         ) : null}
       </div>
@@ -111,10 +148,7 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
         className="mt-3 flex w-full items-center justify-between rounded-lg border border-border/60 bg-background/60 px-3 py-2 text-xs font-semibold text-muted-foreground transition hover:text-foreground"
       >
         <span>{expanded ? t("common.hideDetails") : t("common.showDetails")}</span>
-        <ChevronDown
-          size={14}
-          className={`transition-transform ${expanded ? "rotate-180" : ""}`}
-        />
+        <ChevronDown size={14} className={`transition-transform ${expanded ? "rotate-180" : ""}`} />
       </button>
 
       {expanded ? (
@@ -122,13 +156,14 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
           <div className="grid gap-2 sm:grid-cols-2">
             <div>
               <span className="font-medium text-foreground">{t("common.createdAt")}:</span>{" "}
-              {formatDate(resolvedDeal.createdAt, language) || t("common.emptyValue")}
+              {formatDate(deal?.createdAt, language) || t("common.emptyValue")}
             </div>
             <div>
               <span className="font-medium text-foreground">{t("deals.scheduledAt")}:</span>{" "}
-              {formatDate(resolvedDeal.scheduledAt, language) || t("common.emptyValue")}
+              {formatDate(deal?.scheduledAt, language) || t("common.emptyValue")}
             </div>
           </div>
+
           {listingSnapshot?.tags?.length ? (
             <div className="flex flex-wrap gap-2">
               {listingSnapshot.tags.map((tag, index) => (
@@ -141,6 +176,7 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
               ))}
             </div>
           ) : null}
+
           <div className="flex flex-wrap gap-2">
             <span className="rounded-full bg-secondary/60 px-3 py-1 text-xs font-medium text-foreground">
               {t("listings.formatLabel")}:{" "}
@@ -162,3 +198,4 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
 };
 
 export default memo(DealListCard);
+
