@@ -13,16 +13,19 @@ const roleToneMap: Record<string, string> = {
   [USER_ROLE.PUBLISHER_MANAGER]: "bg-emerald-500/10 text-emerald-400",
 };
 
+type DealListItem = DealEntity | { deal: DealEntity };
+
 interface DealListCardProps {
-  deal: DealEntity;
+  deal: DealListItem;
   onSelect: (deal: DealEntity) => void;
 }
 
 const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
+  const resolvedDeal = "deal" in deal ? deal.deal : deal;
   const { t, language } = useLanguage();
   const { user } = useAuth();
   const [expanded, setExpanded] = useState(false);
-  const listingSnapshot = deal.listingSnapshot;
+  const listingSnapshot = resolvedDeal.listingSnapshot;
   const visibilityLabel = listingSnapshot?.visibilityDurationHours
     ? getVisibilityDurationLabel(t, listingSnapshot.visibilityDurationHours)
     : null;
@@ -30,10 +33,10 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
     ? getPinnedDurationLabel(t, listingSnapshot.pinDurationHours)
     : null;
   const detailLine = [visibilityLabel, pinnedLabel].filter(Boolean).join(" • ");
-  const escrowText = getEscrowStatusLabel(t, deal.escrow.status);
+  const escrowText = getEscrowStatusLabel(t, resolvedDeal.escrow.status);
   const currentUserId = (user as { id?: string } | null)?.id;
   const resolvedRole =
-    currentUserId && currentUserId === deal.advertiserUserId
+    currentUserId && currentUserId === resolvedDeal.advertiserUserId
       ? USER_ROLE.ADVERTISER
       : USER_ROLE.PUBLISHER;
 
@@ -44,27 +47,27 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
       }`}
       role={onSelect ? "button" : undefined}
       tabIndex={onSelect ? 0 : undefined}
-      onClick={() => onSelect(deal)}
+      onClick={() => onSelect(resolvedDeal)}
       onKeyDown={(event) => {
         if (!onSelect) {
           return;
         }
         if (event.key === "Enter" || event.key === " ") {
           event.preventDefault();
-          onSelect(deal);
+          onSelect(resolvedDeal);
         }
       }}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
           <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-secondary/60 text-lg font-semibold text-muted-foreground">
-            {deal.channel.title.slice(0, 1)}
+            {resolvedDeal.channel.title.slice(0, 1)}
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-              <span className="truncate">{deal.channel.title}</span>
+              <span className="truncate">{resolvedDeal.channel.title}</span>
             </div>
-            <p className="text-xs text-muted-foreground">@{deal.channel.username}</p>
+            <p className="text-xs text-muted-foreground">@{resolvedDeal.channel.username}</p>
           </div>
         </div>
         <span
@@ -94,9 +97,9 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
         {detailLine ? (
           <p className="text-xs text-muted-foreground">{detailLine}</p>
         ) : null}
-        {deal.scheduledAt ? (
+        {resolvedDeal.scheduledAt ? (
           <p className="text-xs text-muted-foreground">
-            {t("deals.scheduledAt")}: {formatDateTime(deal.scheduledAt, language)}
+            {t("deals.scheduledAt")}: {formatDateTime(resolvedDeal.scheduledAt, language)}
           </p>
         ) : null}
       </div>
@@ -121,11 +124,11 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
           <div className="grid gap-2 sm:grid-cols-2">
             <div>
               <span className="font-medium text-foreground">{t("common.createdAt")}:</span>{" "}
-              {formatDate(deal.createdAt, language) || t("common.emptyValue")}
+              {formatDate(resolvedDeal.createdAt, language) || t("common.emptyValue")}
             </div>
             <div>
               <span className="font-medium text-foreground">{t("deals.scheduledAt")}:</span>{" "}
-              {formatDate(deal.scheduledAt, language) || t("common.emptyValue")}
+              {formatDate(resolvedDeal.scheduledAt, language) || t("common.emptyValue")}
             </div>
           </div>
           {listingSnapshot?.tags?.length ? (
