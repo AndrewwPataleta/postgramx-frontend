@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getTelegramWebApp } from "@/lib/telegram";
-import { useCreateDealMutation } from "@/hooks/use-deals";
+import { useCreateDealMutation } from "@/features/deals/hooks/useDeals";
 import ErrorState from "@/components/feedback/ErrorState";
 import { ScheduleDatePicker } from "@/components/deals/ScheduleDatePicker";
 import { PageContainer } from "@/components/layout/PageContainer";
-import { toUtcIsoString } from "@/utils/date";
+import { toIsoZ } from "@/api/core/date";
 import { ROUTES } from "@/constants/routes";
 
 interface CreateDealLocationState {
@@ -32,7 +32,7 @@ export default function CreateDeal() {
       return undefined;
     }
     try {
-      return toUtcIsoString(scheduledAt);
+      return toIsoZ(scheduledAt);
     } catch {
       return undefined;
     }
@@ -60,10 +60,6 @@ export default function CreateDeal() {
     }
 
     try {
-      if (scheduledIso && !scheduledIso.endsWith("Z")) {
-        console.error("Scheduled date must be UTC ISO:", scheduledIso);
-        throw new Error("Invalid datetime format");
-      }
       await createDealMutation.mutateAsync({
         listingId,
         brief: brief.trim() || undefined,

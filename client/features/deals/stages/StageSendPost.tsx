@@ -3,10 +3,11 @@ import { toast } from "sonner";
 import InfoCard from "@/components/deals/InfoCard";
 import type { DealListItem } from "@/types/deals";
 import { openTelegramLink } from "@/lib/telegramLinks";
-import { post } from "@/api/core/apiClient";
+import { submitCreative } from "@/api/features/deals/deals.api";
 import { getErrorMessage } from "@/lib/api/errors";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/i18n/LanguageProvider";
+import { dealsQueryKeys } from "@/features/deals/hooks/useDeals";
 
 interface StageSendPostProps {
   deal: DealListItem;
@@ -27,17 +28,11 @@ export default function StageSendPost({ deal, readonly, onAction }: StageSendPos
 
   const mutation = useMutation({
     mutationFn: async () => {
-      if (import.meta.env.VITE_API_MOCK === "true") {
-        console.info("Mock creative submit", { dealId: deal.id });
-        return null;
-      }
-      return post<unknown, { dealId: string }>("/deals/creative/submit", {
-        dealId: deal.id,
-      });
+      return submitCreative({ dealId: deal.id });
     },
     onSuccess: () => {
       toast.success(t("deals.stage.sendPost.submittedToast"));
-      queryClient.invalidateQueries({ queryKey: ["deal", deal.id] });
+      queryClient.invalidateQueries({ queryKey: dealsQueryKeys.detail(deal.id) });
     },
     onError: (error) => {
       toast.error(getErrorMessage(error, t("deals.stage.sendPost.submitError")));

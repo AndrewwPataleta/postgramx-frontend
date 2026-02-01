@@ -2,14 +2,15 @@ import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import type { DealListItem } from "@/types/deals";
-import { post } from "@/api/core/apiClient";
+import { scheduleDeal } from "@/api/features/deals/deals.api";
 import { getErrorMessage } from "@/lib/api/errors";
 import InfoCard from "@/components/deals/InfoCard";
 import { ScheduleDatePicker } from "@/components/deals/ScheduleDatePicker";
 import { cn } from "@/lib/utils";
 import { formatDateTime } from "@/i18n/formatters";
 import { useLanguage } from "@/i18n/LanguageProvider";
-import { toUtcIsoString } from "@/utils/date";
+import { toIsoZ } from "@/api/core/date";
+import { dealsQueryKeys } from "@/features/deals/hooks/useDeals";
 
 interface StageScheduleTimeProps {
   deal: DealListItem;
@@ -53,27 +54,12 @@ export default function StageScheduleTime({ deal, readonly, onAction }: StageSch
       if (!scheduledAt || !isValidSchedule) {
         throw new Error(t("deals.stage.scheduleTime.selectDateError"));
       }
-      const scheduledAtUtc = toUtcIsoString(scheduledAt);
-      if (!scheduledAtUtc.endsWith("Z")) {
-        console.error("Scheduled date must be UTC ISO:", scheduledAtUtc);
-        throw new Error("Invalid datetime format");
-      }
-      if (import.meta.env.VITE_API_MOCK === "true") {
-        console.info("Mock schedule set", { dealId: deal.id, scheduledAt: scheduledAtUtc });
-        return null;
-      }
-      console.log("Schedule payload UTC:", scheduledAtUtc);
-      return post<unknown, { dealId: string; scheduledAt: string }>(
-        "/deals/schedule",
-        {
-          dealId: deal.id,
-          scheduledAt: scheduledAtUtc,
-        }
-      );
+      const scheduledAtUtc = toIsoZ(scheduledAt);
+      return scheduleDeal({ dealId: deal.id, scheduledAt: scheduledAtUtc });
     },
     onSuccess: () => {
       toast.success(t("deals.stage.scheduleTime.updatedToast"));
-      queryClient.invalidateQueries({ queryKey: ["deal", deal.id] });
+      queryClient.invalidateQueries({ queryKey: dealsQueryKeys.detail(deal.id) });
     },
     onError: (error) => {
       toast.error(getErrorMessage(error, t("deals.stage.scheduleTime.saveError")));
@@ -104,11 +90,7 @@ export default function StageScheduleTime({ deal, readonly, onAction }: StageSch
       return;
     }
     if (onAction?.onConfirmSchedule) {
-      const scheduledAtUtc = toUtcIsoString(scheduledAt);
-      if (!scheduledAtUtc.endsWith("Z")) {
-        console.error("Scheduled date must be UTC ISO:", scheduledAtUtc);
-        throw new Error("Invalid datetime format");
-      }
+      const scheduledAtUtc = toIsoZ(scheduledAt);
       onAction.onConfirmSchedule(scheduledAtUtc);
       return;
     }

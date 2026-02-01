@@ -9,7 +9,7 @@ import ErrorState from "@/components/feedback/ErrorState";
 import BottomSheet from "@/components/BottomSheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageContainer } from "@/components/layout/PageContainer";
-import { unlinkChannel } from "@/api/features/channelsApi";
+import { unlinkChannel } from "@/api/features/channels/channels.api";
 import { getErrorMessage } from "@/lib/api/errors";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { CHANNEL_STATUS } from "@/constants/channels";

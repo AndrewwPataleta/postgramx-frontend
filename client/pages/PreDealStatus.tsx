@@ -1,12 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
-import {
-  predealsCancel,
-  predealsGet,
-  type PreDealDto,
-} from "@/api/features/predealsApi";
+import { useCancelPreDeal, usePreDealQuery } from "@/features/deals/hooks/usePreDeal";
 import ErrorState from "@/components/feedback/ErrorState";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -77,29 +72,19 @@ export default function PreDealStatus() {
   const navigate = useNavigate();
   const [now, setNow] = useState(Date.now());
 
-  const predealQuery = useQuery({
-    queryKey: ["predeal", id],
-    queryFn: () => predealsGet({ id: id ?? "" }),
-    enabled: Boolean(id),
-    refetchInterval: (query) => {
-      const status = (query.state.data as PreDealDto | undefined)?.status;
-      if (!status) {
-        return 4000;
-      }
-      return TERMINAL_STATUSES.has(status) ? false : 4000;
-    },
-  });
+  const predealQuery = usePreDealQuery(id);
+  const cancelMutation = useCancelPreDeal();
 
-  const cancelMutation = useMutation({
-    mutationFn: predealsCancel,
-    onSuccess: () => {
-      toast.success("Pre-deal canceled");
-      navigate(ROUTES.MARKETPLACE, { replace: true });
-    },
-    onError: (error) => {
-      toast.error(getErrorMessage(error, "Unable to cancel pre-deal"));
-    },
-  });
+  const shouldPoll =
+    predealQuery.data?.status && !TERMINAL_STATUSES.has(predealQuery.data.status);
+
+  useEffect(() => {
+    if (!shouldPoll) {
+      return;
+    }
+    const interval = window.setInterval(() => predealQuery.refetch(), 4000);
+    return () => window.clearInterval(interval);
+  }, [predealQuery, shouldPoll]);
 
   useEffect(() => {
     if (predealQuery.error) {
@@ -259,7 +244,17 @@ export default function PreDealStatus() {
 
         <button
           type="button"
-          onClick={() => cancelMutation.mutate({ id: predeal.id })}
+          onClick={() =>
+            cancelMutation.mutate(predeal.id, {
+              onSuccess: () => {
+                toast.success("Pre-deal canceled");
+                navigate(ROUTES.MARKETPLACE, { replace: true });
+              },
+              onError: (error) => {
+                toast.error(getErrorMessage(error, "Unable to cancel pre-deal"));
+              },
+            })
+          }
           disabled={cancelMutation.isPending}
           className="w-full rounded-lg border border-border/60 bg-background px-4 py-2.5 text-sm font-semibold text-foreground transition hover:border-border disabled:opacity-60"
         >

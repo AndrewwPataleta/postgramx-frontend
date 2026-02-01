@@ -1,13 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 import { Info } from "lucide-react";
 import { useLocation, useNavigate, useOutletContext, useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useListingsByChannel } from "@/features/listings/hooks/useListingsByChannel";
 import { toast } from "sonner";
 import { ListingPreviewDetails } from "@/components/listings/ListingPreviewDetails";
 import { PageContainer } from "@/components/layout/PageContainer";
-import { listingsByChannel } from "@/api/features/listingsApi";
-import { managedChannelData } from "@/features/channels/managedChannels";
+import {
+  useDisableListing,
+  useEnableListing,
+  useUpdateListing,
+} from "@/features/listings/hooks/useListingMutations";
+import { mapChannelListItemToManagedChannel } from "@/features/channels/managedChannels";
+import { useChannelDetail } from "@/features/channels/hooks/useChannelDetail";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,9 +25,10 @@ import {
 import { listingTagCategories } from "@/features/listings/tagOptions";
 import { getErrorMessage } from "@/lib/api/errors";
 import { nanoToTonString } from "@/lib/ton";
-import { toUtcIsoString } from "@/utils/date";
+import { toIsoZ } from "@/api/core/date";
 import type { ListingListItem } from "@/types/listings";
 import type { ChannelManageContext } from "@/pages/channel-manage/ChannelManageLayout";
+import { useLanguage } from "@/i18n/LanguageProvider";
 import { ROUTES } from "@/constants/routes";
 
 const pinDurationOptions = [
@@ -56,26 +61,26 @@ export default function EditListing() {
   const { id, listingId } = useParams<{ id: string; listingId: string }>();
   const location = useLocation();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const outletContext = useOutletContext<ChannelManageContext | null>();
-  const channel = outletContext?.channel ?? (id ? managedChannelData[id] : null);
+  const channelQuery = useChannelDetail(id);
+  const fallbackChannel = channelQuery.data
+    ? mapChannelListItemToManagedChannel(channelQuery.data, t("channels.untitled"))
+    : null;
+  const channel = outletContext?.channel ?? fallbackChannel;
   const rootBackTo = (location.state as { rootBackTo?: string } | null)?.rootBackTo;
 
-  const listingsQuery = useQuery({
-    queryKey: [
-      "listingsByChannel",
-      id,
-      { page: 1, limit: 50, onlyActive: false, sort: "recent" },
-    ],
-    queryFn: () =>
-      listingsByChannel({
-        channelId: id ?? "",
-        page: 1,
-        limit: 50,
-        onlyActive: false,
-        sort: "recent",
-      }),
-    enabled: Boolean(id),
-  });
+  const listingsFilters = useMemo(
+    () => ({
+      channelId: id ?? "",
+      page: 1,
+      limit: 50,
+      onlyActive: false,
+      sort: "recent" as const,
+    }),
+    [id]
+  );
+  const listingsQuery = useListingsByChannel(listingsFilters, { enabled: Boolean(id) });
 
   useEffect(() => {
     if (listingsQuery.error) {
@@ -87,7 +92,9 @@ export default function EditListing() {
     () => listingsQuery.data?.items.find((item) => item.id === listingId),
     [listingsQuery.data?.items, listingId],
   );
-  const queryClient = useQueryClient();
+  const updateListingMutation = useUpdateListing();
+  const disableListingMutation = useDisableListing();
+  const enableListingMutation = useEnableListing();
 
   const [priceTon, setPriceTon] = useState("25");
   const [pinDurationChoice, setPinDurationChoice] = useState("none");
@@ -176,21 +183,24 @@ export default function EditListing() {
       ? selectedTags
       : [...selectedTags, "Must be pre-approved"];
 
-    updateListing(listing.id, {
+    updateListingMutation.mutate({
+      listingId: listing.id,
+      channelId: channel.id,
+      format: "POST",
       priceTon: Number(priceTon || 0),
-      availabilityFrom: toUtcIsoString(listing.availabilityFrom),
-      availabilityTo: toUtcIsoString(listing.availabilityTo),
+      availabilityFrom: toIsoZ(new Date(listing.availabilityFrom ?? new Date())),
+      availabilityTo: toIsoZ(new Date(listing.availabilityTo ?? new Date())),
       pinDurationHours,
       visibilityDurationHours,
       allowEdits,
       allowLinkTracking,
       contentRulesText,
       tags: ensuredTags,
+      requiresApproval: listing.requiresApproval ?? true,
+      isActive: listing.isActive ?? true,
       allowPinnedPlacement: pinDurationHours !== null,
     });
 
-    queryClient.invalidateQueries({ queryKey: ["channelListingsPreview", channel.id] });
-    queryClient.invalidateQueries({ queryKey: ["channelsList"] });
     navigate(ROUTES.CHANNEL_MANAGE_LISTINGS(channel.id), {
       state: rootBackTo ? { rootBackTo } : undefined,
     });
@@ -211,18 +221,14 @@ export default function EditListing() {
   };
 
   const handleDisable = () => {
-    disableListing(listing.id);
-    queryClient.invalidateQueries({ queryKey: ["channelListingsPreview", channel.id] });
-    queryClient.invalidateQueries({ queryKey: ["channelsList"] });
+    disableListingMutation.mutate(listing.id);
     navigate(ROUTES.CHANNEL_MANAGE_LISTINGS(channel.id), {
       state: rootBackTo ? { rootBackTo } : undefined,
     });
   };
 
   const handleEnable = () => {
-    enableListing(listing.id);
-    queryClient.invalidateQueries({ queryKey: ["channelListingsPreview", channel.id] });
-    queryClient.invalidateQueries({ queryKey: ["channelsList"] });
+    enableListingMutation.mutate(listing.id);
     navigate(ROUTES.CHANNEL_MANAGE_LISTINGS(channel.id), {
       state: rootBackTo ? { rootBackTo } : undefined,
     });

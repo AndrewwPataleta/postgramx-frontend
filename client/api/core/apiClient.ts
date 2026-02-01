@@ -1,15 +1,6 @@
-import { AUTH_EXPIRED_EVENT } from "@/lib/api/auth";
-import { ApiError, parseBackendError } from "@/api/core/apiErrors";
-import { buildTelegramEnvelope } from "@/api/core/envelope";
+import { ApiError, readApiErrorMessage } from "@/api/core/errors";
 
-// NOTE: Do not import fetch directly in client/api/**. Use post() from this module.
-
-const SENSITIVE_KEYS = new Set([
-  "token",
-  "initdata",
-  "init_data",
-  "authorization",
-]);
+const SENSITIVE_KEYS = new Set(["token", "initdata", "init_data", "authorization"]);
 
 const redactString = (value: string) => {
   const trimmed = value.trim();
@@ -66,8 +57,16 @@ const logResponse = (url: string, status: number, payload: unknown) => {
 
 const normalizeBaseUrl = (baseUrl: string) => baseUrl.replace(/\/+$/, "");
 
+const resolveApiBase = () => {
+  const base = import.meta.env.VITE_API_BASE_URL;
+  if (!base) {
+    throw new Error("VITE_API_BASE_URL is not configured");
+  }
+  return normalizeBaseUrl(base);
+};
+
 const buildUrl = (path: string) => {
-  const baseUrl = normalizeBaseUrl(import.meta.env.VITE_BACKEND_API_BASE_URL ?? "");
+  const baseUrl = resolveApiBase();
   if (!path.startsWith("/")) {
     return `${baseUrl}/${path}`;
   }
@@ -96,24 +95,23 @@ const parseResponseBody = async (response: Response): Promise<unknown> => {
   }
 };
 
-export const post = async <TResponse, TData extends Record<string, unknown>>(
+export const postJson = async <TReq, TRes>(
   path: string,
-  data: TData = {} as TData,
+  body: TReq,
   options?: { headers?: Record<string, string> }
-): Promise<TResponse> => {
+): Promise<TRes> => {
   const url = buildUrl(path);
-  const envelope = buildTelegramEnvelope(data);
   const headers = new Headers({
     "Content-Type": "application/json",
     ...options?.headers,
   });
 
-  logRequest(url, envelope, headers);
+  logRequest(url, body, headers);
 
   const response = await fetch(url, {
     method: "POST",
     headers,
-    body: JSON.stringify(envelope),
+    body: JSON.stringify(body ?? {}),
     credentials: "include",
   });
 
@@ -121,32 +119,9 @@ export const post = async <TResponse, TData extends Record<string, unknown>>(
   logResponse(url, response.status, parsed);
 
   if (!response.ok) {
-    const message = parseBackendError(parsed, response.statusText || "Request failed");
-    if (response.status === 401) {
-      dispatchAuthExpired();
-    }
+    const message = readApiErrorMessage(parsed, response.statusText || "Request failed");
     throw new ApiError(message, response.status, parsed);
   }
 
-  return parsed as TResponse;
-};
-
-let hasDispatchedAuthExpired = false;
-let authExpiredTimeout: number | null = null;
-
-const dispatchAuthExpired = () => {
-  if (typeof window === "undefined" || hasDispatchedAuthExpired) {
-    return;
-  }
-  hasDispatchedAuthExpired = true;
-  window.dispatchEvent(new CustomEvent(AUTH_EXPIRED_EVENT));
-
-  if (authExpiredTimeout) {
-    window.clearTimeout(authExpiredTimeout);
-  }
-
-  authExpiredTimeout = window.setTimeout(() => {
-    hasDispatchedAuthExpired = false;
-    authExpiredTimeout = null;
-  }, 2000);
+  return parsed as TRes;
 };

@@ -8,7 +8,7 @@ import LoadingSkeleton from "@/components/feedback/LoadingSkeleton";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { getErrorMessage } from "@/lib/api/errors";
 import { getTelegramWebApp } from "@/lib/telegram";
-import { useDealsListQuery } from "@/hooks/use-deals";
+import { dealsQueryKeys, useDealsListQuery } from "@/features/deals/hooks/useDeals";
 import { ROUTES } from "@/constants/routes";
 import { USER_ROLE } from "@/constants/roles";
 import { DEAL_STATUS_LABELS } from "@/constants/ui";
@@ -92,7 +92,7 @@ export default function Deals() {
 
     const allDeals = [...data.pending.items, ...data.active.items, ...data.completed.items];
     allDeals.forEach((deal) => {
-      queryClient.setQueryData(["dealById", deal.id], deal);
+      queryClient.setQueryData(dealsQueryKeys.detail(deal.id), deal);
     });
 
     setGroups((prev) => ({

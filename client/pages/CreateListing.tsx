@@ -1,20 +1,20 @@
 import { useMemo, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 import { Info } from "lucide-react";
 import { useLocation, useNavigate, useOutletContext, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/api/errors";
 import { ListingPreviewDetails } from "@/components/listings/ListingPreviewDetails";
 import { PageContainer } from "@/components/layout/PageContainer";
-import { managedChannelData } from "@/features/channels/managedChannels";
+import { mapChannelListItemToManagedChannel } from "@/features/channels/managedChannels";
+import { useChannelDetail } from "@/features/channels/hooks/useChannelDetail";
 import { listingTagCategories } from "@/features/listings/tagOptions";
-import { createListing } from "@/api/features/listingsApi";
+import { useCreateListing } from "@/features/listings/hooks/useListingMutations";
 import type { ChannelManageContext } from "@/pages/channel-manage/ChannelManageLayout";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { getListingTagLabel } from "@/features/listings/tagOptions";
 import { formatNumber } from "@/i18n/formatters";
 import { formatDuration } from "@/i18n/labels";
-import { toUtcIsoString } from "@/utils/date";
+import { toIsoZ } from "@/api/core/date";
 import { ROUTES } from "@/constants/routes";
 
 const resolveHours = (choice: string, customValue: string, fallback: number) => {
@@ -31,9 +31,13 @@ export default function CreateListing() {
   const { id } = useParams<{ id: string }>();
   const location = useLocation();
   const outletContext = useOutletContext<ChannelManageContext | null>();
-  const channel = outletContext?.channel ?? (id ? managedChannelData[id] : null);
+  const channelQuery = useChannelDetail(id);
+  const fallbackChannel = channelQuery.data
+    ? mapChannelListItemToManagedChannel(channelQuery.data, t("channels.untitled"))
+    : null;
+  const channel = outletContext?.channel ?? fallbackChannel;
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
+  const createListingMutation = useCreateListing();
   const rootBackTo = (location.state as { rootBackTo?: string } | null)?.rootBackTo;
   const [priceTon, setPriceTon] = useState("25");
   const [pinDurationChoice, setPinDurationChoice] = useState("none");
@@ -82,6 +86,15 @@ export default function CreateListing() {
   );
 
   if (!channel) {
+    if (channelQuery.isLoading) {
+      return (
+        <div className="w-full max-w-2xl mx-auto">
+          <PageContainer className="py-6">
+            <p className="text-muted-foreground">{t("common.loading")}</p>
+          </PageContainer>
+        </div>
+      );
+    }
     return (
       <div className="w-full max-w-2xl mx-auto">
         <PageContainer className="py-6">
@@ -104,8 +117,8 @@ export default function CreateListing() {
       channelId: channel.id,
       format: "POST",
       priceTon: Number(priceTon || 0),
-      availabilityFrom: toUtcIsoString(availabilityFrom),
-      availabilityTo: toUtcIsoString(availabilityTo),
+      availabilityFrom: toIsoZ(availabilityFrom),
+      availabilityTo: toIsoZ(availabilityTo),
       pinDurationHours,
       visibilityDurationHours,
       allowEdits,
@@ -119,15 +132,7 @@ export default function CreateListing() {
 
     try {
       setIsSubmitting(true);
-      await createListing(payload);
-      await queryClient.invalidateQueries({
-        queryKey: ["listingsByChannel", channel.id],
-      });
-      await queryClient.invalidateQueries({
-        queryKey: ["marketplaceListingsByChannel", channel.id],
-      });
-      queryClient.invalidateQueries({ queryKey: ["channelListingsPreview", channel.id] });
-      queryClient.invalidateQueries({ queryKey: ["channelsList"] });
+      await createListingMutation.mutateAsync(payload);
       navigate(ROUTES.CHANNEL_MANAGE_LISTINGS(channel.id), {
         state: rootBackTo ? { rootBackTo } : undefined,
       });

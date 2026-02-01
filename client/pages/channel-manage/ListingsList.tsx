@@ -1,11 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useOutletContext, useParams } from "react-router-dom";
 import { Edit, Plus } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { useListingsByChannel } from "@/features/listings/hooks/useListingsByChannel";
 import { toast } from "sonner";
 import { ListingCard } from "@/components/listings/ListingCard";
 import LoadingSkeleton from "@/components/feedback/LoadingSkeleton";
-import { listingsByChannel } from "@/api/features/listingsApi";
 import { getErrorMessage } from "@/lib/api/errors";
 import type { ChannelManageContext } from "@/pages/channel-manage/ChannelManageLayout";
 import { useLanguage } from "@/i18n/LanguageProvider";
@@ -23,17 +22,17 @@ const ListingsList = () => {
   const [onlyActive, setOnlyActive] = useState(true);
   const [sort, setSort] = useState<"recent" | "price_asc" | "price_desc">("recent");
 
-  const listingsQuery = useQuery({
-    queryKey: ["listingsByChannel", channelId, { page, limit, onlyActive, sort }],
-    queryFn: () =>
-      listingsByChannel({
-        channelId,
-        page,
-        limit,
-        onlyActive,
-        sort,
-      }),
-  });
+  const listingsFilters = useMemo(
+    () => ({
+      channelId,
+      page,
+      limit,
+      onlyActive,
+      sort,
+    }),
+    [channelId, limit, onlyActive, page, sort]
+  );
+  const listingsQuery = useListingsByChannel(listingsFilters);
 
   useEffect(() => {
     if (listingsQuery.error) {

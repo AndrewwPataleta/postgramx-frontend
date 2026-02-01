@@ -1,17 +1,16 @@
 import { useMemo, useRef, useState } from "react";
 import { ChevronDown, Loader2 } from "lucide-react";
 import { useLocation, useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { listingsByChannel } from "@/api/features/listingsApi";
+import { useListingsByChannel } from "@/features/listings/hooks/useListingsByChannel";
 import ErrorState from "@/components/feedback/ErrorState";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useCreateDealMutation } from "@/hooks/use-deals";
+import { useCreateDealMutation } from "@/features/deals/hooks/useDeals";
 import { formatNumber, formatTon } from "@/i18n/formatters";
 import { getAllowEditsLabel, getAllowLinkTrackingLabel, getPinnedDurationLabel, getVisibilityDurationLabel } from "@/i18n/labels";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import type { ChannelItem } from "@/types/channels";
-import type { ListingListItem, ListingsByChannelResponse } from "@/types/listings";
+import type { ListingListItem } from "@/types/listings";
 import type { ChannelCardModel } from "@/components/channels/ChannelCard";
 
 export default function ChannelDetailsView() {
@@ -79,16 +78,17 @@ export default function ChannelDetailsView() {
   const previewListings =
     resolvedChannel?.listingsPreview?.filter((listing) => listing.isActive !== false) ?? [];
   const shouldFetchListings = Boolean(channelId) && previewListings.length === 0;
-  const listingsQuery = useQuery<ListingsByChannelResponse>({
-    queryKey: ["listingsByChannel", "details", channelId],
-    queryFn: () =>
-      listingsByChannel({
-        channelId: channelId ?? "",
-        page: 1,
-        limit: 10,
-        onlyActive: true,
-        sort: "price_asc",
-      }),
+  const listingsFilters = useMemo(
+    () => ({
+      channelId: channelId ?? "",
+      page: 1,
+      limit: 10,
+      onlyActive: true,
+      sort: "price_asc" as const,
+    }),
+    [channelId]
+  );
+  const listingsQuery = useListingsByChannel(listingsFilters, {
     enabled: shouldFetchListings,
     staleTime: 1000 * 60 * 5,
   });

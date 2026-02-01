@@ -1,8 +1,7 @@
 import { useMemo, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { listingsByChannel } from "@/api/features/listingsApi";
+import { useListingsByChannel } from "@/features/listings/hooks/useListingsByChannel";
 import { Skeleton } from "@/components/ui/skeleton";
 import { openTelegramLink } from "@/lib/telegramLinks";
 import { cn } from "@/lib/utils";
@@ -12,7 +11,7 @@ import { useLanguage } from "@/i18n/LanguageProvider";
 import { getListingTagLabel } from "@/features/listings/tagOptions";
 import type { TranslationKey } from "@/i18n/translations";
 import type { MarketplaceChannelItem } from "@/api/types/marketplace";
-import type { ListingListItem, ListingsByChannelResponse } from "@/types/listings";
+import type { ListingListItem } from "@/types/listings";
 import { ROUTES } from "@/constants/routes";
 
 interface ChannelCardProps {
@@ -85,16 +84,17 @@ export default function ChannelCard({ channel }: ChannelCardProps) {
   const navigate = useNavigate();
   const trimmedUsername = channel.username?.replace(/^@/, "");
   const telegramLink = trimmedUsername ? `https://t.me/${trimmedUsername}` : null;
-  const listingsQuery = useQuery<ListingsByChannelResponse>({
-    queryKey: ["marketplaceListingsByChannel", channel.id],
-    queryFn: () =>
-      listingsByChannel({
-        channelId: channel.id,
-        page: 1,
-        limit: LISTINGS_PREVIEW_LIMIT,
-        onlyActive: true,
-        sort: "price_asc",
-      }),
+  const listingsFilters = useMemo(
+    () => ({
+      channelId: channel.id,
+      page: 1,
+      limit: LISTINGS_PREVIEW_LIMIT,
+      onlyActive: true,
+      sort: "price_asc" as const,
+    }),
+    [channel.id]
+  );
+  const listingsQuery = useListingsByChannel(listingsFilters, {
     enabled: isExpanded,
     staleTime: 1000 * 60 * 5,
     refetchOnMount: false,

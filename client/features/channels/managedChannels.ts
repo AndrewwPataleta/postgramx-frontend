@@ -1,4 +1,5 @@
 import { CHANNEL_STATUS, type ChannelStatus } from "@/constants/channels";
+import type { ChannelListItem } from "@/api/features/channels/channels.types";
 
 export interface ManagedChannel {
   id: string;
@@ -12,16 +13,17 @@ export interface ManagedChannel {
   description?: string | null;
 }
 
-export const managedChannelData: Record<string, ManagedChannel> = {
-  "1": {
-    id: "1",
-    name: "My Crypto Channel",
-    username: "@mycryptocha",
-    avatar: "📰",
-    status: CHANNEL_STATUS.VERIFIED,
-    verified: true,
-    subscribers: 45000,
-    activeDeals: 1,
-    description: "Verified creator channel ready for sponsor placements.",
-  },
-};
+export const mapChannelListItemToManagedChannel = (
+  channel: ChannelListItem,
+  untitledLabel: string
+): ManagedChannel => ({
+  id: channel.id,
+  name: channel.title || untitledLabel,
+  username: channel.username.startsWith("@") ? channel.username : `@${channel.username}`,
+  avatar: "📣",
+  status: channel.status,
+  verified: channel.status === CHANNEL_STATUS.VERIFIED,
+  subscribers: channel.memberCount ?? 0,
+  activeDeals: 0,
+  description: null,
+});
