@@ -1,4 +1,4 @@
-import { post } from "@/api/core/apiClient";
+import { apiPost } from "@/api/core/http";
 import type { AuthResponse, TelegramAuthData, TelegramUserLike } from "@/types/auth";
 
 const resolveUserValue = (user: TelegramUserLike, key: keyof TelegramUserLike) =>
@@ -42,7 +42,7 @@ export const authTelegram = async (
   }
 
   const payload = normalizeUser(user);
-  return post<AuthResponse, TelegramAuthData>("/auth", payload);
+  return apiPost<AuthResponse, TelegramAuthData>("/auth", payload);
 };
 
 export const authApi = {

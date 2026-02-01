@@ -1,18 +1,21 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { createDeal, fetchDealsList } from "@/api/features/dealsApi";
+import { createDeal, listDeals } from "@/api/features/dealsApi";
 import { getTelegramWebApp } from "@/lib/telegram";
 import { ROUTES } from "@/constants/routes";
-import type {
-  CreateDealPayload,
-  CreateDealResponse,
-  DealsListParams,
-  DealsListResponse,
-} from "@/types/deals";
+import type { DealEntity } from "@/models/entities";
 
-export const useDealsListQuery = (params: DealsListParams) =>
-  useQuery<DealsListResponse>({
+export const useDealsListQuery = (params: {
+  role?: "all" | "advertiser" | "publisher";
+  pendingPage?: number;
+  pendingLimit?: number;
+  activePage?: number;
+  activeLimit?: number;
+  completedPage?: number;
+  completedLimit?: number;
+}) =>
+  useQuery({
     queryKey: [
       "deals",
       params.role ?? "all",
@@ -20,7 +23,7 @@ export const useDealsListQuery = (params: DealsListParams) =>
       params.activePage ?? 1,
       params.completedPage ?? 1,
     ],
-    queryFn: () => fetchDealsList(params),
+    queryFn: () => listDeals(params),
     staleTime: 20_000,
     refetchOnWindowFocus: false,
   });
@@ -29,7 +32,7 @@ export const useCreateDealMutation = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
-  return useMutation<CreateDealResponse, Error, CreateDealPayload>({
+  return useMutation<DealEntity, Error, { listingId: string; brief?: string; scheduledAt?: string | null }>({
     mutationFn: (payload) => createDeal(payload),
     onSuccess: () => {
       toast.success("Deal created");

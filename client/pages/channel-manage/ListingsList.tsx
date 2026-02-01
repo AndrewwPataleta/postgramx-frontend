@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ListingCard } from "@/components/listings/ListingCard";
 import LoadingSkeleton from "@/components/feedback/LoadingSkeleton";
-import { listingsByChannel } from "@/api/features/listingsApi";
+import { listListingsByChannel } from "@/api/features/listingsApi";
 import { getErrorMessage } from "@/lib/api/errors";
 import type { ChannelManageContext } from "@/pages/channel-manage/ChannelManageLayout";
 import { useLanguage } from "@/i18n/LanguageProvider";
@@ -26,12 +26,11 @@ const ListingsList = () => {
   const listingsQuery = useQuery({
     queryKey: ["listingsByChannel", channelId, { page, limit, onlyActive, sort }],
     queryFn: () =>
-      listingsByChannel({
+      listListingsByChannel({
         channelId,
         page,
         limit,
-        onlyActive,
-        sort,
+        activeOnly: onlyActive,
       }),
   });
 

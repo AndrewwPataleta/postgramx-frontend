@@ -8,7 +8,7 @@ import { useLanguage } from "@/i18n/LanguageProvider";
 const ChannelSettings = () => {
   const { channel } = useOutletContext<ChannelManageContext>();
   const { t } = useLanguage();
-  const [isDisabled, setIsDisabled] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(channel.isDisabled);
   const [isUpdating, setIsUpdating] = useState(false);
 
   const handleToggleDisabled = async () => {

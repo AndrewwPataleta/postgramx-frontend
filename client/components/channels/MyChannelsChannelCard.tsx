@@ -1,14 +1,15 @@
 import { useMemo, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import ChannelCard, { type ChannelCardModel } from "@/components/channels/ChannelCard";
-import type { ChannelListItem } from "@/types/channels";
+import type { ChannelEntity } from "@/models/entities";
 import { useLanguage } from "@/i18n/LanguageProvider";
 
 interface MyChannelsChannelCardProps {
-  channel: ChannelListItem;
+  channel: ChannelEntity;
   placementsCount?: number | null;
   minPriceNano?: string | null;
   tags?: string[];
+  rules?: ChannelCardModel["rules"];
   onClick?: () => void;
   onToggleExpand?: () => void;
   isExpanded?: boolean;
@@ -23,6 +24,7 @@ export default function MyChannelsChannelCard({
   placementsCount,
   minPriceNano,
   tags,
+  rules,
   onClick,
   onToggleExpand,
   isExpanded,
@@ -37,14 +39,15 @@ export default function MyChannelsChannelCard({
       id: channel.id,
       name: channel.title || t("channels.untitled"),
       username: channel.username,
-      avatarUrl: channel.avatarUrl ?? null,
-      subscribers: channel.memberCount ?? null,
-      placementsCount: placementsCount ?? channel.placementsCount ?? null,
+      avatarUrl: null,
+      subscribers: channel.subscribersCount ?? channel.memberCount ?? null,
+      placementsCount: placementsCount ?? null,
       minPriceNano: minPriceNano ?? null,
       tags: tags ?? [],
       isMine: true,
+      rules: rules ?? null,
     }),
-    [channel, placementsCount, minPriceNano, tags, t]
+    [channel, placementsCount, minPriceNano, tags, rules, t]
   );
 
   return (

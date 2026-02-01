@@ -10,27 +10,30 @@ import { getErrorMessage } from "@/lib/api/errors";
 import { getTelegramWebApp } from "@/lib/telegram";
 import { useDealsListQuery } from "@/hooks/use-deals";
 import { ROUTES } from "@/constants/routes";
-import { USER_ROLE } from "@/constants/roles";
-import { DEAL_STATUS_LABELS } from "@/constants/ui";
-import type { DealsListGroup, DealListItem } from "@/types/deals";
+import type { DealEntity, Paged } from "@/models/entities";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { useLanguage } from "@/i18n/LanguageProvider";
 
 const DEFAULT_LIMIT = 5;
 
 type DealSectionKey = "pending" | "active" | "completed";
 
-type DealsState = Record<DealSectionKey, DealsListGroup<DealListItem>>;
+type DealsState = Record<DealSectionKey, Paged<DealEntity>>;
 
-const emptyGroup = (): DealsListGroup<DealListItem> => ({
+const emptyGroup = (): Paged<DealEntity> => ({
   items: [],
   page: 1,
   limit: DEFAULT_LIMIT,
   total: 0,
+  totalPages: 0,
+  hasNext: false,
+  hasPrev: false,
 });
 
 const mergeGroup = (
-  previous: DealsListGroup<DealListItem>,
-  incoming: DealsListGroup<DealListItem>
-): DealsListGroup<DealListItem> => {
+  previous: Paged<DealEntity>,
+  incoming: Paged<DealEntity>
+): Paged<DealEntity> => {
   if (incoming.page <= 1) {
     return { ...incoming, items: incoming.items };
   }
@@ -46,16 +49,12 @@ const mergeGroup = (
   return { ...incoming, items: mergedItems };
 };
 
-const sectionLabels: Record<DealSectionKey, string> = {
-  pending: DEAL_STATUS_LABELS.PENDING,
-  active: DEAL_STATUS_LABELS.ACTIVE,
-  completed: DEAL_STATUS_LABELS.COMPLETED,
-};
-
 export default function Deals() {
   const navigate = useNavigate();
   const location = useLocation();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const { t } = useLanguage();
   const initialTab = (location.state as { activeTab?: DealSectionKey } | null)
     ?.activeTab;
   const [activeTab, setActiveTab] = useState<DealSectionKey>(initialTab ?? "pending");
@@ -145,23 +144,29 @@ export default function Deals() {
   }, []);
 
   const handleSelectDeal = useCallback(
-    (deal: DealListItem) => {
+    (deal: DealEntity) => {
       queryClient.setQueryData(["dealById", deal.id], deal);
-      navigate(ROUTES.DEAL_DETAILS(deal.id), { state: { deal, rootBackTo: ROUTES.DEALS } });
+      const currentUserId = (user as { id?: string } | null)?.id;
+      const dealRole =
+        currentUserId && currentUserId === deal.advertiserUserId
+          ? "advertiser"
+          : "publisher";
+      navigate(ROUTES.DEAL_DETAILS(deal.id), { state: { deal, dealRole } });
     },
-    [navigate, queryClient]
+    [navigate, queryClient, user]
   );
 
   const currentGroup = groups[activeTab];
   const { buyerDeals, sellerDeals } = useMemo(() => {
+    const currentUserId = (user as { id?: string } | null)?.id;
     const buyer = currentGroup.items.filter(
-      (deal) => deal.userRoleInDeal === USER_ROLE.ADVERTISER
+      (deal) => currentUserId && currentUserId === deal.advertiserUserId
     );
     const seller = currentGroup.items.filter(
-      (deal) => deal.userRoleInDeal !== USER_ROLE.ADVERTISER
+      (deal) => !currentUserId || currentUserId !== deal.advertiserUserId
     );
     return { buyerDeals: buyer, sellerDeals: seller };
-  }, [currentGroup.items]);
+  }, [currentGroup.items, user]);
   const hasMore = currentGroup.items.length < currentGroup.total;
   const showEmptyState =
     !isLoading && !error && buyerDeals.length === 0 && sellerDeals.length === 0 && !isFetching;
@@ -170,9 +175,9 @@ export default function Deals() {
     <div className="w-full max-w-3xl mx-auto">
       <PageContainer className="pt-6 space-y-4">
         <div>
-          <h1 className="text-lg font-semibold text-foreground">Deals</h1>
+          <h1 className="text-lg font-semibold text-foreground">{t("deals.title")}</h1>
           <div className="mt-4 flex gap-6 border-b border-border/60">
-            {(Object.keys(sectionLabels) as DealSectionKey[]).map((tab) => (
+            {(["pending", "active", "completed"] as DealSectionKey[]).map((tab) => (
               <button
                 key={tab}
                 type="button"
@@ -183,7 +188,7 @@ export default function Deals() {
                     : "text-muted-foreground"
                 }`}
               >
-                {sectionLabels[tab]}
+                {t(`deals.tabs.${tab}`)}
               </button>
             ))}
           </div>
@@ -199,16 +204,16 @@ export default function Deals() {
           </div>
         ) : error ? (
           <ErrorState
-            message={getErrorMessage(error, "Unable to load deals")}
-            description="Please try again in a moment."
+            message={getErrorMessage(error, t("deals.loadError"))}
+            description={t("deals.loadErrorHint")}
             onRetry={() => refetch()}
           />
         ) : showEmptyState ? (
           <div className="rounded-2xl border border-border/60 bg-card/80 p-8 text-center">
-            <h2 className="text-base font-semibold text-foreground">No deals in this section</h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Deals in this section will appear here once they are created.
-            </p>
+            <h2 className="text-base font-semibold text-foreground">
+              {t("deals.emptyTitle")}
+            </h2>
+            <p className="mt-2 text-sm text-muted-foreground">{t("deals.emptySubtitle")}</p>
           </div>
         ) : (
           <div className="space-y-5">
@@ -230,7 +235,7 @@ export default function Deals() {
               <div className="space-y-3">
                 <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
                   <Megaphone size={14} />
-                  Selling ads
+                  {t("deals.sellingAds")}
                   <span className="text-[11px] font-normal">·</span>
                   <span className="text-[11px] font-normal">{sellerDeals.length}</span>
                 </div>
@@ -249,7 +254,7 @@ export default function Deals() {
                 disabled={isFetching}
                 className="w-full rounded-lg border border-border/60 bg-background px-4 py-2 text-sm font-semibold text-foreground transition hover:bg-secondary/40 disabled:opacity-60"
               >
-                {isFetching ? "Loading..." : "Load more"}
+                {isFetching ? t("common.loading") : t("common.loadMore")}
               </button>
             ) : null}
           </div>

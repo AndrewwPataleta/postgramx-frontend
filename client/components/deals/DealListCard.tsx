@@ -1,33 +1,40 @@
 import { memo, useState } from "react";
 import { ChevronDown } from "lucide-react";
-import type { DealListItem } from "@/types/deals";
+import type { DealEntity } from "@/models/entities";
 import { formatDate, formatDateTime, formatTon } from "@/i18n/formatters";
 import { getDealRoleLabel, getEscrowStatusLabel, getListingFormatLabel, getPinnedDurationLabel, getVisibilityDurationLabel } from "@/i18n/labels";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { USER_ROLE } from "@/constants/roles";
+import { useAuth } from "@/components/auth/AuthProvider";
 
-const roleToneMap: Record<DealListItem["userRoleInDeal"], string> = {
+const roleToneMap: Record<string, string> = {
   [USER_ROLE.ADVERTISER]: "bg-emerald-500/10 text-emerald-400",
   [USER_ROLE.PUBLISHER]: "bg-emerald-500/10 text-emerald-400",
   [USER_ROLE.PUBLISHER_MANAGER]: "bg-emerald-500/10 text-emerald-400",
 };
 
 interface DealListCardProps {
-  deal: DealListItem;
-  onSelect: (deal: DealListItem) => void;
+  deal: DealEntity;
+  onSelect: (deal: DealEntity) => void;
 }
 
 const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
   const { t, language } = useLanguage();
+  const { user } = useAuth();
   const [expanded, setExpanded] = useState(false);
-  const visibilityLabel = deal.listing.lifetimeHours
-    ? getVisibilityDurationLabel(t, deal.listing.lifetimeHours)
+  const visibilityLabel = deal.listingSnapshot.visibilityDurationHours
+    ? getVisibilityDurationLabel(t, deal.listingSnapshot.visibilityDurationHours)
     : null;
-  const pinnedLabel = deal.listing.placementHours
-    ? getPinnedDurationLabel(t, deal.listing.placementHours)
+  const pinnedLabel = deal.listingSnapshot.pinDurationHours
+    ? getPinnedDurationLabel(t, deal.listingSnapshot.pinDurationHours)
     : null;
   const detailLine = [visibilityLabel, pinnedLabel].filter(Boolean).join(" • ");
-  const escrowText = getEscrowStatusLabel(t, deal.escrowStatus);
+  const escrowText = getEscrowStatusLabel(t, deal.escrow.status);
+  const currentUserId = (user as { id?: string } | null)?.id;
+  const resolvedRole =
+    currentUserId && currentUserId === deal.advertiserUserId
+      ? USER_ROLE.ADVERTISER
+      : USER_ROLE.PUBLISHER;
 
   return (
     <div
@@ -50,28 +57,20 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
           <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-secondary/60 text-lg font-semibold text-muted-foreground">
-            {deal.channel.avatarUrl ? (
-              <img
-                src={deal.channel.avatarUrl}
-                alt={deal.channel.name}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              deal.channel.name.slice(0, 1)
-            )}
+            {deal.channel.title.slice(0, 1)}
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-              <span className="truncate">{deal.channel.name}</span>
+              <span className="truncate">{deal.channel.title}</span>
             </div>
             <p className="text-xs text-muted-foreground">@{deal.channel.username}</p>
           </div>
         </div>
         <span
-          className={`max-w-[160px] truncate whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold ${roleToneMap[deal.userRoleInDeal]}`}
+          className={`max-w-[160px] truncate whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold ${roleToneMap[resolvedRole]}`}
           style={{ textOverflow: "ellipsis" }}
         >
-          {t("deals.badge.youAreRole", { role: getDealRoleLabel(t, deal.userRoleInDeal) })}
+          {t("deals.badge.youAreRole", { role: getDealRoleLabel(t, resolvedRole) })}
         </span>
       </div>
 
@@ -83,7 +82,7 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
           {escrowText}
         </span>
         <span className="text-xs text-muted-foreground">
-          {formatTon(deal.listing.priceNano, language)} {t("common.ton")}
+          {formatTon(deal.listingSnapshot.priceNano, language)} {t("common.ton")}
         </span>
       </div>
 
@@ -125,9 +124,9 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
               {formatDate(deal.scheduledAt, language) || t("common.emptyValue")}
             </div>
           </div>
-          {deal.listing.tags.length > 0 ? (
+          {deal.listingSnapshot.tags.length > 0 ? (
             <div className="flex flex-wrap gap-2">
-              {deal.listing.tags.map((tag) => (
+              {deal.listingSnapshot.tags.map((tag) => (
                 <span
                   key={tag}
                   className="rounded-full bg-secondary/60 px-3 py-1 text-xs font-medium text-foreground"
@@ -139,7 +138,7 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
           ) : null}
           <div className="flex flex-wrap gap-2">
             <span className="rounded-full bg-secondary/60 px-3 py-1 text-xs font-medium text-foreground">
-              {t("listings.formatLabel")}: {getListingFormatLabel(t, deal.listing.format)}
+              {t("listings.formatLabel")}: {getListingFormatLabel(t, deal.listingSnapshot.format)}
             </span>
             <span className="rounded-full bg-secondary/60 px-3 py-1 text-xs font-medium text-foreground">
               {pinnedLabel ?? t("listings.meta.notPinned")}

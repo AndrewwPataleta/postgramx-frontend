@@ -2,7 +2,7 @@ import { memo, useEffect, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { PencilLine, RefreshCcw } from "lucide-react";
-import { listingsByChannel } from "@/api/features/listingsApi";
+import { listListingsByChannel } from "@/api/features/listingsApi";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getErrorMessage } from "@/lib/api/errors";
 import { cn } from "@/lib/utils";
@@ -10,7 +10,7 @@ import { formatTon } from "@/i18n/formatters";
 import { getPinnedDurationLabel, getVisibilityDurationLabel } from "@/i18n/labels";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { getListingTagLabel } from "@/features/listings/tagOptions";
-import type { ListingListItem, ListingsByChannelResponse } from "@/types/listings";
+import type { ListingEntity, Paged } from "@/models/entities";
 import { ROUTES } from "@/constants/routes";
 
 const PREVIEW_LIMIT = 5;
@@ -28,7 +28,7 @@ type ListingPreviewMode = "viewer" | "owner";
 
 interface ListingPreviewRowProps {
   channelId: string;
-  listing: ListingListItem;
+  listing: ListingEntity;
   rootBackTo?: string;
   mode: ListingPreviewMode;
 }
@@ -104,19 +104,18 @@ const ChannelListingsPreview = memo(
   const location = useLocation();
   const { t } = useLanguage();
   const rootBackTo = (location.state as { rootBackTo?: string } | null)?.rootBackTo;
-  const query = useQuery<ListingsByChannelResponse>({
-    queryKey: ["channelListingsPreview", channelId],
-    queryFn: () =>
-      listingsByChannel({
+    const query = useQuery<Paged<ListingEntity>>({
+      queryKey: ["channelListingsPreview", channelId],
+      queryFn: () =>
+      listListingsByChannel({
         channelId,
         page: 1,
         limit: PREVIEW_LIMIT,
-        onlyActive: true,
-        sort: "recent",
+        activeOnly: true,
       }),
-    enabled: isExpanded,
-    staleTime: 1000 * 60 * 5,
-  });
+      enabled: isExpanded,
+      staleTime: 1000 * 60 * 5,
+    });
 
   const items = query.data?.items ?? [];
   const totalCount = query.data?.total ?? items.length;

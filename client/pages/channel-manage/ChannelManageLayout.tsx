@@ -2,34 +2,23 @@ import { useEffect, useMemo, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate, useParams } from "react-router-dom";
 import { Loader2, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
+import { useQuery } from "@tanstack/react-query";
 import {
   getVerifyErrorMessage,
   getVerifyResponseErrorMessage,
   useVerifyChannel,
 } from "@/features/channels/hooks/useVerifyChannel";
-import { managedChannelData, type ManagedChannel } from "@/features/channels/managedChannels";
+import { channelDetail } from "@/api/features/channelsApi";
 import { PageContainer } from "@/components/layout/PageContainer";
-import type { ChannelListItem } from "@/types/channels";
 import { formatNumber } from "@/i18n/formatters";
 import { useLanguage } from "@/i18n/LanguageProvider";
-import { CHANNEL_STATUS } from "@/constants/channels";
 import { ROUTES } from "@/constants/routes";
+import type { ChannelEntity, ListingEntity } from "@/models/entities";
+import { ChannelStatus } from "@/models/enums";
 
 export type ChannelManageContext = {
-  channel: ManagedChannel;
+  channel: ChannelEntity & { listings?: ListingEntity[] };
 };
-
-const mapChannelFromListItem = (channel: ChannelListItem, untitledLabel: string): ManagedChannel => ({
-  id: channel.id,
-  name: channel.title || untitledLabel,
-  username: channel.username.startsWith("@") ? channel.username : `@${channel.username}`,
-  avatar: "📣",
-  status: channel.status,
-  verified: channel.status === CHANNEL_STATUS.VERIFIED,
-  subscribers: channel.memberCount ?? 0,
-  activeDeals: 0,
-  description: undefined,
-});
 
 const ChannelManageLayout = () => {
   const { id } = useParams<{ id: string }>();
@@ -39,19 +28,28 @@ const ChannelManageLayout = () => {
   const { mutateAsync, isPending } = useVerifyChannel();
   const [inlineError, setInlineError] = useState<string | null>(null);
   const fallbackListItem = useMemo(() => {
-    const state = location.state as { channel?: ChannelListItem } | null;
+    const state = location.state as { channel?: ChannelEntity } | null;
     return state?.channel ?? null;
   }, [location.state]);
   const rootBackTo = (location.state as { rootBackTo?: string } | null)?.rootBackTo;
   const fallbackChannel = useMemo(
-    () => (fallbackListItem ? mapChannelFromListItem(fallbackListItem, t("channels.untitled")) : null),
-    [fallbackListItem, t],
+    () => (fallbackListItem ? fallbackListItem : null),
+    [fallbackListItem],
   );
-  const [channel, setChannel] = useState<ManagedChannel | null>(() => {
-    if (!id) {
-      return null;
+  const [channel, setChannel] = useState<ChannelEntity & { listings?: ListingEntity[] } | null>(
+    () => {
+      if (!id) {
+        return null;
+      }
+      return fallbackChannel ?? null;
     }
-    return fallbackChannel ?? managedChannelData[id] ?? null;
+  );
+
+  const detailQuery = useQuery({
+    queryKey: ["channelDetail", id],
+    queryFn: () => channelDetail({ id: id ?? "" }),
+    enabled: Boolean(id) && !fallbackChannel,
+    staleTime: 1000 * 60 * 2,
   });
   useEffect(() => {
     if (!id) {
@@ -59,7 +57,7 @@ const ChannelManageLayout = () => {
       return;
     }
 
-    const resolvedChannel = fallbackChannel ?? managedChannelData[id] ?? null;
+    const resolvedChannel = fallbackChannel ?? detailQuery.data ?? null;
     setChannel((prev) => {
       if (resolvedChannel) {
         return resolvedChannel;
@@ -69,9 +67,9 @@ const ChannelManageLayout = () => {
       }
       return null;
     });
-  }, [fallbackChannel, id]);
+  }, [detailQuery.data, fallbackChannel, id]);
 
-  const isPendingVerification = channel?.status === CHANNEL_STATUS.PENDING_VERIFY;
+  const isPendingVerification = channel?.status === ChannelStatus.PendingVerify;
   if (!channel) {
     return (
       <div className="w-full max-w-2xl mx-auto">
@@ -90,9 +88,9 @@ const ChannelManageLayout = () => {
     setInlineError(null);
     try {
       const response = await mutateAsync(id);
-      if (response.status === CHANNEL_STATUS.VERIFIED) {
+      if (response.status === ChannelStatus.Verified) {
         const nextChannel = fallbackListItem
-          ? { ...fallbackListItem, status: CHANNEL_STATUS.VERIFIED }
+          ? { ...fallbackListItem, status: ChannelStatus.Verified }
           : undefined;
         navigate(ROUTES.CHANNEL_MANAGE_LISTINGS(id), {
           replace: true,
@@ -131,16 +129,16 @@ const ChannelManageLayout = () => {
       <PageContainer className="pt-6">
         <div className="py-6 bg-gradient-to-b from-card/50 to-transparent">
         <div className="flex items-center gap-4 mb-4">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary/40 to-accent/40 flex items-center justify-center text-4xl flex-shrink-0">
-            {channel.avatar || t("channels.avatarFallback")}
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary/40 to-accent/40 flex items-center justify-center text-2xl flex-shrink-0">
+            {channel.title.slice(0, 1) || t("channels.avatarFallback")}
           </div>
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <h2 className="text-xl font-bold text-foreground">{channel.name}</h2>
+              <h2 className="text-xl font-bold text-foreground">{channel.title}</h2>
             </div>
-            <p className="text-sm text-muted-foreground mb-2">{channel.username}</p>
+            <p className="text-sm text-muted-foreground mb-2">@{channel.username}</p>
             <p className="text-xs text-muted-foreground">
-              {formatNumber(channel.subscribers, language)} {t("marketplace.subscribers")}
+              {formatNumber(channel.subscribersCount ?? channel.memberCount ?? 0, language)} {t("marketplace.subscribers")}
             </p>
           </div>
         </div>

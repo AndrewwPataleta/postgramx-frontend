@@ -12,25 +12,21 @@ import { PageContainer } from "@/components/layout/PageContainer";
 import { unlinkChannel } from "@/api/features/channelsApi";
 import { getErrorMessage } from "@/lib/api/errors";
 import { useLanguage } from "@/i18n/LanguageProvider";
-import { CHANNEL_STATUS } from "@/constants/channels";
 import { ROUTES } from "@/constants/routes";
 import type {
-  ChannelStatus,
-  ChannelsListOrder,
-  ChannelsListParams,
-  ChannelsListSort,
-  ChannelListItem,
-} from "@/types/channels";
-import type { ListingListItem } from "@/types/listings";
+  ChannelEntity,
+  ListingEntity,
+} from "@/models/entities";
+import { ChannelStatus } from "@/models/enums";
 
-const DEFAULT_SORT: ChannelsListSort = "recent";
-const DEFAULT_ORDER: ChannelsListOrder = "desc";
+const DEFAULT_SORT = "recent";
+const DEFAULT_ORDER = "desc";
 
 const pendingStatuses: ChannelStatus[] = [
-  CHANNEL_STATUS.DRAFT,
-  CHANNEL_STATUS.PENDING_VERIFY,
-  CHANNEL_STATUS.FAILED,
-  CHANNEL_STATUS.REVOKED,
+  ChannelStatus.Draft,
+  ChannelStatus.PendingVerify,
+  ChannelStatus.Failed,
+  ChannelStatus.Revoked,
 ];
 
 const ChannelCardSkeleton = () => (
@@ -48,7 +44,7 @@ const ChannelCardSkeleton = () => (
   </div>
 );
 
-const getListingSummary = (listings?: ListingListItem[]) => {
+const getListingSummary = (listings?: ListingEntity[]) => {
   if (!listings) {
     return null;
   }
@@ -70,7 +66,7 @@ const getListingSummary = (listings?: ListingListItem[]) => {
   };
 };
 
-const getAggregatedTags = (listings?: ListingListItem[]) => {
+const getAggregatedTags = (listings?: ListingEntity[]) => {
   if (!listings?.length) {
     return [];
   }
@@ -78,10 +74,46 @@ const getAggregatedTags = (listings?: ListingListItem[]) => {
   return Array.from(new Set(tags.map((tag) => tag.trim()).filter(Boolean)));
 };
 
+const buildRulesSummary = (
+  listings: ListingEntity[] | undefined,
+  t: (key: string) => string
+) => {
+  if (!listings?.length) {
+    return null;
+  }
+  const allowed = new Set<string>();
+  const prohibited = new Set<string>();
+  listings.forEach((listing) => {
+    if (listing.allowEdits) {
+      allowed.add(t("listings.allowEdits.allowed"));
+    }
+    if (listing.allowLinkTracking) {
+      allowed.add(t("listings.allowLinkTracking.allowed"));
+    }
+    if (listing.allowPinnedPlacement) {
+      allowed.add(t("listings.allowPinned.allowed"));
+    }
+    if (listing.requiresApproval) {
+      allowed.add(t("listings.requiresApproval"));
+    }
+    listing.tags.forEach((tag) => prohibited.add(tag));
+    listing.contentRulesText
+      ?.split(/\n|•|,/)
+      .map((rule) => rule.trim())
+      .filter(Boolean)
+      .forEach((rule) => prohibited.add(rule));
+  });
+
+  return {
+    allowed: Array.from(allowed),
+    prohibited: Array.from(prohibited),
+  };
+};
+
 export default function Channels() {
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<"pending" | "verified">("verified");
-  const [unlinkTarget, setUnlinkTarget] = useState<ChannelListItem | null>(null);
+  const [unlinkTarget, setUnlinkTarget] = useState<ChannelEntity | null>(null);
   const [isUnlinking, setIsUnlinking] = useState(false);
   const [removedChannelIds, setRemovedChannelIds] = useState<Set<string>>(() => new Set());
   const [expandedChannelIds, setExpandedChannelIds] = useState<Set<string>>(
@@ -91,11 +123,10 @@ export default function Channels() {
     Record<string, { placementsCount: number; minPriceNano: string | null }>
   >({});
   const navigate = useNavigate();
-  const filters = useMemo<ChannelsListParams>(
+  const filters = useMemo(
     () => ({
       sort: DEFAULT_SORT,
       order: DEFAULT_ORDER,
-      includeListings: true,
     }),
     [],
   );
@@ -127,7 +158,7 @@ export default function Channels() {
   }, [error, t]);
 
   const verifiedChannels = useMemo(
-    () => visibleItems.filter((channel) => channel.status === CHANNEL_STATUS.VERIFIED),
+    () => visibleItems.filter((channel) => channel.status === ChannelStatus.Verified),
     [visibleItems],
   );
   const pendingChannels = useMemo(
@@ -142,7 +173,7 @@ export default function Channels() {
       : t("channels.emptyVerified");
 
   const handleChannelClick = (channel: (typeof items)[number]) => {
-    if (channel.status === CHANNEL_STATUS.PENDING_VERIFY) {
+    if (channel.status === ChannelStatus.PendingVerify) {
       navigate(ROUTES.CHANNEL_PENDING(channel.id), {
         state: { channel, rootBackTo: ROUTES.CHANNELS },
       });
@@ -249,7 +280,7 @@ export default function Channels() {
               <div className="space-y-3">
                 {tabbedChannels.map((channel) => {
                   const isExpanded = expandedChannelIds.has(channel.id);
-                  const canExpand = channel.status === CHANNEL_STATUS.VERIFIED;
+                  const canExpand = channel.status === ChannelStatus.Verified;
                   const listingSummary = getListingSummary(channel.listings);
                   const fallbackSummary = listingSummaries[channel.id];
                   const placementsCount =
@@ -257,6 +288,7 @@ export default function Channels() {
                   const minPriceNano =
                     listingSummary?.minPriceNano ?? fallbackSummary?.minPriceNano ?? null;
                   const tags = getAggregatedTags(channel.listings);
+                  const rules = buildRulesSummary(channel.listings, t);
                   return (
                     <MyChannelsChannelCard
                       key={channel.id}
@@ -264,6 +296,7 @@ export default function Channels() {
                       placementsCount={placementsCount}
                       minPriceNano={minPriceNano}
                       tags={tags}
+                      rules={rules}
                       onClick={() => handleChannelClick(channel)}
                       onUnlink={
                         activeTab === "pending"

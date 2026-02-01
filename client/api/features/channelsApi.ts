@@ -1,67 +1,68 @@
-import { post } from "@/api/core/apiClient";
-import type {
-  ChannelsListParams,
-  ChannelsListResponse,
-  ChannelItem,
-  ListChannelsParams,
-  Paginated,
-  LinkChannelResponse,
-  PreviewChannelResponse,
-  UnlinkChannelResponse,
-  VerifyChannelResponse,
-} from "@/types/channels";
+import { apiPost } from "@/api/core/http";
+import type { ChannelEntity, ListingEntity, Paged } from "@/models/entities";
 
-export const postChannelsList = async (
-  params: ChannelsListParams
-): Promise<ChannelsListResponse> =>
-  post<ChannelsListResponse, ChannelsListParams>("/channels/list", params);
-
-export const listChannels = async (
-  params: ListChannelsParams
-): Promise<Paginated<ChannelItem>> =>
-  post<Paginated<ChannelItem>, ListChannelsParams>("/channels/list", params);
-
-export const previewChannel = async (params: {
-  usernameOrLink: string;
-}): Promise<PreviewChannelResponse> =>
-  post<PreviewChannelResponse, { usernameOrLink: string }>(
-    "/channels/preview",
-    params
-  );
-
-export const linkChannel = async (params: {
+export type ChannelPreview = {
+  normalizedUsername: string;
+  title: string;
   username: string;
-}): Promise<LinkChannelResponse> =>
-  post<LinkChannelResponse, { username: string }>("/channels/link", params);
+  telegramChatId?: string | null;
+  type: string;
+  isPublic: boolean;
+  nextStep: string;
+  memberCount?: number | null;
+  photoUrl?: string | null;
+  avatarUrl?: string | null;
+  about?: string | null;
+};
 
-export const verifyChannel = async (params: {
-  id: string;
-}): Promise<VerifyChannelResponse> =>
-  post<VerifyChannelResponse, { id: string }>("/channels/verify", params);
+export const listMyChannels = async (data: {
+  verifiedOnly?: boolean;
+  q?: string;
+  page?: number;
+  limit?: number;
+  sort?: string;
+  order?: string;
+}): Promise<Paged<ChannelEntity>> =>
+  apiPost<Paged<ChannelEntity>, typeof data>("/channels/list", data);
 
-export const unlinkChannel = async (params: {
-  channelId: string;
-}): Promise<UnlinkChannelResponse> =>
-  post<UnlinkChannelResponse, { channelId: string }>(
-    "/channels/unlink",
-    params
+export const listMarketplaceChannels = async (data: {
+  q?: string;
+  tags?: string[];
+  minSubscribers?: number;
+  maxSubscribers?: number;
+  minPriceTon?: number;
+  maxPriceTon?: number;
+  verifiedOnly?: boolean;
+  page?: number;
+  limit?: number;
+  sort?: "recent" | "price_min" | "subscribers";
+  order?: "asc" | "desc";
+}): Promise<Paged<ChannelEntity & { listings: ListingEntity[] }>> =>
+  apiPost<Paged<ChannelEntity & { listings: ListingEntity[] }>, typeof data>(
+    "/marketplace/channels/list",
+    data
   );
 
-export const updateChannelDisabledStatus = async (params: {
+export const previewChannel = async (data: { usernameOrLink: string }): Promise<ChannelPreview> =>
+  apiPost<ChannelPreview, typeof data>("/channels/preview", data);
+
+export const linkChannel = async (data: { username: string }): Promise<ChannelEntity> =>
+  apiPost<ChannelEntity, typeof data>("/channels/link", data);
+
+export const verifyChannel = async (data: { id: string }): Promise<ChannelEntity> =>
+  apiPost<ChannelEntity, typeof data>("/channels/verify", data);
+
+export const channelDetail = async (data: { id: string }): Promise<ChannelEntity & { listings: ListingEntity[] }> =>
+  apiPost<ChannelEntity & { listings: ListingEntity[] }, typeof data>("/channels/detail", data);
+
+export const unlinkChannel = async (data: { channelId: string }): Promise<{ channelId: string; unlinked: boolean }> =>
+  apiPost<{ channelId: string; unlinked: boolean }, typeof data>("/channels/unlink", data);
+
+export const updateChannelDisabledStatus = async (data: {
   id: string;
   disabled: boolean;
-}): Promise<void> => {
-  await post<void, { disabled: boolean }>(`/channels/${params.id}/disabled`, {
-    disabled: params.disabled,
-  });
-};
-
-export const channelsApi = {
-  postChannelsList,
-  listChannels,
-  previewChannel,
-  linkChannel,
-  verifyChannel,
-  unlinkChannel,
-  updateChannelDisabledStatus,
-};
+}): Promise<ChannelEntity> =>
+  apiPost<ChannelEntity, { id: string; disabled: boolean }>(
+    `/channels/${data.id}/disabled`,
+    { id: data.id, disabled: data.disabled }
+  );

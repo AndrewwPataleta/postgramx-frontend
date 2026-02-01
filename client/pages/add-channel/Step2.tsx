@@ -10,11 +10,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { linkChannel, verifyChannel } from "@/api/features/channelsApi";
 import { getChannelErrorMessage } from "@/pages/add-channel/errorMapping";
 import { useAddChannelFlow } from "@/pages/add-channel/useAddChannelFlow";
-import type { VerifyChannelResponse } from "@/types/channels";
 import { formatNumber } from "@/i18n/formatters";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import type { Language } from "@/i18n/translations";
-import { CHANNEL_STATUS } from "@/constants/channels";
+import { ChannelStatus } from "@/models/enums";
 import { ROUTES } from "@/constants/routes";
 
 const formatMetric = (value: number | null | undefined, language: Language) => {
@@ -22,11 +21,6 @@ const formatMetric = (value: number | null | undefined, language: Language) => {
     return null;
   }
   return formatNumber(value, language as never, { notation: "compact" });
-};
-
-const isVerifiedResponse = (response: VerifyChannelResponse) => {
-  const status = String(response.status ?? "").toUpperCase();
-  return [CHANNEL_STATUS.VERIFIED, "SUCCESS", "OK"].includes(status);
 };
 
 const AddChannelStep2 = () => {
@@ -62,14 +56,7 @@ const AddChannelStep2 = () => {
       setLastError(null);
     },
     onSuccess: (response) => {
-      const linkedChannelId = response.channelId ?? response.id;
-      if (!linkedChannelId) {
-        const message = t("channels.add.step2.missingLinkId");
-        setLinkStatus("error");
-        setLastError(message);
-        toast.error(message);
-        return;
-      }
+      const linkedChannelId = response.id;
       setLinkStatus("success");
       setLinkedChannelId(linkedChannelId);
       setVerifyStatus("idle");
@@ -91,19 +78,15 @@ const AddChannelStep2 = () => {
       setLastError(null);
     },
     onSuccess: (response) => {
-      if (isVerifiedResponse(response)) {
+      if (response.status === ChannelStatus.Verified) {
         setVerifyStatus("success");
         setLastError(null);
         navigate(ROUTES.ADD_CHANNEL_STEP("step-3"));
         return;
       }
-      const message =
-        typeof response.error === "string"
-          ? response.error
-          : response.error?.message || t("channels.add.step2.verifyError");
       setVerifyStatus("error");
-      setLastError(message);
-      toast.error(message);
+      setLastError(t("channels.add.step2.verifyError"));
+      toast.error(t("channels.add.step2.verifyError"));
     },
     onError: (error) => {
       const message = getChannelErrorMessage(error);

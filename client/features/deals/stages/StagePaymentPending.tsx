@@ -1,11 +1,11 @@
 import InfoCard from "@/components/deals/InfoCard";
 import { cn } from "@/lib/utils";
 
-import type { DealListItem } from "@/types/deals";
+import type { DealEntity } from "@/models/entities";
 import { useLanguage } from "@/i18n/LanguageProvider";
 
 interface StagePaymentPendingProps {
-  deal: DealListItem;
+  deal: DealEntity;
   readonly: boolean;
   onAction?: {
     onRefresh?: () => void;

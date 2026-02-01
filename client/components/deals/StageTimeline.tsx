@@ -1,20 +1,19 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { canNavigateTo, stageToLabel, type DealStageId } from "@/features/deals/dealStageMachine";
-import type { EscrowStatus } from "@/types/deals";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/i18n/LanguageProvider";
 
 interface StageTimelineProps {
   stages: DealStageId[];
   selectedStage: DealStageId;
-  escrowStatus: EscrowStatus;
+  currentStage: DealStageId;
   onSelect?: (stage: DealStageId) => void;
 }
 
 export default function StageTimeline({
   stages,
   selectedStage,
-  escrowStatus,
+  currentStage,
   onSelect,
 }: StageTimelineProps) {
   const { t } = useLanguage();
@@ -51,7 +50,7 @@ export default function StageTimeline({
         <div className="flex flex-1 flex-wrap gap-2">
           {stages.map((stage) => {
             const isActive = stage === selectedStage;
-            const isDisabled = !canNavigateTo(stage, escrowStatus);
+            const isDisabled = !canNavigateTo(stage, currentStage);
             const sharedClasses = cn(
               "rounded-full border px-3 py-1 text-xs font-semibold transition",
               isActive

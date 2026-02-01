@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
-import type { Listing } from "@/features/listings/types";
-import type { ListingListItem } from "@/types/listings";
-import { formatTon, formatTonValue } from "@/i18n/formatters";
+import type { ListingEntity } from "@/models/entities";
+import { formatTon } from "@/i18n/formatters";
 import { formatDuration, getAllowEditsLabel, getAllowLinkTrackingLabel } from "@/i18n/labels";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { getListingTagLabel } from "@/features/listings/tagOptions";
@@ -9,7 +8,7 @@ import { getListingTagLabel } from "@/features/listings/tagOptions";
 type ListingCardVariant = "compact" | "full";
 
 interface ListingCardProps {
-  listing: ListingListItem | Listing;
+  listing: ListingEntity;
   variant?: ListingCardVariant;
   actionSlot?: ReactNode;
 }
@@ -31,12 +30,7 @@ export function ListingCard({ listing, variant = "full", actionSlot }: ListingCa
     ? formatDuration(listing.pinDurationHours, t)
     : null;
   const visibleDurationLabel = formatDuration(visibilityDuration, t);
-  const priceTonLabel = (() => {
-    if ("priceNano" in listing) {
-      return formatTon(listing.priceNano, language);
-    }
-    return formatTonValue(listing.priceTon, language);
-  })();
+  const priceTonLabel = formatTon(listing.priceNano, language);
 
   return (
     <div

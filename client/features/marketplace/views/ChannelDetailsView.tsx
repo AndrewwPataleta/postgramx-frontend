@@ -2,7 +2,8 @@ import { useMemo, useRef, useState } from "react";
 import { ChevronDown, Loader2 } from "lucide-react";
 import { useLocation, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { listingsByChannel } from "@/api/features/listingsApi";
+import { channelDetail } from "@/api/features/channelsApi";
+import { listListingsByChannel } from "@/api/features/listingsApi";
 import ErrorState from "@/components/feedback/ErrorState";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -10,84 +11,35 @@ import { useCreateDealMutation } from "@/hooks/use-deals";
 import { formatNumber, formatTon } from "@/i18n/formatters";
 import { getAllowEditsLabel, getAllowLinkTrackingLabel, getPinnedDurationLabel, getVisibilityDurationLabel } from "@/i18n/labels";
 import { useLanguage } from "@/i18n/LanguageProvider";
-import type { ChannelItem } from "@/types/channels";
-import type { ListingListItem, ListingsByChannelResponse } from "@/types/listings";
-import type { ChannelCardModel } from "@/components/channels/ChannelCard";
+import type { ChannelEntity, ListingEntity, Paged } from "@/models/entities";
 
 export default function ChannelDetailsView() {
   const { t, language } = useLanguage();
   const { channelId } = useParams<{ channelId: string }>();
   const location = useLocation();
-  const state = location.state as
-    | {
-        channel?: ChannelItem | ChannelCardModel;
-        listingsPreview?: ListingListItem[] | null;
-        placementsCount?: number | null;
-        minPriceNano?: string | null;
-        tags?: string[] | null;
-        subscribers?: number | null;
-        avatarUrl?: string | null;
-      }
-    | null;
+  const state = location.state as { channel?: ChannelEntity } | null;
   const stateChannel = state?.channel ?? null;
   const listingsSectionRef = useRef<HTMLDivElement | null>(null);
   const [activeListingId, setActiveListingId] = useState<string | null>(null);
   const [expandedListingIds, setExpandedListingIds] = useState<string[]>([]);
-  const [avatarError, setAvatarError] = useState(false);
   const createDealMutation = useCreateDealMutation();
-  const channel = useMemo(() => {
-    if (!stateChannel) {
-      return null;
-    }
-    const base = stateChannel as ChannelCardModel & ChannelItem;
-    return {
-      id: base.id,
-      name: base.name,
-      username: base.username ?? null,
-      about: base.about ?? base.description ?? null,
-      description: base.description ?? null,
-      avatarUrl: base.avatarUrl ?? null,
-      subscribers: base.subscribers ?? null,
-      placementsCount: state?.placementsCount ?? base.placementsCount ?? null,
-      minPriceNano: state?.minPriceNano ?? (base.minPriceNano ?? null),
-      tags: state?.tags ?? base.tags ?? [],
-      listingsPreview:
-        state?.listingsPreview ?? base.listingsPreview ?? base.listings ?? null,
-    };
-  }, [state, stateChannel]);
-  const resolvedChannel = useMemo(() => {
-    if (channel) {
-      return channel;
-    }
-    if (!channelId) {
-      return null;
-    }
-    return {
-      id: channelId,
-      name: t("common.channel"),
-      username: null,
-      about: null,
-      description: null,
-      avatarUrl: null,
-      subscribers: null,
-      placementsCount: null,
-      minPriceNano: null,
-      tags: [],
-      listingsPreview: null,
-    };
-  }, [channel, channelId]);
-  const previewListings =
-    resolvedChannel?.listingsPreview?.filter((listing) => listing.isActive !== false) ?? [];
+  const channelQuery = useQuery({
+    queryKey: ["channelDetail", channelId],
+    queryFn: () => channelDetail({ id: channelId ?? "" }),
+    enabled: Boolean(channelId) && !stateChannel,
+  });
+
+  const resolvedChannel = stateChannel ?? channelQuery.data ?? null;
+  const previewListings = resolvedChannel?.listings?.filter((listing) => listing.isActive !== false) ?? [];
   const shouldFetchListings = Boolean(channelId) && previewListings.length === 0;
-  const listingsQuery = useQuery<ListingsByChannelResponse>({
+  const listingsQuery = useQuery<Paged<ListingEntity>>({
     queryKey: ["listingsByChannel", "details", channelId],
     queryFn: () =>
-      listingsByChannel({
+      listListingsByChannel({
         channelId: channelId ?? "",
         page: 1,
         limit: 10,
-        onlyActive: true,
-        sort: "price_asc",
+        activeOnly: true,
       }),
     enabled: shouldFetchListings,
     staleTime: 1000 * 60 * 5,
@@ -110,12 +62,10 @@ export default function ChannelDetailsView() {
     },
     null
   );
-  const resolvedMinPriceNano =
-    resolvedChannel?.minPriceNano ?? (minPriceFromListings ? minPriceFromListings.toString() : null);
+  const resolvedMinPriceNano = minPriceFromListings ? minPriceFromListings.toString() : null;
   const minPriceTon = resolvedMinPriceNano ? formatTon(resolvedMinPriceNano, language) : null;
   const primaryListing = activeListings[0];
   const isSubmitting = createDealMutation.isPending;
-  const description = resolvedChannel?.about ?? resolvedChannel?.description;
   const username = resolvedChannel?.username ? `@${resolvedChannel.username}` : null;
 
   const handleCreateDeal = async (listingId: string) => {
@@ -141,9 +91,11 @@ export default function ChannelDetailsView() {
   );
 
   const formattedSubscribers =
-    typeof resolvedChannel?.subscribers === "number"
-      ? formatNumber(resolvedChannel.subscribers, language)
-      : t("common.emptyValue");
+    typeof resolvedChannel?.subscribersCount === "number"
+      ? formatNumber(resolvedChannel.subscribersCount, language)
+      : typeof resolvedChannel?.memberCount === "number"
+        ? formatNumber(resolvedChannel.memberCount, language)
+        : t("common.emptyValue");
 
   const buildTagList = (tags: string[]) => {
     const cleaned = tags.map((tag) => tag.trim()).filter(Boolean);
@@ -163,7 +115,7 @@ export default function ChannelDetailsView() {
     };
   };
 
-  const channelTags = buildTagList(resolvedChannel?.tags ?? []);
+  const channelTags = buildTagList(activeListings.flatMap((listing) => listing.tags ?? []));
 
   const handlePrimaryCta = () => {
     if (!primaryListing) {
@@ -197,26 +149,17 @@ export default function ChannelDetailsView() {
             <div className="rounded-2xl border border-border/60 bg-card/80 p-4">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
                 <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-2xl">
-                  {!avatarError && resolvedChannel.avatarUrl ? (
-                    <img
-                      src={resolvedChannel.avatarUrl}
-                      alt={resolvedChannel.name}
-                      className="h-16 w-16 rounded-2xl object-cover"
-                      onError={() => setAvatarError(true)}
-                    />
-                  ) : (
-                    resolvedChannel.name?.[0]?.toUpperCase()
-                  )}
+                  {resolvedChannel.title?.[0]?.toUpperCase() ?? t("common.avatarFallback")}
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <h2 className="text-lg font-semibold text-foreground">
-                      {resolvedChannel.name}
+                      {resolvedChannel.title}
                     </h2>
                   </div>
                   {username ? <p className="text-xs text-muted-foreground">{username}</p> : null}
                   <p className="text-xs text-muted-foreground">
-                    {resolvedChannel.placementsCount ?? activeListings.length ?? t("common.emptyValue")}{" "}
+                    {activeListings.length ?? t("common.emptyValue")}{" "}
                     {t("marketplace.placements")} • {formattedSubscribers}{" "}
                     {t("marketplace.subscribers")}
                   </p>
@@ -243,9 +186,6 @@ export default function ChannelDetailsView() {
                       ) : null}
                     </div>
                   ) : null}
-                  {description ? (
-                    <p className="text-sm text-muted-foreground">{description}</p>
-                  ) : null}
                 </div>
               </div>
             </div>
@@ -260,7 +200,7 @@ export default function ChannelDetailsView() {
                     {t("marketplace.availablePlacements")}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {resolvedChannel.placementsCount ?? activeListings.length}{" "}
+                    {activeListings.length}{" "}
                     {t("marketplace.placementsAvailable")}
                   </p>
                 </div>

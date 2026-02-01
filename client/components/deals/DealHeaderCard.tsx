@@ -1,22 +1,22 @@
 import { useMemo, useState } from "react";
-import type { DealListItem } from "@/types/deals";
+import type { DealEntity } from "@/models/entities";
 import { cn } from "@/lib/utils";
 import { formatTon } from "@/i18n/formatters";
 import { formatDuration, getAllowEditsLabel, getAllowLinkTrackingLabel, getListingFormatLabel } from "@/i18n/labels";
 import { useLanguage } from "@/i18n/LanguageProvider";
 
 interface DealHeaderCardProps {
-  deal: DealListItem;
+  deal: DealEntity;
 }
 
 export default function DealHeaderCard({ deal }: DealHeaderCardProps) {
   const { t, language } = useLanguage();
   const [expanded, setExpanded] = useState(false);
-  const priceLabel = `${formatTon(deal.listing.priceNano, language)} ${t("common.ton")}`;
-  const listingFormat = getListingFormatLabel(t, deal.listing.format);
-  const tags = deal.listing.tags ?? [];
-  const pinDurationHours = deal.listing.pinDurationHours ?? deal.listing.placementHours;
-  const lifetimeHours = deal.listing.visibilityDurationHours ?? deal.listing.lifetimeHours;
+  const priceLabel = `${formatTon(deal.listingSnapshot.priceNano, language)} ${t("common.ton")}`;
+  const listingFormat = getListingFormatLabel(t, deal.listingSnapshot.format);
+  const tags = deal.listingSnapshot.tags ?? [];
+  const pinDurationHours = deal.listingSnapshot.pinDurationHours;
+  const lifetimeHours = deal.listingSnapshot.visibilityDurationHours;
 
   const detailItems = useMemo(
     () => [
@@ -31,38 +31,30 @@ export default function DealHeaderCard({ deal }: DealHeaderCardProps) {
       {
         label: t("listings.allowEdits.label"),
         value:
-          deal.listing.allowEdits === undefined
+          deal.listingSnapshot.allowEdits === undefined
             ? t("common.emptyValue")
-            : getAllowEditsLabel(t, deal.listing.allowEdits),
+            : getAllowEditsLabel(t, deal.listingSnapshot.allowEdits),
       },
       {
         label: t("listings.allowLinkTracking.label"),
         value:
-          deal.listing.allowLinkTracking === undefined
+          deal.listingSnapshot.allowLinkTracking === undefined
             ? t("common.emptyValue")
-            : getAllowLinkTrackingLabel(t, deal.listing.allowLinkTracking),
+            : getAllowLinkTrackingLabel(t, deal.listingSnapshot.allowLinkTracking),
       },
     ],
-    [deal.listing.allowEdits, deal.listing.allowLinkTracking, pinDurationHours, lifetimeHours, t]
+    [deal.listingSnapshot.allowEdits, deal.listingSnapshot.allowLinkTracking, pinDurationHours, lifetimeHours, t]
   );
 
   return (
     <div className="rounded-2xl border border-border/60 bg-card/80 p-4 shadow-sm">
       <div className="flex items-center gap-3">
         <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-secondary/60 text-lg font-semibold text-muted-foreground">
-          {deal.channel.avatarUrl ? (
-            <img
-              src={deal.channel.avatarUrl}
-              alt={deal.channel.name}
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            deal.channel.name.slice(0, 1)
-          )}
+          {deal.channel.title.slice(0, 1)}
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-            <span className="truncate">{deal.channel.name}</span>
+            <span className="truncate">{deal.channel.title}</span>
           </div>
           <p className="text-xs text-muted-foreground">@{deal.channel.username}</p>
         </div>
@@ -111,12 +103,12 @@ export default function DealHeaderCard({ deal }: DealHeaderCardProps) {
             ))}
           </div>
 
-          {deal.listing.contentRulesText ? (
+          {deal.listingSnapshot.contentRulesText ? (
             <div className="rounded-lg border border-border/60 bg-background/50 p-3 text-xs text-muted-foreground">
               <p className="text-[11px] font-semibold text-foreground/80">
                 {t("listings.rulesTitle")}
               </p>
-              <p className="mt-1 text-xs text-muted-foreground">{deal.listing.contentRulesText}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{deal.listingSnapshot.contentRulesText}</p>
             </div>
           ) : null}
 

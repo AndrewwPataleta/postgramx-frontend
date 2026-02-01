@@ -1,6 +1,5 @@
-import type { DealStatus as ApiDealStatus, EscrowStatus as ApiEscrowStatus, UserRoleInDeal } from "@/types/deals";
-import type { DealStatus as LegacyDealStatus, EscrowStatus as LegacyEscrowStatus } from "@/features/deals/types";
-import type { ChannelStatus } from "@/types/channels";
+import type { ChannelStatus, DealStatus, EscrowStatus } from "@/models/enums";
+import type { UserRoleInDeal } from "@/constants/roles";
 import type { TranslationKey } from "@/i18n/translations";
 
 type TFunction = (key: TranslationKey, params?: Record<string, string | number>) => string;
@@ -14,12 +13,12 @@ export const formatDuration = (hours: number, t: TFunction) => {
 
 export const getDealStatusLabel = (
   t: TFunction,
-  status: ApiDealStatus | LegacyDealStatus
+  status: DealStatus
 ) => t(`deals.status.${status}` as TranslationKey);
 
 export const getEscrowStatusLabel = (
   t: TFunction,
-  status: ApiEscrowStatus | LegacyEscrowStatus
+  status: EscrowStatus
 ) => t(`deals.escrowStatus.${status}` as TranslationKey);
 
 export const getDealRoleLabel = (t: TFunction, role: UserRoleInDeal) =>

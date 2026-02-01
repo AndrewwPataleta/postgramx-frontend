@@ -6,7 +6,6 @@ import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/api/errors";
 import { ListingPreviewDetails } from "@/components/listings/ListingPreviewDetails";
 import { PageContainer } from "@/components/layout/PageContainer";
-import { managedChannelData } from "@/features/channels/managedChannels";
 import { listingTagCategories } from "@/features/listings/tagOptions";
 import { createListing } from "@/api/features/listingsApi";
 import type { ChannelManageContext } from "@/pages/channel-manage/ChannelManageLayout";
@@ -14,7 +13,7 @@ import { useLanguage } from "@/i18n/LanguageProvider";
 import { getListingTagLabel } from "@/features/listings/tagOptions";
 import { formatNumber } from "@/i18n/formatters";
 import { formatDuration } from "@/i18n/labels";
-import { toUtcIsoString } from "@/utils/date";
+import { CurrencyCode, ListingFormat } from "@/models/enums";
 import { ROUTES } from "@/constants/routes";
 
 const resolveHours = (choice: string, customValue: string, fallback: number) => {
@@ -26,12 +25,26 @@ const resolveHours = (choice: string, customValue: string, fallback: number) => 
   return Number.isFinite(parsed) ? parsed : fallback;
 };
 
+const parseTonInputToNano = (value: string): string => {
+  const trimmed = value.trim();
+  if (!trimmed || trimmed === ".") {
+    return "0";
+  }
+  if (!/^\d*\.?\d*$/.test(trimmed)) {
+    return "0";
+  }
+  const [integerPartRaw, fractionRaw = ""] = trimmed.split(".");
+  const integerPart = integerPartRaw === "" ? "0" : integerPartRaw;
+  const fractionPadded = (fractionRaw + "000000000").slice(0, 9);
+  return (BigInt(integerPart) * 1_000_000_000n + BigInt(fractionPadded)).toString();
+};
+
 export default function CreateListing() {
   const { t, language } = useLanguage();
   const { id } = useParams<{ id: string }>();
   const location = useLocation();
   const outletContext = useOutletContext<ChannelManageContext | null>();
-  const channel = outletContext?.channel ?? (id ? managedChannelData[id] : null);
+  const channel = outletContext?.channel ?? null;
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const rootBackTo = (location.state as { rootBackTo?: string } | null)?.rootBackTo;
@@ -47,10 +60,6 @@ export default function CreateListing() {
   const [customTag, setCustomTag] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>(["Must be pre-approved"]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [availabilityFrom] = useState(() => new Date());
-  const [availabilityTo] = useState(
-    () => new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-  );
   const pinDurationOptions = useMemo(
     () => [
       { label: t("listings.pinDuration.none"), value: "none" },
@@ -102,10 +111,9 @@ export default function CreateListing() {
 
     const payload = {
       channelId: channel.id,
-      format: "POST",
-      priceTon: Number(priceTon || 0),
-      availabilityFrom: toUtcIsoString(availabilityFrom),
-      availabilityTo: toUtcIsoString(availabilityTo),
+      format: ListingFormat.Post,
+      priceNano: parseTonInputToNano(priceTon),
+      currency: CurrencyCode.Ton,
       pinDurationHours,
       visibilityDurationHours,
       allowEdits,

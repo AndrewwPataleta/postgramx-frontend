@@ -2,10 +2,15 @@ import { useMemo, useState, type ReactNode } from "react";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatNumber, formatTon } from "@/i18n/formatters";
-import { formatDuration, getAllowEditsLabel, getAllowLinkTrackingLabel, getListingFormatLabel } from "@/i18n/labels";
+import {
+  formatDuration,
+  getAllowEditsLabel,
+  getAllowLinkTrackingLabel,
+  getListingFormatLabel,
+} from "@/i18n/labels";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { getListingTagLabel } from "@/features/listings/tagOptions";
-import type { ListingListItem } from "@/types/listings";
+import type { ListingEntity } from "@/models/entities";
 
 export type ChannelCardModel = {
   id: string;
@@ -18,8 +23,12 @@ export type ChannelCardModel = {
   minPriceNano?: string | null;
   currency?: "TON";
   tags?: string[];
-  listingsPreview?: ListingListItem[] | null;
+  listingsPreview?: ListingEntity[] | null;
   isMine?: boolean;
+  rules?: {
+    allowed: string[];
+    prohibited: string[];
+  } | null;
 };
 
 type ChannelCardProps = {
@@ -42,7 +51,13 @@ const buildTags = (tags: string[]) => {
   };
 };
 
-const ListingPreview = ({ listings }: { listings: ListingListItem[] }) => {
+const parseRules = (text?: string | null) =>
+  (text ?? "")
+    .split(/\n|•|,/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+const ListingPreview = ({ listings }: { listings: ListingEntity[] }) => {
   const { t, language } = useLanguage();
   if (listings.length === 0) {
     return (
@@ -59,6 +74,8 @@ const ListingPreview = ({ listings }: { listings: ListingListItem[] }) => {
         const rules = [
           listing.allowEdits ? getAllowEditsLabel(t, true) : null,
           listing.allowLinkTracking ? getAllowLinkTrackingLabel(t, true) : null,
+          listing.allowPinnedPlacement ? t("listings.allowPinned.allowed") : null,
+          listing.requiresApproval ? t("listings.requiresApproval") : null,
         ].filter(Boolean);
         const listingPrice = formatTon(listing.priceNano, language) ?? listing.priceNano;
         const pinLabel = listing.pinDurationHours
@@ -68,7 +85,7 @@ const ListingPreview = ({ listings }: { listings: ListingListItem[] }) => {
           listing.visibilityDurationHours,
           t
         )}`;
-        const requirements = listing.contentRulesText?.trim();
+        const requirements = parseRules(listing.contentRulesText).join(", ");
 
         return (
           <div key={listing.id} className="rounded-xl border border-border/60 bg-card/80 p-3">
@@ -142,6 +159,8 @@ export default function ChannelCard({
     [channel.minPriceNano, language]
   );
   const tags = buildTags(channel.tags ?? []);
+  const allowedRules = channel.rules?.allowed ?? [];
+  const prohibitedRules = channel.rules?.prohibited ?? [];
   const username = channel.username ? `@${channel.username.replace(/^@/, "")}` : null;
   const avatarFallback = channel.name?.[0]?.toUpperCase() ?? t("common.avatarFallback");
   const avatarSrc = !avatarError && channel.avatarUrl ? channel.avatarUrl : null;
@@ -250,6 +269,34 @@ export default function ChannelCard({
                 <span className="rounded-full border border-border/60 bg-card px-2.5 py-1 text-muted-foreground">
                   +{tags.hiddenCount}
                 </span>
+              ) : null}
+            </div>
+          ) : null}
+          {allowedRules.length > 0 || prohibitedRules.length > 0 ? (
+            <div className="grid gap-2 text-[11px] text-muted-foreground sm:grid-cols-2">
+              {allowedRules.length > 0 ? (
+                <div className="rounded-lg border border-border/60 bg-muted/30 px-2 py-2">
+                  <p className="text-[10px] font-semibold text-foreground">
+                    {t("listings.allowedLabel")}
+                  </p>
+                  <ul className="mt-1 list-disc space-y-1 pl-4">
+                    {allowedRules.map((rule) => (
+                      <li key={`allowed-${rule}`}>{rule}</li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+              {prohibitedRules.length > 0 ? (
+                <div className="rounded-lg border border-border/60 bg-muted/30 px-2 py-2">
+                  <p className="text-[10px] font-semibold text-foreground">
+                    {t("listings.prohibitedLabel")}
+                  </p>
+                  <ul className="mt-1 list-disc space-y-1 pl-4">
+                    {prohibitedRules.map((rule) => (
+                      <li key={`prohibited-${rule}`}>{rule}</li>
+                    ))}
+                  </ul>
+                </div>
               ) : null}
             </div>
           ) : null}

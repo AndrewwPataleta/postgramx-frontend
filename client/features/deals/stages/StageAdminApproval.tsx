@@ -2,14 +2,14 @@ import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import InfoCard from "@/components/deals/InfoCard";
-import type { DealListItem } from "@/types/deals";
-import { post } from "@/api/core/apiClient";
+import type { DealEntity } from "@/models/entities";
+import { approveCreative, rejectCreative, requestCreativeEdits } from "@/api/features/dealsApi";
 import { getErrorMessage } from "@/lib/api/errors";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/i18n/LanguageProvider";
 
 interface StageAdminApprovalProps {
-  deal: DealListItem;
+  deal: DealEntity;
   readonly: boolean;
   onAction?: {
     onApprove?: () => Promise<void> | void;
@@ -42,31 +42,25 @@ export default function StageAdminApproval({
   const queryClient = useQueryClient();
   const { t } = useLanguage();
   const [countdown, setCountdown] = useState<string | null>(() =>
-    formatAdminCountdown(deal.adminReviewDeadlineAt)
+    formatAdminCountdown(deal.idleExpiresAt)
   );
 
   useEffect(() => {
-    if (!deal.adminReviewDeadlineAt) {
+    if (!deal.idleExpiresAt) {
       setCountdown(null);
       return;
     }
     const updateCountdown = () => {
-      setCountdown(formatAdminCountdown(deal.adminReviewDeadlineAt));
+      setCountdown(formatAdminCountdown(deal.idleExpiresAt));
     };
     updateCountdown();
     const interval = window.setInterval(updateCountdown, 1000);
     return () => window.clearInterval(interval);
-  }, [deal.adminReviewDeadlineAt]);
+  }, [deal.idleExpiresAt]);
 
   const approveMutation = useMutation({
     mutationFn: async () => {
-      if (import.meta.env.VITE_API_MOCK === "true") {
-        console.info("Mock admin approve", { dealId: deal.id });
-        return null;
-      }
-      return post<unknown, { dealId: string }>("/deals/creative/approve", {
-        dealId: deal.id,
-      });
+      return approveCreative({ id: deal.id });
     },
     onSuccess: () => {
       toast.success(t("deals.stage.adminApproval.approvedToast"));
@@ -79,13 +73,7 @@ export default function StageAdminApproval({
 
   const requestChangesMutation = useMutation({
     mutationFn: async () => {
-      if (import.meta.env.VITE_API_MOCK === "true") {
-        console.info("Mock request changes", { dealId: deal.id });
-        return null;
-      }
-      return post<unknown, { dealId: string }>("/deals/creative/edits", {
-        dealId: deal.id,
-      });
+      return requestCreativeEdits({ id: deal.id });
     },
     onSuccess: () => {
       toast.success(t("deals.stage.adminApproval.requestedToast"));
@@ -98,13 +86,7 @@ export default function StageAdminApproval({
 
   const rejectMutation = useMutation({
     mutationFn: async () => {
-      if (import.meta.env.VITE_API_MOCK === "true") {
-        console.info("Mock admin reject", { dealId: deal.id });
-        return null;
-      }
-      return post<unknown, { dealId: string }>("/deals/creative/reject", {
-        dealId: deal.id,
-      });
+      return rejectCreative({ id: deal.id });
     },
     onSuccess: () => {
       toast.success(t("deals.stage.adminApproval.rejectedToast"));

@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { verifyChannel } from "@/api/features/channelsApi";
-import type { VerifyChannelResponse } from "@/types/channels";
+import type { ChannelEntity } from "@/models/entities";
 import type { ApiError } from "@/api/core/apiErrors";
 
 const VERIFY_ERROR_MESSAGES: Record<string, string> = {
@@ -58,32 +58,12 @@ export const getVerifyErrorMessage = (error: unknown, fallback: string) => {
   return fallback;
 };
 
-export const getVerifyResponseErrorMessage = (
-  response: VerifyChannelResponse,
-  fallback: string,
-) => {
-  if (response.error) {
-    if (typeof response.error === "string") {
-      return response.error;
-    }
-
-    const code = extractErrorCode(response.error);
-    if (code && code in VERIFY_ERROR_MESSAGES) {
-      return VERIFY_ERROR_MESSAGES[code];
-    }
-
-    if ("message" in response.error && response.error.message) {
-      return response.error.message;
-    }
-  }
-
-  return fallback;
-};
+export const getVerifyResponseErrorMessage = (_response: ChannelEntity, fallback: string) => fallback;
 
 export const useVerifyChannel = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<VerifyChannelResponse, ApiError, string>({
+  return useMutation<ChannelEntity, ApiError, string>({
     mutationFn: (id) => verifyChannel({ id }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["channelsList"] });
