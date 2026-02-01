@@ -13,15 +13,13 @@ const roleToneMap: Record<string, string> = {
   [USER_ROLE.PUBLISHER_MANAGER]: "bg-emerald-500/10 text-emerald-400",
 };
 
-type DealListItem = DealEntity | { deal: DealEntity };
-
 interface DealListCardProps {
-  deal: DealListItem;
+  deal: DealEntity;
   onSelect: (deal: DealEntity) => void;
 }
 
 const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
-  const resolvedDeal = "deal" in deal ? deal.deal : deal;
+  const resolvedDeal = deal;
   const { t, language } = useLanguage();
   const { user } = useAuth();
   const [expanded, setExpanded] = useState(false);

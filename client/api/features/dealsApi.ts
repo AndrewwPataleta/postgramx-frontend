@@ -2,6 +2,14 @@ import { apiPost } from "@/api/core/http";
 import type { DealDetailResponse, DealEntity, Paged } from "@/models/entities";
 import type { DealStage, DealStatus } from "@/models/enums";
 
+type DealListItem = DealEntity | { deal: DealEntity };
+
+type DealsGroupedResponseRaw = {
+  pending: Paged<DealListItem>;
+  active: Paged<DealListItem>;
+  completed: Paged<DealListItem>;
+};
+
 export type DealsGroupedResponse = {
   pending: Paged<DealEntity>;
   active: Paged<DealEntity>;
@@ -24,7 +32,20 @@ export const listDeals = async (data: {
   completedPage?: number;
   completedLimit?: number;
 }): Promise<DealsGroupedResponse> =>
-  apiPost<DealsGroupedResponse, typeof data>("/deals/list", data);
+  apiPost<DealsGroupedResponseRaw, typeof data>("/deals/list", data).then((response) => ({
+    pending: {
+      ...response.pending,
+      items: response.pending.items.map((item) => ("deal" in item ? item.deal : item)),
+    },
+    active: {
+      ...response.active,
+      items: response.active.items.map((item) => ("deal" in item ? item.deal : item)),
+    },
+    completed: {
+      ...response.completed,
+      items: response.completed.items.map((item) => ("deal" in item ? item.deal : item)),
+    },
+  }));
 
 export const getDealDetail = async (data: { id: string }): Promise<DealDetailResponse> =>
   apiPost<DealDetailResponse, typeof data>("/deals/detail", data);
