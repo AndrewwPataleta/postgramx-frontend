@@ -22,11 +22,12 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
   const { t, language } = useLanguage();
   const { user } = useAuth();
   const [expanded, setExpanded] = useState(false);
-  const visibilityLabel = deal.listingSnapshot.visibilityDurationHours
-    ? getVisibilityDurationLabel(t, deal.listingSnapshot.visibilityDurationHours)
+  const listingSnapshot = deal.listingSnapshot;
+  const visibilityLabel = listingSnapshot?.visibilityDurationHours
+    ? getVisibilityDurationLabel(t, listingSnapshot.visibilityDurationHours)
     : null;
-  const pinnedLabel = deal.listingSnapshot.pinDurationHours
-    ? getPinnedDurationLabel(t, deal.listingSnapshot.pinDurationHours)
+  const pinnedLabel = listingSnapshot?.pinDurationHours
+    ? getPinnedDurationLabel(t, listingSnapshot.pinDurationHours)
     : null;
   const detailLine = [visibilityLabel, pinnedLabel].filter(Boolean).join(" • ");
   const escrowText = getEscrowStatusLabel(t, deal.escrow.status);
@@ -82,7 +83,10 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
           {escrowText}
         </span>
         <span className="text-xs text-muted-foreground">
-          {formatTon(deal.listingSnapshot.priceNano, language)} {t("common.ton")}
+          {listingSnapshot?.priceNano
+            ? formatTon(listingSnapshot.priceNano, language)
+            : t("common.emptyValue")}{" "}
+          {t("common.ton")}
         </span>
       </div>
 
@@ -124,11 +128,11 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
               {formatDate(deal.scheduledAt, language) || t("common.emptyValue")}
             </div>
           </div>
-          {deal.listingSnapshot.tags.length > 0 ? (
+          {listingSnapshot?.tags?.length ? (
             <div className="flex flex-wrap gap-2">
-              {deal.listingSnapshot.tags.map((tag) => (
+              {listingSnapshot.tags.map((tag, index) => (
                 <span
-                  key={tag}
+                  key={`${tag}-${index}`}
                   className="rounded-full bg-secondary/60 px-3 py-1 text-xs font-medium text-foreground"
                 >
                   #{tag}
@@ -138,7 +142,10 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
           ) : null}
           <div className="flex flex-wrap gap-2">
             <span className="rounded-full bg-secondary/60 px-3 py-1 text-xs font-medium text-foreground">
-              {t("listings.formatLabel")}: {getListingFormatLabel(t, deal.listingSnapshot.format)}
+              {t("listings.formatLabel")}:{" "}
+              {listingSnapshot?.format
+                ? getListingFormatLabel(t, listingSnapshot.format)
+                : t("common.emptyValue")}
             </span>
             <span className="rounded-full bg-secondary/60 px-3 py-1 text-xs font-medium text-foreground">
               {pinnedLabel ?? t("listings.meta.notPinned")}
