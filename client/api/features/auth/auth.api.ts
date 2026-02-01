@@ -1,8 +1,8 @@
-import { post } from "@/api/core/apiClient";
-import type { AuthResponse, TelegramAuthData, TelegramUserLike } from "@/types/auth";
+import { postJson } from "@/api/core/apiClient";
+import { buildAuthBody, requireInitDataToken } from "@/api/core/authEnvelope";
+import type { AuthResponse, TelegramAuthData, TelegramUserLike } from "./auth.types";
 
-const resolveUserValue = (user: TelegramUserLike, key: keyof TelegramUserLike) =>
-  user[key];
+const resolveUserValue = (user: TelegramUserLike, key: keyof TelegramUserLike) => user[key];
 
 const normalizeUser = (user: TelegramUserLike): TelegramAuthData => {
   const username =
@@ -34,17 +34,8 @@ const normalizeUser = (user: TelegramUserLike): TelegramAuthData => {
   };
 };
 
-export const authTelegram = async (
-  user?: TelegramUserLike | null
-): Promise<AuthResponse> => {
-  if (!user) {
-    return post<AuthResponse, Record<string, never>>("/auth", {});
-  }
-
-  const payload = normalizeUser(user);
-  return post<AuthResponse, TelegramAuthData>("/auth", payload);
-};
-
-export const authApi = {
-  authTelegram,
+export const authTelegram = async (user?: TelegramUserLike | null): Promise<AuthResponse> => {
+  const token = requireInitDataToken();
+  const payload = user ? normalizeUser(user) : ({} as TelegramAuthData);
+  return postJson("/auth", buildAuthBody(payload, token));
 };

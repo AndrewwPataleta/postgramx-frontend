@@ -17,8 +17,8 @@ import {
 import { TELEGRAM_MOCK } from "@/config/env";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { authTelegram } from "@/api/features/authApi";
-import type { ApiError } from "@/api/core/apiErrors";
+import { authTelegram } from "@/api/features/auth/auth.api";
+import type { ApiError } from "@/api/core/errors";
 import type { TelegramUserLike } from "@/types/auth";
 import { ROUTES } from "@/constants/routes";
 

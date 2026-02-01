@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { previewChannel } from "@/api/features/channelsApi";
+import { previewChannel } from "@/api/features/channels/channels.api";
 import { getChannelErrorMessage } from "@/pages/add-channel/errorMapping";
 import { useAddChannelFlow } from "@/pages/add-channel/useAddChannelFlow";
 import { useLanguage } from "@/i18n/LanguageProvider";

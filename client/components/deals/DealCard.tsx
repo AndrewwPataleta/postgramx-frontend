@@ -1,7 +1,7 @@
 import DealStatusPill, { DealStatusTone } from "./DealStatusPill";
 import { useLanguage } from "@/i18n/LanguageProvider";
 
-interface DealCardProps {
+export interface DealCardData {
   name: string;
   username: string;
   avatarUrl: string;
@@ -25,7 +25,7 @@ export default function DealCard({
   ctaLabel,
   onSelect,
   onAction,
-}: DealCardProps) {
+}: DealCardData) {
   const { t } = useLanguage();
   return (
     <div

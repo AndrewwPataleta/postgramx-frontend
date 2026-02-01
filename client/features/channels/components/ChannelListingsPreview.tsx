@@ -1,8 +1,7 @@
 import { memo, useEffect, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
 import { PencilLine, RefreshCcw } from "lucide-react";
-import { listingsByChannel } from "@/api/features/listingsApi";
+import { useListingsByChannel } from "@/features/listings/hooks/useListingsByChannel";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getErrorMessage } from "@/lib/api/errors";
 import { cn } from "@/lib/utils";
@@ -10,7 +9,7 @@ import { formatTon } from "@/i18n/formatters";
 import { getPinnedDurationLabel, getVisibilityDurationLabel } from "@/i18n/labels";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { getListingTagLabel } from "@/features/listings/tagOptions";
-import type { ListingListItem, ListingsByChannelResponse } from "@/types/listings";
+import type { ListingListItem } from "@/types/listings";
 import { ROUTES } from "@/constants/routes";
 
 const PREVIEW_LIMIT = 5;
@@ -104,16 +103,17 @@ const ChannelListingsPreview = memo(
   const location = useLocation();
   const { t } = useLanguage();
   const rootBackTo = (location.state as { rootBackTo?: string } | null)?.rootBackTo;
-  const query = useQuery<ListingsByChannelResponse>({
-    queryKey: ["channelListingsPreview", channelId],
-    queryFn: () =>
-      listingsByChannel({
-        channelId,
-        page: 1,
-        limit: PREVIEW_LIMIT,
-        onlyActive: true,
-        sort: "recent",
-      }),
+  const listingsFilters = useMemo(
+    () => ({
+      channelId,
+      page: 1,
+      limit: PREVIEW_LIMIT,
+      onlyActive: true,
+      sort: "recent" as const,
+    }),
+    [channelId]
+  );
+  const query = useListingsByChannel(listingsFilters, {
     enabled: isExpanded,
     staleTime: 1000 * 60 * 5,
   });

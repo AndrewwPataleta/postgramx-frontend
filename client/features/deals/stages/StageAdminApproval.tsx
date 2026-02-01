@@ -3,10 +3,15 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import InfoCard from "@/components/deals/InfoCard";
 import type { DealListItem } from "@/types/deals";
-import { post } from "@/api/core/apiClient";
+import {
+  approveCreative,
+  rejectCreative,
+  requestCreativeEdits,
+} from "@/api/features/deals/deals.api";
 import { getErrorMessage } from "@/lib/api/errors";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/i18n/LanguageProvider";
+import { dealsQueryKeys } from "@/features/deals/hooks/useDeals";
 
 interface StageAdminApprovalProps {
   deal: DealListItem;
@@ -60,17 +65,11 @@ export default function StageAdminApproval({
 
   const approveMutation = useMutation({
     mutationFn: async () => {
-      if (import.meta.env.VITE_API_MOCK === "true") {
-        console.info("Mock admin approve", { dealId: deal.id });
-        return null;
-      }
-      return post<unknown, { dealId: string }>("/deals/creative/approve", {
-        dealId: deal.id,
-      });
+      return approveCreative({ dealId: deal.id });
     },
     onSuccess: () => {
       toast.success(t("deals.stage.adminApproval.approvedToast"));
-      queryClient.invalidateQueries({ queryKey: ["deal", deal.id] });
+      queryClient.invalidateQueries({ queryKey: dealsQueryKeys.detail(deal.id) });
     },
     onError: (error) => {
       toast.error(getErrorMessage(error, t("deals.stage.adminApproval.approveError")));
@@ -79,17 +78,11 @@ export default function StageAdminApproval({
 
   const requestChangesMutation = useMutation({
     mutationFn: async () => {
-      if (import.meta.env.VITE_API_MOCK === "true") {
-        console.info("Mock request changes", { dealId: deal.id });
-        return null;
-      }
-      return post<unknown, { dealId: string }>("/deals/creative/edits", {
-        dealId: deal.id,
-      });
+      return requestCreativeEdits({ dealId: deal.id });
     },
     onSuccess: () => {
       toast.success(t("deals.stage.adminApproval.requestedToast"));
-      queryClient.invalidateQueries({ queryKey: ["deal", deal.id] });
+      queryClient.invalidateQueries({ queryKey: dealsQueryKeys.detail(deal.id) });
     },
     onError: (error) => {
       toast.error(getErrorMessage(error, t("deals.stage.adminApproval.requestError")));
@@ -98,17 +91,11 @@ export default function StageAdminApproval({
 
   const rejectMutation = useMutation({
     mutationFn: async () => {
-      if (import.meta.env.VITE_API_MOCK === "true") {
-        console.info("Mock admin reject", { dealId: deal.id });
-        return null;
-      }
-      return post<unknown, { dealId: string }>("/deals/creative/reject", {
-        dealId: deal.id,
-      });
+      return rejectCreative({ dealId: deal.id });
     },
     onSuccess: () => {
       toast.success(t("deals.stage.adminApproval.rejectedToast"));
-      queryClient.invalidateQueries({ queryKey: ["deal", deal.id] });
+      queryClient.invalidateQueries({ queryKey: dealsQueryKeys.detail(deal.id) });
     },
     onError: (error) => {
       toast.error(getErrorMessage(error, t("deals.stage.adminApproval.rejectError")));

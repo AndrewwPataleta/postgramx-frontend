@@ -1,141 +1,44 @@
-import type { ChannelRole, ChannelStatus } from "@/constants/channels";
+import type { PaginationResponse } from "@/api/core/types";
+import type {
+  ChannelListItem,
+  ChannelsListRequestData,
+  ChannelsListResponse,
+  ChannelListPublicItem,
+  ChannelListPublicResponse,
+  ListChannelsRequestData,
+  PreviewChannelRequestData,
+  PreviewChannelResponse,
+  LinkChannelRequestData,
+  LinkChannelResponse,
+  VerifyChannelRequestData,
+  VerifyChannelResponse,
+  UnlinkChannelRequestData,
+  UnlinkChannelResponse,
+  UpdateChannelDisabledRequestData,
+} from "@/api/features/channels/channels.types";
 
 export type { ChannelRole, ChannelStatus } from "@/constants/channels";
 
-export type ChannelsListSort = "recent" | "title" | "subscribers";
+export type ChannelsListSort = ChannelsListRequestData["sort"];
+export type ChannelsListOrder = ChannelsListRequestData["order"];
 
-export type ChannelsListOrder = "asc" | "desc";
+export type ChannelsListParams = ChannelsListRequestData;
+export type ChannelListItem = ChannelListItem;
+export type ChannelsListResponse = ChannelsListResponse;
 
-export type ChannelsListParams = {
-  q?: string;
-  username?: string;
-  status?: ChannelStatus;
-  role?: ChannelRole;
-  verifiedOnly?: boolean;
-  sort?: ChannelsListSort;
-  order?: ChannelsListOrder;
-  page?: number;
-  limit?: number;
-  includeListings?: boolean;
-};
+export type PreviewChannelRequest = { data: PreviewChannelRequestData };
+export type LinkChannelRequest = { data: LinkChannelRequestData };
+export type VerifyChannelRequest = { data: VerifyChannelRequestData };
+export type UnlinkChannelRequest = { data: UnlinkChannelRequestData };
 
-export type ChannelListItem = {
-  id: string;
-  username: string;
-  title: string;
-  status: ChannelStatus;
-  telegramChatId?: number | null;
-  memberCount?: number | null;
-  avatarUrl?: string | null;
-  listings?: import("./listings").ListingListItem[];
-  placementsCount?: number;
-  listingsCount?: number;
-  verifiedAt?: string | null;
-  lastCheckedAt?: string | null;
-  membership: {
-    role: ChannelRole;
-    telegramAdminStatus: "creator" | "administrator";
-    lastRecheckAt?: string | null;
-  };
-};
+export type PreviewChannelResponse = PreviewChannelResponse;
+export type LinkChannelResponse = LinkChannelResponse;
+export type VerifyChannelResponse = VerifyChannelResponse;
+export type UnlinkChannelResponse = UnlinkChannelResponse;
 
-export type ChannelsListResponse = {
-  items: ChannelListItem[];
-  page: number;
-  limit: number;
-  total: number;
-  totalPages: number;
-  hasNext: boolean;
-  hasPrev: boolean;
-};
+export type Paginated<T> = PaginationResponse<T>;
 
-export type PreviewChannelRequest = {
-  data: {
-    usernameOrLink: string;
-  };
-};
-
-export type LinkChannelRequest = {
-  data: {
-    username: string;
-  };
-};
-
-export type VerifyChannelRequest = {
-  data: {
-    id: string;
-  };
-};
-
-export type UnlinkChannelRequest = {
-  data: {
-    channelId: string;
-  };
-};
-
-export type PreviewChannelResponse = {
-  normalizedUsername: string;
-  title: string;
-  username: string;
-  telegramChatId?: number | null;
-  type: string;
-  isPublic: boolean;
-  nextStep: string;
-  memberCount?: number | null;
-  photoUrl?: string | null;
-  avatarUrl?: string | null;
-  about?: string | null;
-  // TODO: Align preview response fields with backend DTO when confirmed.
-};
-
-export type LinkChannelResponse = {
-  id?: string;
-  channelId?: string;
-  username?: string;
-  status: ChannelStatus | string;
-  membership?: ChannelListItem["membership"] | null;
-  // TODO: Align link response payload with backend.
-};
-
-export type VerifyChannelResponse = {
-  status: string;
-  verifiedAt?: string | null;
-  error?: { code?: string; message?: string } | string | null;
-  // TODO: Confirm verify response payload with backend.
-};
-
-export type UnlinkChannelResponse = {
-  channelId: string;
-  unlinked: boolean;
-};
-
-export type Paginated<T> = {
-  items: T[];
-  page: number;
-  limit: number;
-  total: number;
-};
-
-export type ListChannelsParams = {
-  verifiedOnly?: boolean;
-  q?: string;
-  page?: number;
-  limit?: number;
-  sort?: "recent";
-  order?: "asc" | "desc";
-  includeListings?: boolean;
-};
-
-export type ChannelItem = {
-  id: string;
-  name: string;
-  username?: string | null;
-  avatarUrl: string | null;
-  verified: boolean;
-  subscribers?: number;
-  about?: string | null;
-  description?: string | null;
-  placementsCount?: number;
-  listingsCount?: number;
-  listings?: import("./listings").ListingListItem[];
-};
+export type ListChannelsParams = ListChannelsRequestData;
+export type ChannelItem = ChannelListPublicItem;
+export type ChannelListResponse = ChannelListPublicResponse;
+export type UpdateChannelDisabledRequest = UpdateChannelDisabledRequestData;

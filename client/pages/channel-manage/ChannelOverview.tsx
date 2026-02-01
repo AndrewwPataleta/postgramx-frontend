@@ -1,31 +1,26 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { Link, useOutletContext } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ListingCard } from "@/components/listings/ListingCard";
 import LoadingSkeleton from "@/components/feedback/LoadingSkeleton";
-import { listingsByChannel } from "@/api/features/listingsApi";
+import { useListingsByChannel } from "@/features/listings/hooks/useListingsByChannel";
 import { getErrorMessage } from "@/lib/api/errors";
 import type { ChannelManageContext } from "@/pages/channel-manage/ChannelManageLayout";
 import { ROUTES } from "@/constants/routes";
 
 const ChannelOverview = () => {
   const { channel } = useOutletContext<ChannelManageContext>();
-  const listingsQuery = useQuery({
-    queryKey: [
-      "listingsByChannel",
-      channel.id,
-      { page: 1, limit: 3, onlyActive: true, sort: "recent" },
-    ],
-    queryFn: () =>
-      listingsByChannel({
-        channelId: channel.id,
-        page: 1,
-        limit: 3,
-        onlyActive: true,
-        sort: "recent",
-      }),
-  });
+  const listingsFilters = useMemo(
+    () => ({
+      channelId: channel.id,
+      page: 1,
+      limit: 3,
+      onlyActive: true,
+      sort: "recent" as const,
+    }),
+    [channel.id]
+  );
+  const listingsQuery = useListingsByChannel(listingsFilters);
 
   useEffect(() => {
     if (listingsQuery.error) {

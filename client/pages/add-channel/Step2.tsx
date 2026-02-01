@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { linkChannel, verifyChannel } from "@/api/features/channelsApi";
+import { linkChannel, verifyChannel } from "@/api/features/channels/channels.api";
 import { getChannelErrorMessage } from "@/pages/add-channel/errorMapping";
 import { useAddChannelFlow } from "@/pages/add-channel/useAddChannelFlow";
 import type { VerifyChannelResponse } from "@/types/channels";

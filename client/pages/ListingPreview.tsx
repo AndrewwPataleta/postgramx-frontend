@@ -1,32 +1,37 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useListingsByChannel } from "@/features/listings/hooks/useListingsByChannel";
 import { toast } from "sonner";
 import { ListingPreviewDetails } from "@/components/listings/ListingPreviewDetails";
 import LoadingSkeleton from "@/components/feedback/LoadingSkeleton";
 import { PageContainer } from "@/components/layout/PageContainer";
-import { listingsByChannel } from "@/api/features/listingsApi";
-import { managedChannelData } from "@/features/channels/managedChannels";
+import { mapChannelListItemToManagedChannel } from "@/features/channels/managedChannels";
+import { useChannelDetail } from "@/features/channels/hooks/useChannelDetail";
 import { getErrorMessage } from "@/lib/api/errors";
 import { nanoToTonString } from "@/lib/ton";
 import type { ChannelManageContext } from "@/pages/channel-manage/ChannelManageLayout";
+import { useLanguage } from "@/i18n/LanguageProvider";
 
 export default function ListingPreview() {
   const { id } = useParams<{ id: string }>();
+  const { t } = useLanguage();
   const outletContext = useOutletContext<ChannelManageContext | null>();
-  const channel = outletContext?.channel ?? (id ? managedChannelData[id] : null);
-  const listingsQuery = useQuery({
-    queryKey: ["listingsByChannel", id, { page: 1, limit: 1, onlyActive: true }],
-    queryFn: () =>
-      listingsByChannel({
-        channelId: id ?? "",
-        page: 1,
-        limit: 1,
-        onlyActive: true,
-        sort: "recent",
-      }),
-    enabled: Boolean(id),
-  });
+  const channelQuery = useChannelDetail(id);
+  const fallbackChannel = channelQuery.data
+    ? mapChannelListItemToManagedChannel(channelQuery.data, t("channels.untitled"))
+    : null;
+  const channel = outletContext?.channel ?? fallbackChannel;
+  const listingsFilters = useMemo(
+    () => ({
+      channelId: id ?? "",
+      page: 1,
+      limit: 1,
+      onlyActive: true,
+      sort: "recent" as const,
+    }),
+    [id]
+  );
+  const listingsQuery = useListingsByChannel(listingsFilters, { enabled: Boolean(id) });
 
   useEffect(() => {
     if (listingsQuery.error) {
@@ -35,6 +40,15 @@ export default function ListingPreview() {
   }, [listingsQuery.error]);
 
   if (!channel) {
+    if (channelQuery.isLoading) {
+      return (
+        <div className="w-full max-w-2xl mx-auto">
+          <PageContainer className="py-6">
+            <p className="text-muted-foreground">{t("common.loading")}</p>
+          </PageContainer>
+        </div>
+      );
+    }
     return (
       <div className="w-full max-w-2xl mx-auto">
         <PageContainer className="py-6">

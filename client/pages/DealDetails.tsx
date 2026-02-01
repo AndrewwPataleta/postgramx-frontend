@@ -1,9 +1,8 @@
 import { useEffect, useMemo } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { useLocation, useParams } from "react-router-dom";
 import DealHeaderCard from "@/components/deals/DealHeaderCard";
 import StageTimeline from "@/components/deals/StageTimeline";
-import { fetchDealDetails, fetchDealsList } from "@/api/features/dealsApi";
 import { toast } from "sonner";
 import LoadingSkeleton from "@/components/feedback/LoadingSkeleton";
 import ErrorState from "@/components/feedback/ErrorState";
@@ -13,6 +12,11 @@ import { DEAL_ESCROW_STATUS } from "@/constants/deals";
 import { USER_ROLE } from "@/constants/roles";
 import type { DealListItem } from "@/types/deals";
 import { allStages, getCurrentStage } from "@/features/deals/dealStageMachine";
+import {
+  dealsQueryKeys,
+  useDealDetailQuery,
+  useDealsListQuery,
+} from "@/features/deals/hooks/useDeals";
 import type { EscrowStatus } from "@/types/deals";
 import StageScheduleTime from "@/features/deals/stages/StageScheduleTime";
 import StageSendPost from "@/features/deals/stages/StageSendPost";
@@ -28,7 +32,9 @@ export default function DealDetails() {
   const location = useLocation();
   const queryClient = useQueryClient();
   const stateDeal = (location.state as { deal?: DealListItem } | null)?.deal;
-  const cachedDeal = dealId ? queryClient.getQueryData<DealListItem>(["deal", dealId]) : undefined;
+  const cachedDeal = dealId
+    ? queryClient.getQueryData<DealListItem>(dealsQueryKeys.detail(dealId))
+    : undefined;
   const preferredDeal = stateDeal?.id === dealId ? stateDeal : cachedDeal;
 
   const {
@@ -37,46 +43,17 @@ export default function DealDetails() {
     error,
     refetch,
     isFetching,
-  } = useQuery({
-    queryKey: ["deal", dealId],
-    queryFn: async () => {
-      if (!dealId) {
-        throw new Error("Missing deal id");
-      }
-      return fetchDealDetails(dealId);
-    },
-    enabled: Boolean(dealId),
-    initialData: preferredDeal,
-    refetchInterval: (data) => {
-      if (!data) {
-        return false;
-      }
-      if (data.escrowStatus === DEAL_ESCROW_STATUS.CREATIVE_AWAITING_ADMIN_REVIEW) {
-        return 10000;
-      }
-      if (data.escrowStatus === DEAL_ESCROW_STATUS.PAYMENT_AWAITING) {
-        return 12000;
-      }
-      return [DEAL_ESCROW_STATUS.FUNDS_PENDING, DEAL_ESCROW_STATUS.POSTED_VERIFYING].includes(
-        data.escrowStatus
-      )
-        ? 5000
-        : false;
-    },
-  });
+  } = useDealDetailQuery(dealId, { refetchInterval: 10000, initialData: preferredDeal });
 
-  const fallbackListQuery = useQuery({
-    queryKey: ["deals", "list", "detail-fallback", dealId],
-    queryFn: () =>
-      fetchDealsList({
-        role: "all",
-        pendingLimit: 20,
-        activeLimit: 20,
-        completedLimit: 20,
-      }),
-    enabled: Boolean(dealId) && !deal,
-    staleTime: 20_000,
-  });
+  const fallbackListQuery = useDealsListQuery(
+    {
+      role: "all",
+      pendingLimit: 20,
+      activeLimit: 20,
+      completedLimit: 20,
+    },
+    { enabled: Boolean(dealId) && !deal, staleTime: 20_000 }
+  );
 
   const fallbackDeal = useMemo(() => {
     if (!fallbackListQuery.data || !dealId) {

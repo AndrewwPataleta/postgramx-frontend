@@ -1,45 +1,11 @@
 export type {
+  TransactionsListRequestData as TransactionsListFilters,
+  TransactionsListResponse,
+  TransactionListItem,
+} from "@/api/features/payments/payments.types";
+
+export type {
   TransactionDirection,
   TransactionStatus,
   TransactionType,
 } from "@/constants/payments";
-
-export type TransactionsListFilters = {
-  page?: number;
-  limit?: number;
-  type?: TransactionType;
-  status?: TransactionStatus;
-  direction?: TransactionDirection;
-  dealId?: string;
-  q?: string;
-  from?: string;
-  to?: string;
-  sort?: "recent" | "amount";
-  order?: "asc" | "desc";
-};
-
-export type TransactionListItem = {
-  id: string;
-  type: TransactionType;
-  direction: TransactionDirection;
-  status: TransactionStatus;
-  amountNano: string;
-  currency: string;
-  description: string | null;
-  dealId: string | null;
-  channelId: string | null;
-  externalTxHash: string | null;
-  createdAt: string;
-  confirmedAt: string | null;
-  completedAt: string | null;
-};
-
-export type TransactionsListResponse = {
-  items: TransactionListItem[];
-  page: number;
-  limit: number;
-  total: number;
-  totalPages: number;
-  hasNext: boolean;
-  hasPrev: boolean;
-};

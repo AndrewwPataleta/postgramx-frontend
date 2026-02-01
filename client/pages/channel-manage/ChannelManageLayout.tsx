@@ -7,7 +7,11 @@ import {
   getVerifyResponseErrorMessage,
   useVerifyChannel,
 } from "@/features/channels/hooks/useVerifyChannel";
-import { managedChannelData, type ManagedChannel } from "@/features/channels/managedChannels";
+import {
+  mapChannelListItemToManagedChannel,
+  type ManagedChannel,
+} from "@/features/channels/managedChannels";
+import { useChannelDetail } from "@/features/channels/hooks/useChannelDetail";
 import { PageContainer } from "@/components/layout/PageContainer";
 import type { ChannelListItem } from "@/types/channels";
 import { formatNumber } from "@/i18n/formatters";
@@ -18,18 +22,6 @@ import { ROUTES } from "@/constants/routes";
 export type ChannelManageContext = {
   channel: ManagedChannel;
 };
-
-const mapChannelFromListItem = (channel: ChannelListItem, untitledLabel: string): ManagedChannel => ({
-  id: channel.id,
-  name: channel.title || untitledLabel,
-  username: channel.username.startsWith("@") ? channel.username : `@${channel.username}`,
-  avatar: "📣",
-  status: channel.status,
-  verified: channel.status === CHANNEL_STATUS.VERIFIED,
-  subscribers: channel.memberCount ?? 0,
-  activeDeals: 0,
-  description: undefined,
-});
 
 const ChannelManageLayout = () => {
   const { id } = useParams<{ id: string }>();
@@ -43,15 +35,26 @@ const ChannelManageLayout = () => {
     return state?.channel ?? null;
   }, [location.state]);
   const rootBackTo = (location.state as { rootBackTo?: string } | null)?.rootBackTo;
+  const channelQuery = useChannelDetail(id);
+  const fetchedChannel = useMemo(
+    () =>
+      channelQuery.data
+        ? mapChannelListItemToManagedChannel(channelQuery.data, t("channels.untitled"))
+        : null,
+    [channelQuery.data, t]
+  );
   const fallbackChannel = useMemo(
-    () => (fallbackListItem ? mapChannelFromListItem(fallbackListItem, t("channels.untitled")) : null),
+    () =>
+      fallbackListItem
+        ? mapChannelListItemToManagedChannel(fallbackListItem, t("channels.untitled"))
+        : null,
     [fallbackListItem, t],
   );
   const [channel, setChannel] = useState<ManagedChannel | null>(() => {
     if (!id) {
       return null;
     }
-    return fallbackChannel ?? managedChannelData[id] ?? null;
+    return fallbackChannel ?? fetchedChannel ?? null;
   });
   useEffect(() => {
     if (!id) {
@@ -59,7 +62,7 @@ const ChannelManageLayout = () => {
       return;
     }
 
-    const resolvedChannel = fallbackChannel ?? managedChannelData[id] ?? null;
+    const resolvedChannel = fallbackChannel ?? fetchedChannel ?? null;
     setChannel((prev) => {
       if (resolvedChannel) {
         return resolvedChannel;
@@ -69,14 +72,16 @@ const ChannelManageLayout = () => {
       }
       return null;
     });
-  }, [fallbackChannel, id]);
+  }, [fallbackChannel, fetchedChannel, id]);
 
   const isPendingVerification = channel?.status === CHANNEL_STATUS.PENDING_VERIFY;
   if (!channel) {
     return (
       <div className="w-full max-w-2xl mx-auto">
         <PageContainer className="py-6">
-          <p className="text-muted-foreground">{t("channels.notFound")}</p>
+          <p className="text-muted-foreground">
+            {channelQuery.isLoading ? t("common.loading") : t("channels.notFound")}
+          </p>
         </PageContainer>
       </div>
     );

@@ -1,4 +1,4 @@
-import { ApiError } from "@/api/core/apiErrors";
+import { ApiError } from "@/api/core/errors";
 
 const CHANNEL_ERROR_MESSAGES: Record<string, string> = {
   CHANNEL_NOT_FOUND: "Channel not found",

@@ -1,4 +1,4 @@
-import { CheckCircle2, Clock, RefreshCcw, ShieldCheck, Wallet } from "lucide-react";
+import { RefreshCcw, ShieldCheck } from "lucide-react";
 import { useTelegram } from "@/hooks/use-telegram";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { buildTonConnectTransaction, buildTonTransferLink } from "@/features/deals/payment";
@@ -24,10 +24,13 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { useQuery } from "@tanstack/react-query";
-import { listChannelPayouts, withdrawFromChannel } from "@/api/features/paymentsPayoutsApi";
-import type { ChannelPayoutItem } from "@/api/types/payouts";
+import { withdrawFromChannel } from "@/api/features/payments/payments.api";
+import type { ChannelPayoutItem } from "@/api/features/payments/payments.types";
+import { useTransactions } from "@/features/payments/hooks/useTransactions";
+import { useWithdrawableByChannel } from "@/features/payments/hooks/useWithdrawableByChannel";
+import { formatDateTime, formatTon } from "@/i18n/formatters";
 import { formatTonString, nanoToTonString } from "@/lib/ton";
+import { TRANSACTION_DIRECTION } from "@/constants/payments";
 
 const topUpChips = [10, 25, 50];
 const NANO_FACTOR = 1_000_000_000n;
@@ -102,15 +105,21 @@ export default function Profile() {
   const topUpAddress = profile?.topUpAddress ?? "—";
   const topUpMemo = profile?.topUpMemo ?? "—";
 
-  const payoutsQuery = useQuery({
-    queryKey: ["payouts", payoutSearch],
-    queryFn: () =>
-      listChannelPayouts(payoutSearch.trim() ? { q: payoutSearch.trim() } : {}),
-    refetchOnWindowFocus: false,
-  });
+  const payoutsQuery = useWithdrawableByChannel(payoutSearch.trim());
+  const transactionFilters = useMemo(
+    () => ({
+      page: 1,
+      limit: 10,
+      sort: "recent" as const,
+      order: "desc" as const,
+    }),
+    []
+  );
+  const transactionsQuery = useTransactions(transactionFilters);
 
   const payouts = payoutsQuery.data?.items ?? [];
   const payoutsError = payoutsQuery.error instanceof Error ? payoutsQuery.error : null;
+  const transactions = transactionsQuery.data?.pages.flatMap((page) => page.items) ?? [];
 
   useEffect(() => {
     if (payoutsError) {
@@ -252,6 +261,7 @@ export default function Profile() {
                     <p className="text-sm font-semibold text-foreground">Wallet</p>
                     <TonConnectButton className="shrink-0" />
                   </div>
+                </div>
 
                 <div className="glass p-4 space-y-3">
                   <div>
@@ -381,6 +391,59 @@ export default function Profile() {
                     <p className="text-xs text-rose-200">{payoutsError.message}</p>
                   ) : null}
                 </div>
+              </div>
+            </div>
+
+            <div className="rounded-[28px] border border-border/40 bg-background/70 shadow-xl overflow-hidden">
+              <div className="px-5 py-4 border-b border-border/40 flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold text-foreground">Transactions</h3>
+                  <p className="text-sm text-muted-foreground">Recent activity</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => transactionsQuery.refetch()}
+                  disabled={transactionsQuery.isFetching}
+                  className="inline-flex items-center gap-2 rounded-md border border-border/40 px-3 py-2 text-xs font-semibold text-muted-foreground transition hover:text-foreground disabled:opacity-60"
+                >
+                  <RefreshCcw size={14} />
+                  Reload
+                </button>
+              </div>
+              <div className="px-5 py-5 space-y-3">
+                {transactionsQuery.isLoading ? (
+                  <LoadingSkeleton items={3} />
+                ) : transactions.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">No transactions yet.</p>
+                ) : (
+                  <div className="space-y-3">
+                    {transactions.map((item) => {
+                      const sign =
+                        item.direction === TRANSACTION_DIRECTION.OUT ? "-" : "+";
+                      return (
+                      <div
+                        key={item.id}
+                        className="flex flex-col gap-2 rounded-2xl border border-border/50 bg-card/70 px-4 py-3 text-sm"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-semibold text-foreground">{item.type}</span>
+                          <span className="text-xs text-muted-foreground">{item.status}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                          <span>
+                            {sign}
+                            {formatTon(item.amountNano, language)} {t("common.ton")}
+                          </span>
+                          <span>{formatDateTime(item.createdAt, language)}</span>
+                        </div>
+                      </div>
+                    );
+                    })}
+                  </div>
+                )}
+                {transactionsQuery.error instanceof Error ? (
+                  <p className="text-xs text-rose-200">{transactionsQuery.error.message}</p>
+                ) : null}
               </div>
             </div>
           </>

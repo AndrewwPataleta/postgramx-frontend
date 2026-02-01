@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import type { FilterState } from "@/components/FilterModal";
-import { marketplaceListChannels } from "@/api/features/marketplaceApi";
+import { listMarketplaceChannels } from "@/api/features/marketplace/marketplace.api";
 import type {
   MarketplaceChannelItem,
   MarketplaceListChannelsParams,
@@ -93,7 +93,7 @@ export const useMarketplaceViewModel = () => {
 
   const query = useQuery<MarketplaceListChannelsResponse>({
     queryKey: marketplaceKeys.channels(filtersKey, page, limit, sort, order),
-    queryFn: () => marketplaceListChannels(queryFilters),
+    queryFn: () => listMarketplaceChannels(queryFilters),
   });
 
   useEffect(() => {

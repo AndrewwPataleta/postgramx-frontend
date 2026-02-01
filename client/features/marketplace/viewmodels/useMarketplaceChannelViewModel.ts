@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { channelsApi } from "@/api/features/channelsApi";
-import type { ChannelItem, Paginated } from "@/types/channels";
+import { listChannels } from "@/api/features/channels/channels.api";
+import type { ChannelItem } from "@/types/channels";
 
 const marketplaceKeys = {
   channel: (id: string) => ["marketplace", "channels", id] as const,
@@ -13,7 +13,7 @@ export const useMarketplaceChannelViewModel = (id?: string) => {
       if (!id) {
         throw new Error("Missing channel ID");
       }
-      const response: Paginated<ChannelItem> = await channelsApi.listChannels({
+      const response = await listChannels({
         includeListings: true,
         page: 1,
         limit: 50,

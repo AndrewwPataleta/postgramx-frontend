@@ -2,12 +2,12 @@ import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { predealsCreate } from "@/api/features/predealsApi";
+import { createPreDeal } from "@/api/features/deals/deals.api";
 import { ScheduleDatePicker } from "@/components/deals/ScheduleDatePicker";
 import ErrorState from "@/components/feedback/ErrorState";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { getErrorMessage } from "@/lib/api/errors";
-import { toUtcIsoString } from "@/utils/date";
+import { toIsoZ } from "@/api/core/date";
 import { ROUTES } from "@/constants/routes";
 
 export default function CreatePreDeal() {
@@ -16,7 +16,7 @@ export default function CreatePreDeal() {
   const [scheduledAt, setScheduledAt] = useState<Date | null>(null);
 
   const createMutation = useMutation({
-    mutationFn: predealsCreate,
+    mutationFn: createPreDeal,
     onSuccess: (predeal) => {
       navigate(ROUTES.DEAL_PREDEAL(predeal.id));
     },
@@ -30,7 +30,7 @@ export default function CreatePreDeal() {
       return null;
     }
     try {
-      return toUtcIsoString(scheduledAt);
+      return toIsoZ(scheduledAt);
     } catch {
       return null;
     }
@@ -56,11 +56,6 @@ export default function CreatePreDeal() {
       toast.error("Scheduled time must be at least 1 hour from now.");
       return;
     }
-    if (!scheduledIso.endsWith("Z")) {
-      console.error("Scheduled date must be UTC ISO:", scheduledIso);
-      throw new Error("Invalid datetime format");
-    }
-
     createMutation.mutate({ listingId, scheduledAt: scheduledIso });
   };
 
