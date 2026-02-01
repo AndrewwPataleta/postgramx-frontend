@@ -7,16 +7,22 @@ const profileKeys = {
   balance: () => ["profile", "balance"] as const,
 };
 
+const profileEndpointEnabled = false;
+
 export const useProfile = () =>
   useQuery({
     queryKey: profileKeys.overview(),
     queryFn: getProfileOverview,
+    enabled: profileEndpointEnabled,
+    retry: false,
   });
 
 export const useBalance = () =>
   useQuery({
     queryKey: profileKeys.balance(),
     queryFn: getBalance,
+    enabled: profileEndpointEnabled,
+    retry: false,
   });
 
 export const profileQueryKeys = profileKeys;

@@ -22,11 +22,21 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
   const { t, language } = useLanguage();
   const { user } = useAuth();
   const [expanded, setExpanded] = useState(false);
+  if (!deal) {
+    return null;
+  }
   const listingSnapshot = deal.listingSnapshot;
-  const visibilityLabel = listingSnapshot?.visibilityDurationHours
+  if (!listingSnapshot) {
+    return (
+      <div className="w-full rounded-2xl border border-border/60 bg-card/80 p-4 text-left shadow-sm">
+        <p className="text-xs text-muted-foreground">{t("common.loading")}</p>
+      </div>
+    );
+  }
+  const visibilityLabel = listingSnapshot.visibilityDurationHours
     ? getVisibilityDurationLabel(t, listingSnapshot.visibilityDurationHours)
     : null;
-  const pinnedLabel = listingSnapshot?.pinDurationHours
+  const pinnedLabel = listingSnapshot.pinDurationHours
     ? getPinnedDurationLabel(t, listingSnapshot.pinDurationHours)
     : null;
   const detailLine = [visibilityLabel, pinnedLabel].filter(Boolean).join(" • ");
@@ -36,6 +46,10 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
     currentUserId && currentUserId === deal.advertiserUserId
       ? USER_ROLE.ADVERTISER
       : USER_ROLE.PUBLISHER;
+  // Backend can return a missing channel object for list responses.
+  const channelTitle = deal.channel?.title ?? listingSnapshot.channelId ?? "Unknown channel";
+  const channelUsername = deal.channel?.username;
+  const channelInitial = channelTitle.trim().charAt(0) || "?";
 
   return (
     <div
@@ -58,13 +72,15 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
           <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-secondary/60 text-lg font-semibold text-muted-foreground">
-            {deal.channel.title.slice(0, 1)}
+            {channelInitial}
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-              <span className="truncate">{deal.channel.title}</span>
+              <span className="truncate">{channelTitle}</span>
             </div>
-            <p className="text-xs text-muted-foreground">@{deal.channel.username}</p>
+            <p className="text-xs text-muted-foreground">
+              {channelUsername ? `@${channelUsername}` : t("common.emptyValue")}
+            </p>
           </div>
         </div>
         <span
@@ -83,7 +99,7 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
           {escrowText}
         </span>
         <span className="text-xs text-muted-foreground">
-          {listingSnapshot?.priceNano
+          {listingSnapshot.priceNano
             ? formatTon(listingSnapshot.priceNano, language)
             : t("common.emptyValue")}{" "}
           {t("common.ton")}
@@ -128,11 +144,11 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
               {formatDate(deal.scheduledAt, language) || t("common.emptyValue")}
             </div>
           </div>
-          {listingSnapshot?.tags?.length ? (
+          {listingSnapshot.tags?.length ? (
             <div className="flex flex-wrap gap-2">
-              {listingSnapshot.tags.map((tag, index) => (
+              {listingSnapshot.tags.map((tag) => (
                 <span
-                  key={`${tag}-${index}`}
+                  key={`${deal.id}-${tag}`}
                   className="rounded-full bg-secondary/60 px-3 py-1 text-xs font-medium text-foreground"
                 >
                   #{tag}
@@ -143,7 +159,7 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
           <div className="flex flex-wrap gap-2">
             <span className="rounded-full bg-secondary/60 px-3 py-1 text-xs font-medium text-foreground">
               {t("listings.formatLabel")}:{" "}
-              {listingSnapshot?.format
+              {listingSnapshot.format
                 ? getListingFormatLabel(t, listingSnapshot.format)
                 : t("common.emptyValue")}
             </span>

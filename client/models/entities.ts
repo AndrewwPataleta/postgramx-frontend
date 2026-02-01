@@ -139,7 +139,7 @@ export type DealEntity = {
   createdAt: string;
   updatedAt: string;
   listing: ListingEntity | null;
-  channel: ChannelEntity;
+  channel: ChannelEntity | null;
   escrow: DealEscrowEntity;
   creatives: DealCreativeEntity[];
   publication: DealPublicationEntity;
@@ -164,7 +164,7 @@ export type User = {
 };
 
 export type DealDetailResponse = DealEntity & {
-  channel: ChannelEntity;
+  channel: ChannelEntity | null;
   listing: ListingEntity | null;
   escrow: DealEscrowEntity;
   creatives: DealCreativeEntity[];

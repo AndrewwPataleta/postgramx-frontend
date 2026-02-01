@@ -37,7 +37,9 @@ export const useCreateDealMutation = () => {
     onSuccess: () => {
       toast.success("Deal created");
       const webApp = getTelegramWebApp();
-      webApp?.HapticFeedback?.notificationOccurred?.("success");
+      if (window.Telegram?.WebApp?.HapticFeedback && webApp?.HapticFeedback) {
+        webApp.HapticFeedback.notificationOccurred?.("success");
+      }
       queryClient.invalidateQueries({ queryKey: ["deals"] });
       navigate(ROUTES.DEALS, { state: { activeTab: "pending" }, replace: true });
     },

@@ -12,9 +12,10 @@ interface StageVerifyingProps {
 
 export default function StageVerifying({ deal }: StageVerifyingProps) {
   const { t } = useLanguage();
+  const channelUsername = deal.channel?.username;
   const postUrl =
-    deal.channel.username && deal.publication?.publishedMessageId
-      ? `https://t.me/${deal.channel.username}/${deal.publication.publishedMessageId}`
+    channelUsername && deal.publication?.publishedMessageId
+      ? `https://t.me/${channelUsername}/${deal.publication.publishedMessageId}`
       : null;
   const handleOpenPost = () => {
     if (postUrl) {

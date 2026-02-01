@@ -77,7 +77,9 @@ export const TelegramProvider = ({ children }: { children: ReactNode }) => {
     ensureWebAppReady(webApp);
     setUser(getTelegramUser(webApp));
 
-    webApp.disableVerticalSwipes?.();
+    if (window.Telegram?.WebApp?.disableVerticalSwipes && webApp.disableVerticalSwipes) {
+      webApp.disableVerticalSwipes();
+    }
 
     const updateInsets = () => {
       const safeInsets = normalizeInsets(webApp.safeAreaInset);
@@ -95,7 +97,9 @@ export const TelegramProvider = ({ children }: { children: ReactNode }) => {
     webApp.onEvent?.("contentSafeAreaChanged", updateInsets);
 
     return () => {
-      webApp.enableVerticalSwipes?.();
+      if (window.Telegram?.WebApp?.enableVerticalSwipes && webApp.enableVerticalSwipes) {
+        webApp.enableVerticalSwipes();
+      }
       webApp.offEvent?.("viewportChanged", updateInsets);
       webApp.offEvent?.("safeAreaChanged", updateInsets);
       webApp.offEvent?.("contentSafeAreaChanged", updateInsets);

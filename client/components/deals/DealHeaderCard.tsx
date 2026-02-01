@@ -17,6 +17,10 @@ export default function DealHeaderCard({ deal }: DealHeaderCardProps) {
   const tags = deal.listingSnapshot.tags ?? [];
   const pinDurationHours = deal.listingSnapshot.pinDurationHours;
   const lifetimeHours = deal.listingSnapshot.visibilityDurationHours;
+  const channelTitle =
+    deal.channel?.title ?? deal.listingSnapshot.channelId ?? t("common.emptyValue");
+  const channelUsername = deal.channel?.username;
+  const channelInitial = channelTitle.trim().charAt(0) || "?";
 
   const detailItems = useMemo(
     () => [
@@ -50,13 +54,15 @@ export default function DealHeaderCard({ deal }: DealHeaderCardProps) {
     <div className="rounded-2xl border border-border/60 bg-card/80 p-4 shadow-sm">
       <div className="flex items-center gap-3">
         <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-secondary/60 text-lg font-semibold text-muted-foreground">
-          {deal.channel.title.slice(0, 1)}
+          {channelInitial}
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-            <span className="truncate">{deal.channel.title}</span>
+            <span className="truncate">{channelTitle}</span>
           </div>
-          <p className="text-xs text-muted-foreground">@{deal.channel.username}</p>
+          <p className="text-xs text-muted-foreground">
+            {channelUsername ? `@${channelUsername}` : t("common.emptyValue")}
+          </p>
         </div>
         <div className="text-right">
           <p className="text-sm font-semibold text-foreground">{priceLabel}</p>

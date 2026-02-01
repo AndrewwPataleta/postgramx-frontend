@@ -29,7 +29,9 @@ const NavigationHaptics = () => {
 
     if (lastPathRef.current && lastPathRef.current !== location.pathname) {
       const webApp = getTelegramWebApp();
-      webApp?.HapticFeedback?.impactOccurred?.("light");
+      if (window.Telegram?.WebApp?.HapticFeedback && webApp?.HapticFeedback) {
+        webApp.HapticFeedback.impactOccurred?.("light");
+      }
     }
 
     lastPathRef.current = location.pathname;

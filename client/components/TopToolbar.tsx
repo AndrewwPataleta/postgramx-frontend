@@ -116,7 +116,7 @@ const TopToolbar = () => {
 
   useEffect(() => {
     const webApp = getTelegramWebApp();
-    const backButton = webApp?.BackButton;
+    const backButton = window.Telegram?.WebApp?.BackButton ?? webApp?.BackButton;
     if (!backButton) {
       return;
     }

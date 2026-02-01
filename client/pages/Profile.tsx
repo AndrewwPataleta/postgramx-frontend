@@ -75,6 +75,8 @@ export default function Profile() {
   const { user } = useTelegram();
   const { t, language, setLanguage } = useLanguage();
   const { data: profile, isLoading, error, refetch } = useProfile();
+  // Payments endpoints are temporarily disabled until backend stabilizes.
+  const paymentsEndpointsEnabled = false;
   const [topUpAmount, setTopUpAmount] = useState(50);
   const [topUpAmountInput, setTopUpAmountInput] = useState("50");
   const [topUpStatus, setTopUpStatus] = useState<"idle" | "pending" | "confirmed">(
@@ -115,12 +117,16 @@ export default function Profile() {
     queryFn: () =>
       listChannelPayouts(payoutSearch.trim() ? { q: payoutSearch.trim() } : {}),
     refetchOnWindowFocus: false,
+    enabled: paymentsEndpointsEnabled,
+    retry: false,
   });
 
   const transactionsQuery = useQuery({
     queryKey: ["transactions", transactionFilters],
     queryFn: () => listTransactionsForUser(transactionFilters),
     refetchOnWindowFocus: false,
+    enabled: paymentsEndpointsEnabled,
+    retry: false,
   });
 
   const payouts = payoutsQuery.data?.items ?? [];
@@ -337,15 +343,15 @@ export default function Profile() {
                         {t("profile.payoutsSubtitle")}
                       </p>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => payoutsQuery.refetch()}
-                      disabled={payoutsQuery.isFetching}
-                      className="inline-flex items-center gap-2 rounded-md border border-border/40 px-3 py-2 text-xs font-semibold text-muted-foreground transition hover:text-foreground disabled:opacity-60"
-                    >
-                      <RefreshCcw size={14} />
-                      {t("common.refresh")}
-                    </button>
+                  <button
+                    type="button"
+                    onClick={() => payoutsQuery.refetch()}
+                    disabled={!paymentsEndpointsEnabled || payoutsQuery.isFetching}
+                    className="inline-flex items-center gap-2 rounded-md border border-border/40 px-3 py-2 text-xs font-semibold text-muted-foreground transition hover:text-foreground disabled:opacity-60"
+                  >
+                    <RefreshCcw size={14} />
+                    {t("common.refresh")}
+                  </button>
                   </div>
                   <Input
                     value={payoutSearch}
@@ -526,7 +532,7 @@ export default function Profile() {
                       })}
                     </div>
                   )}
-                  {transactionHasNext ? (
+                  {paymentsEndpointsEnabled && transactionHasNext ? (
                     <button
                       type="button"
                       onClick={handleLoadMoreTransactions}
