@@ -7,6 +7,7 @@ import { ScheduleDatePicker } from "@/components/deals/ScheduleDatePicker";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { toUtcIsoString } from "@/utils/date";
 import { ROUTES } from "@/constants/routes";
+import { useLanguage } from "@/i18n/LanguageProvider";
 
 interface CreateDealLocationState {
   listingId?: string;
@@ -17,6 +18,7 @@ export default function CreateDeal() {
   const location = useLocation();
   const state = location.state as CreateDealLocationState | null;
   const listingId = state?.listingId;
+  const { t } = useLanguage();
 
   const [brief, setBrief] = useState("");
   const [scheduledAt, setScheduledAt] = useState<Date | null>(null);
@@ -79,8 +81,8 @@ export default function CreateDeal() {
       <div className="w-full max-w-2xl mx-auto">
         <PageContainer className="py-6">
           <ErrorState
-            message="Listing not selected"
-            description="Please return to the marketplace and select a listing to continue."
+            message={t("deals.create.missingListing")}
+            description={t("deals.create.missingListingHint")}
             onRetry={() => navigate(ROUTES.MARKETPLACE)}
           />
         </PageContainer>
@@ -92,31 +94,33 @@ export default function CreateDeal() {
     <div className="w-full max-w-2xl mx-auto">
       <PageContainer className="py-6 space-y-4">
         <div className="rounded-2xl border border-border/60 bg-card/80 p-4">
-          <p className="text-xs text-muted-foreground">Listing</p>
+          <p className="text-xs text-muted-foreground">{t("deals.create.listingLabel")}</p>
           <p className="mt-1 text-sm font-semibold text-foreground">{listingId}</p>
-          <p className="text-xs text-muted-foreground">Ready to create a deal</p>
+          <p className="text-xs text-muted-foreground">{t("deals.create.readyLabel")}</p>
         </div>
 
         <div className="rounded-2xl border border-border/60 bg-card/80 p-4 space-y-4">
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-foreground">Brief (optional)</label>
+            <label className="text-xs font-semibold text-foreground">
+              {t("deals.create.briefLabel")}
+            </label>
             <textarea
               value={brief}
               onChange={(event) => setBrief(event.target.value)}
-              placeholder="Describe your product, key message, and desired tone."
+              placeholder={t("deals.create.briefPlaceholder")}
               className="min-h-[120px] w-full rounded-xl border border-border/60 bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
             />
           </div>
           <div className="space-y-2">
             <label className="text-xs font-semibold text-foreground">
-              Schedule datetime (optional)
+              {t("deals.create.scheduleLabel")}
             </label>
             <div className="pb-safe-bottom rounded-2xl border border-border/60 bg-card/80 p-3">
               <ScheduleDatePicker value={scheduledAt} onChange={setScheduledAt} />
             </div>
             {!isValidSchedule && (
               <p className="text-xs text-destructive">
-                Scheduled time must be at least 1 hour from now.
+                {t("deals.create.scheduleHint")}
               </p>
             )}
           </div>
@@ -128,7 +132,7 @@ export default function CreateDeal() {
           disabled={!canSubmit}
           className="w-full rounded-lg bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-60"
         >
-          {isSubmitting ? "Creating deal..." : "Create deal"}
+          {isSubmitting ? t("deals.create.creating") : t("deals.create.createAction")}
         </button>
       </PageContainer>
     </div>

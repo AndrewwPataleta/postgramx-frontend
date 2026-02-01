@@ -2,12 +2,9 @@ import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import type { FilterState } from "@/components/FilterModal";
-import { marketplaceListChannels } from "@/api/features/marketplaceApi";
-import type {
-  MarketplaceChannelItem,
-  MarketplaceListChannelsParams,
-  MarketplaceListChannelsResponse,
-} from "@/api/types/marketplace";
+import { listMarketplaceChannels } from "@/api/features/channelsApi";
+import type { ChannelEntity, ListingEntity, Paged } from "@/models/entities";
+import { useLanguage } from "@/i18n/LanguageProvider";
 
 const defaultFilters: FilterState = {
   priceRange: [0, 100],
@@ -24,21 +21,24 @@ const marketplaceKeys = {
     filters: FilterState & { q?: string },
     page: number,
     limit: number,
-    sort: MarketplaceListChannelsParams["sort"],
-    order: MarketplaceListChannelsParams["order"]
+    sort: "recent" | "price_min" | "subscribers",
+    order: "asc" | "desc"
   ) => ["marketplaceChannels", filters, page, limit, sort, order] as const,
 };
 
 export const useMarketplaceViewModel = () => {
+  const { t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filters, setFilters] = useState<FilterState>(defaultFilters);
   const [page, setPage] = useState(1);
   const [limit] = useState(20);
-  const [sort] = useState<MarketplaceListChannelsParams["sort"]>("recent");
-  const [order] = useState<MarketplaceListChannelsParams["order"]>("desc");
-  const [channels, setChannels] = useState<MarketplaceChannelItem[]>([]);
+  const [sort] = useState<"recent" | "price_min" | "subscribers">("recent");
+  const [order] = useState<"asc" | "desc">("desc");
+  const [channels, setChannels] = useState<Array<ChannelEntity & { listings: ListingEntity[] }>>(
+    []
+  );
   const [total, setTotal] = useState(0);
 
   useEffect(() => {
@@ -51,7 +51,7 @@ export const useMarketplaceViewModel = () => {
     };
   }, [searchQuery]);
 
-  const queryFilters = useMemo<MarketplaceListChannelsParams>(() => {
+  const queryFilters = useMemo(() => {
     const hasDefaultPriceRange =
       filters.priceRange[0] === defaultFilters.priceRange[0] &&
       filters.priceRange[1] === defaultFilters.priceRange[1];
@@ -91,9 +91,9 @@ export const useMarketplaceViewModel = () => {
     setTotal(0);
   }, [filtersKey, limit, order, sort]);
 
-  const query = useQuery<MarketplaceListChannelsResponse>({
+  const query = useQuery<Paged<ChannelEntity & { listings: ListingEntity[] }>>({
     queryKey: marketplaceKeys.channels(filtersKey, page, limit, sort, order),
-    queryFn: () => marketplaceListChannels(queryFilters),
+    queryFn: () => listMarketplaceChannels(queryFilters),
   });
 
   useEffect(() => {
@@ -116,9 +116,9 @@ export const useMarketplaceViewModel = () => {
       return;
     }
     const message =
-      query.error instanceof Error ? query.error.message : "Unable to load channels";
+      query.error instanceof Error ? query.error.message : t("marketplace.loadError");
     toast.error(message);
-  }, [query.error]);
+  }, [query.error, t]);
 
   const hasMore = channels.length < total;
   const isLoadingInitial = query.isLoading && page === 1 && channels.length === 0;

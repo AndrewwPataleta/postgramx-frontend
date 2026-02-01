@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import type { DealListItem } from "@/types/deals";
-import { post } from "@/api/core/apiClient";
+import type { DealEntity } from "@/models/entities";
+import { scheduleDeal } from "@/api/features/dealsApi";
 import { getErrorMessage } from "@/lib/api/errors";
 import InfoCard from "@/components/deals/InfoCard";
 import { ScheduleDatePicker } from "@/components/deals/ScheduleDatePicker";
@@ -12,7 +12,7 @@ import { useLanguage } from "@/i18n/LanguageProvider";
 import { toUtcIsoString } from "@/utils/date";
 
 interface StageScheduleTimeProps {
-  deal: DealListItem;
+  deal: DealEntity;
   readonly: boolean;
   onAction?: {
     onConfirmSchedule?: (scheduledAt: string) => Promise<void> | void;
@@ -56,20 +56,9 @@ export default function StageScheduleTime({ deal, readonly, onAction }: StageSch
       const scheduledAtUtc = toUtcIsoString(scheduledAt);
       if (!scheduledAtUtc.endsWith("Z")) {
         console.error("Scheduled date must be UTC ISO:", scheduledAtUtc);
-        throw new Error("Invalid datetime format");
+        throw new Error(t("deals.stage.scheduleTime.invalidFormat"));
       }
-      if (import.meta.env.VITE_API_MOCK === "true") {
-        console.info("Mock schedule set", { dealId: deal.id, scheduledAt: scheduledAtUtc });
-        return null;
-      }
-      console.log("Schedule payload UTC:", scheduledAtUtc);
-      return post<unknown, { dealId: string; scheduledAt: string }>(
-        "/deals/schedule",
-        {
-          dealId: deal.id,
-          scheduledAt: scheduledAtUtc,
-        }
-      );
+      return scheduleDeal({ id: deal.id, scheduledAt: scheduledAtUtc });
     },
     onSuccess: () => {
       toast.success(t("deals.stage.scheduleTime.updatedToast"));
@@ -107,7 +96,7 @@ export default function StageScheduleTime({ deal, readonly, onAction }: StageSch
       const scheduledAtUtc = toUtcIsoString(scheduledAt);
       if (!scheduledAtUtc.endsWith("Z")) {
         console.error("Scheduled date must be UTC ISO:", scheduledAtUtc);
-        throw new Error("Invalid datetime format");
+        throw new Error(t("deals.stage.scheduleTime.invalidFormat"));
       }
       onAction.onConfirmSchedule(scheduledAtUtc);
       return;

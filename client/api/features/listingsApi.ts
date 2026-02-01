@@ -1,20 +1,20 @@
-import { post } from "@/api/core/apiClient";
-import type { ListingInput } from "@/features/listings/types";
-import type { Paginated } from "@/types/channels";
-import type { ListingListItem, ListingsByChannelParams } from "@/types/listings";
+import { apiPost } from "@/api/core/http";
+import type { ListingEntity, Paged } from "@/models/entities";
+import type { ListingCreateInput, ListingUpdatePatch } from "@/models/inputs";
 
-export const createListing = async (payload: ListingInput): Promise<void> =>
-  post<void, ListingInput>("/listings/create", payload);
+export const createListing = async (data: ListingCreateInput): Promise<ListingEntity> =>
+  apiPost<ListingEntity, ListingCreateInput>("/listings/create", data);
 
-export const listingsByChannel = async (
-  params: ListingsByChannelParams
-): Promise<Paginated<ListingListItem>> =>
-  post<Paginated<ListingListItem>, ListingsByChannelParams>(
-    "/listings/by-channel",
-    params
-  );
+export const updateListing = async (data: {
+  id: string;
+  patch: Partial<ListingUpdatePatch>;
+}): Promise<ListingEntity> =>
+  apiPost<ListingEntity, typeof data>("/listings/update", data);
 
-export const listingsApi = {
-  createListing,
-  listingsByChannel,
-};
+export const listListingsByChannel = async (data: {
+  channelId: string;
+  page?: number;
+  limit?: number;
+  activeOnly?: boolean;
+}): Promise<Paged<ListingEntity>> =>
+  apiPost<Paged<ListingEntity>, typeof data>("/listings/by-channel", data);

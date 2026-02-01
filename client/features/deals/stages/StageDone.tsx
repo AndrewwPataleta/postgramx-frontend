@@ -1,14 +1,14 @@
 import { useNavigate } from "react-router-dom";
 import InfoCard from "@/components/deals/InfoCard";
-import type { DealListItem } from "@/types/deals";
-import { DEAL_ESCROW_STATUS } from "@/constants/deals";
-import { escrowStatusToLabel } from "@/features/deals/dealStageMachine";
+import type { DealEntity } from "@/models/entities";
+import { EscrowStatus } from "@/models/enums";
+import { getEscrowStatusLabel } from "@/i18n/labels";
 import { formatDateTime } from "@/i18n/formatters";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { ROUTES } from "@/constants/routes";
 
 interface StageDoneProps {
-  deal: DealListItem;
+  deal: DealEntity;
   readonly: boolean;
   onAction?: Record<string, never>;
 }
@@ -16,10 +16,10 @@ interface StageDoneProps {
 export default function StageDone({ deal }: StageDoneProps) {
   const { t, language } = useLanguage();
   const navigate = useNavigate();
-  const isCanceled = deal.escrowStatus === DEAL_ESCROW_STATUS.CANCELED;
+  const isCanceled = deal.escrow.status === EscrowStatus.Canceled;
 
   const handleCreateNewDeal = () => {
-    navigate(ROUTES.DEAL_CREATE(deal.listing.id));
+    navigate(ROUTES.DEAL_CREATE(deal.listingSnapshot.listingId));
   };
   return (
     <InfoCard title={t("deals.stage.done.title")}>
@@ -38,9 +38,9 @@ export default function StageDone({ deal }: StageDoneProps) {
         </div>
       ) : null}
       <p className="text-xs text-muted-foreground">
-        {t("deals.statusLabel")}:{" "}
+          {t("deals.statusLabel")}:{" "}
         <span className="font-semibold text-foreground">
-          {escrowStatusToLabel(deal.escrowStatus, t)}
+          {getEscrowStatusLabel(t, deal.escrow.status)}
         </span>
       </p>
       <p className="text-xs text-muted-foreground">

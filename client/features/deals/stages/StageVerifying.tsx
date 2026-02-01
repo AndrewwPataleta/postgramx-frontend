@@ -1,20 +1,24 @@
 import InfoCard from "@/components/deals/InfoCard";
-import type { DealListItem } from "@/types/deals";
+import type { DealEntity } from "@/models/entities";
 import { openTelegramLink } from "@/lib/telegramLinks";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/i18n/LanguageProvider";
 
 interface StageVerifyingProps {
-  deal: DealListItem;
+  deal: DealEntity;
   readonly: boolean;
   onAction?: Record<string, never>;
 }
 
 export default function StageVerifying({ deal }: StageVerifyingProps) {
   const { t } = useLanguage();
+  const postUrl =
+    deal.channel.username && deal.publication?.publishedMessageId
+      ? `https://t.me/${deal.channel.username}/${deal.publication.publishedMessageId}`
+      : null;
   const handleOpenPost = () => {
-    if (deal.postUrl) {
-      openTelegramLink(deal.postUrl);
+    if (postUrl) {
+      openTelegramLink(postUrl);
     }
   };
 
@@ -23,7 +27,7 @@ export default function StageVerifying({ deal }: StageVerifyingProps) {
       <p className="text-xs text-muted-foreground">
         {t("deals.stage.verifyingPost.description")}
       </p>
-      {deal.postUrl ? (
+      {postUrl ? (
         <button
           type="button"
           onClick={handleOpenPost}

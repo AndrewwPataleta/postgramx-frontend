@@ -69,6 +69,7 @@ const TopToolbar = () => {
   const { t } = useLanguage();
   const pathname = location.pathname;
   const rootBackTo = (location.state as { rootBackTo?: string } | null)?.rootBackTo;
+  const dealRole = (location.state as { dealRole?: "advertiser" | "publisher" } | null)?.dealRole;
 
   const title = useMemo(() => {
     for (const matcher of titleMatchers) {
@@ -92,12 +93,22 @@ const TopToolbar = () => {
       navigate(rootBackTo, { replace: true });
       return;
     }
+    if (matchPath({ path: `${ROUTES.DEALS}/:dealId`, end: true }, pathname)) {
+      if (dealRole === "advertiser") {
+        navigate(ROUTES.MARKETPLACE, { replace: true });
+        return;
+      }
+      if (dealRole === "publisher") {
+        navigate(ROUTES.CHANNELS, { replace: true });
+        return;
+      }
+    }
     if (window.history.length > 1) {
       navigate(-1);
       return;
     }
     navigate(fallbackPath);
-  }, [fallbackPath, navigate, rootBackTo]);
+  }, [dealRole, fallbackPath, navigate, pathname, rootBackTo]);
 
   const handleClose = () => {
     navigate(fallbackPath, { replace: true });

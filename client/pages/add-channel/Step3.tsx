@@ -4,9 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAddChannelFlow } from "@/pages/add-channel/useAddChannelFlow";
-import type { ChannelListItem } from "@/types/channels";
+import type { ChannelEntity } from "@/models/entities";
 import { useLanguage } from "@/i18n/LanguageProvider";
-import { CHANNEL_ROLE, CHANNEL_STATUS } from "@/constants/channels";
+import { ChannelStatus } from "@/models/enums";
 import { ROUTES } from "@/constants/routes";
 
 const AddChannelStep3 = () => {
@@ -37,22 +37,24 @@ const AddChannelStep3 = () => {
     state.lastError || t("channels.add.step3.defaultError");
   const linkedChannelId = state.linkedChannelId;
 
-  const channelState: ChannelListItem | null =
+  const channelState: ChannelEntity | null =
     preview && linkedChannelId
       ? {
           id: linkedChannelId,
           username: (preview.username || preview.normalizedUsername || "").replace(/^@/, ""),
           title: preview.title || t("channels.untitled"),
-          status: CHANNEL_STATUS.VERIFIED,
-          telegramChatId: preview.telegramChatId ?? null,
+          status: ChannelStatus.Verified,
+          telegramChatId: preview.telegramChatId ? String(preview.telegramChatId) : null,
           memberCount: preview.memberCount ?? null,
+          subscribersCount: preview.memberCount ?? null,
+          avgViews: null,
+          createdByUserId: "",
           verifiedAt: new Date().toISOString(),
           lastCheckedAt: new Date().toISOString(),
-          membership: {
-            role: CHANNEL_ROLE.OWNER,
-            telegramAdminStatus: "administrator",
-            lastRecheckAt: new Date().toISOString(),
-          },
+          isDisabled: false,
+          languageStats: null,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
         }
       : null;
 

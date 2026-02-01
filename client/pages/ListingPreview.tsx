@@ -5,40 +5,40 @@ import { toast } from "sonner";
 import { ListingPreviewDetails } from "@/components/listings/ListingPreviewDetails";
 import LoadingSkeleton from "@/components/feedback/LoadingSkeleton";
 import { PageContainer } from "@/components/layout/PageContainer";
-import { listingsByChannel } from "@/api/features/listingsApi";
-import { managedChannelData } from "@/features/channels/managedChannels";
+import { listListingsByChannel } from "@/api/features/listingsApi";
 import { getErrorMessage } from "@/lib/api/errors";
 import { nanoToTonString } from "@/lib/ton";
 import type { ChannelManageContext } from "@/pages/channel-manage/ChannelManageLayout";
+import { useLanguage } from "@/i18n/LanguageProvider";
 
 export default function ListingPreview() {
   const { id } = useParams<{ id: string }>();
   const outletContext = useOutletContext<ChannelManageContext | null>();
-  const channel = outletContext?.channel ?? (id ? managedChannelData[id] : null);
+  const channel = outletContext?.channel ?? null;
+  const { t } = useLanguage();
   const listingsQuery = useQuery({
     queryKey: ["listingsByChannel", id, { page: 1, limit: 1, onlyActive: true }],
     queryFn: () =>
-      listingsByChannel({
+      listListingsByChannel({
         channelId: id ?? "",
         page: 1,
         limit: 1,
-        onlyActive: true,
-        sort: "recent",
+        activeOnly: true,
       }),
     enabled: Boolean(id),
   });
 
   useEffect(() => {
     if (listingsQuery.error) {
-      toast.error(getErrorMessage(listingsQuery.error, "Unable to load listing"));
+      toast.error(getErrorMessage(listingsQuery.error, t("listings.loadError")));
     }
-  }, [listingsQuery.error]);
+  }, [listingsQuery.error, t]);
 
   if (!channel) {
     return (
       <div className="w-full max-w-2xl mx-auto">
         <PageContainer className="py-6">
-          <p className="text-muted-foreground">Channel not found</p>
+          <p className="text-muted-foreground">{t("channels.notFound")}</p>
         </PageContainer>
       </div>
     );
@@ -67,15 +67,13 @@ export default function ListingPreview() {
           />
         ) : (
           <div className="rounded-2xl border border-border/60 bg-card/80 p-4 text-sm text-muted-foreground">
-            No listings available to preview yet.
+            {t("listings.previewEmpty")}
           </div>
         )}
 
         <div className="rounded-2xl border border-border/60 bg-card/80 p-4 text-sm text-muted-foreground">
-          <p className="font-medium text-foreground">Preview state</p>
-          <p className="mt-1">
-            This summary card is used across Marketplace and advertiser requests.
-          </p>
+          <p className="font-medium text-foreground">{t("listings.previewStateTitle")}</p>
+          <p className="mt-1">{t("listings.previewStateSubtitle")}</p>
         </div>
       </PageContainer>
     </div>

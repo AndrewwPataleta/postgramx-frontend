@@ -1,4 +1,4 @@
-import { post } from "@/api/core/apiClient";
+import { apiPost } from "@/api/core/http";
 import type {
   ListChannelPayoutsResponse,
   WithdrawResponse,
@@ -7,7 +7,7 @@ import type {
 export const listChannelPayouts = async (
   params: { q?: string } = {}
 ): Promise<ListChannelPayoutsResponse> => {
-  return post<ListChannelPayoutsResponse, { q?: string }>(
+  return apiPost<ListChannelPayoutsResponse, { q?: string }>(
     "/payments/payouts/channels",
     params
   );
@@ -18,7 +18,7 @@ export const withdrawFromChannel = async (params: {
   amountNano: string;
   destinationAddress?: string;
 }): Promise<WithdrawResponse> => {
-  return post<WithdrawResponse, typeof params>("/payments/payouts/withdraw", params);
+  return apiPost<WithdrawResponse, typeof params>("/payments/payouts/withdraw", params);
 };
 
 export const paymentsPayoutsApi = {

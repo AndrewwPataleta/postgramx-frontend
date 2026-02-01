@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getBalance, getProfileOverview } from "./api";
+import { getBalance, getProfileOverview } from "@/api/features/profileApi";
 
 const profileKeys = {
   all: ["profile"] as const,

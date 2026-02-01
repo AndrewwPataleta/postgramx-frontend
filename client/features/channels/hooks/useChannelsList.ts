@@ -1,17 +1,27 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { postChannelsList } from "@/api/features/channelsApi";
-import type { ChannelsListParams, ChannelsListResponse } from "@/types/channels";
+import { listMyChannels } from "@/api/features/channelsApi";
+import type { ChannelEntity, Paged } from "@/models/entities";
 
-const channelsListKey = (filters: ChannelsListParams) => [
-  "channelsList",
-  filters,
-];
+const channelsListKey = (filters: {
+  verifiedOnly?: boolean;
+  q?: string;
+  sort?: string;
+  order?: string;
+}) => ["channelsList", filters];
 
-export const useChannelsList = (filters: ChannelsListParams, limit = 10) =>
-  useInfiniteQuery<ChannelsListResponse>({
+export const useChannelsList = (
+  filters: {
+    verifiedOnly?: boolean;
+    q?: string;
+    sort?: string;
+    order?: string;
+  },
+  limit = 10
+) =>
+  useInfiniteQuery<Paged<ChannelEntity>>({
     queryKey: channelsListKey(filters),
     queryFn: ({ pageParam = 1 }) =>
-      postChannelsList({
+      listMyChannels({
         ...filters,
         page: Number(pageParam),
         limit,

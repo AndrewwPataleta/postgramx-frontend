@@ -1,12 +1,12 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import type { PreviewChannelResponse } from "@/types/channels";
+import type { ChannelPreview } from "@/api/features/channelsApi";
 
 export type AddChannelFlowStatus = "idle" | "loading" | "success" | "error";
 
 export type AddChannelFlowState = {
   usernameOrLink: string;
   normalizedUsername: string;
-  preview: PreviewChannelResponse | null;
+  preview: ChannelPreview | null;
   linkedChannelId: string | null;
   linkStatus: AddChannelFlowStatus;
   verifyStatus: AddChannelFlowStatus;
@@ -16,7 +16,7 @@ export type AddChannelFlowState = {
 type AddChannelFlowContextValue = {
   state: AddChannelFlowState;
   setUsernameOrLink: (value: string) => void;
-  setPreview: (value: PreviewChannelResponse | null) => void;
+  setPreview: (value: ChannelPreview | null) => void;
   setLinkedChannelId: (value: string | null) => void;
   setLinkStatus: (value: AddChannelFlowStatus) => void;
   setVerifyStatus: (value: AddChannelFlowStatus) => void;
@@ -66,7 +66,7 @@ const AddChannelFlowContext = createContext<AddChannelFlowContextValue | undefin
 export const AddChannelFlowProvider = ({ children }: { children: ReactNode }) => {
   const [state, setState] = useState<AddChannelFlowState>(() => {
     const usernameOrLink = readSessionValue(USERNAME_KEY) ?? DEFAULT_STATE.usernameOrLink;
-    const preview = readSessionJson<PreviewChannelResponse>(PREVIEW_KEY);
+    const preview = readSessionJson<ChannelPreview>(PREVIEW_KEY);
     const linkedChannelId = readSessionValue(CHANNEL_ID_KEY);
     const normalizedUsername =
       preview?.normalizedUsername ?? preview?.username ?? DEFAULT_STATE.normalizedUsername;

@@ -1,4 +1,4 @@
-import { post } from "@/api/core/apiClient";
+import { apiPost } from "@/api/core/http";
 
 export interface PreDealDto {
   id: string;
@@ -31,13 +31,13 @@ export const predealsCreate = async (payload: {
   listingId: string;
   scheduledAt: string;
 }): Promise<PreDealDto> => {
-  return post<PreDealDto, typeof payload>("/predeals/create", payload);
+  return apiPost<PreDealDto, typeof payload>("/predeals/create", payload);
 };
 
 export const predealsGet = async (payload: { id: string }): Promise<PreDealDto> => {
-  return post<PreDealDto, typeof payload>("/predeals/get", payload);
+  return apiPost<PreDealDto, typeof payload>("/predeals/get", payload);
 };
 
 export const predealsCancel = async (payload: { id: string }): Promise<void> => {
-  await post<void, typeof payload>("/predeals/cancel", payload);
+  await apiPost<void, typeof payload>("/predeals/cancel", payload);
 };

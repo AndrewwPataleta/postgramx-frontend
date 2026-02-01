@@ -3,15 +3,15 @@ import { toast } from "sonner";
 import { TonConnectButton, useTonConnectUI } from "@tonconnect/ui-react";
 
 import InfoCard from "@/components/deals/InfoCard";
-import type { DealListItem } from "@/types/deals";
-import { DEAL_ESCROW_STATUS } from "@/constants/deals";
+import type { DealEntity } from "@/models/entities";
+import { EscrowStatus } from "@/models/enums";
 import { cn } from "@/lib/utils";
 import { formatTon } from "@/i18n/formatters";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { useWalletContext } from "@/contexts/WalletContext";
 
 interface StagePaymentProps {
-  deal: DealListItem;
+  deal: DealEntity;
   readonly: boolean;
   onAction?: {
     onRefresh?: () => void;
@@ -79,19 +79,14 @@ export default function StagePayment({
   const [isWaiting, setIsWaiting] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState<string | null>(null);
 
-  const paymentDeadlineAt = deal.paymentDeadlineAt ?? deal.paymentExpiresAt;
+  const paymentDeadlineAt = deal.escrow.paymentDeadlineAt;
 
-  const escrowAmountNano = deal.escrowAmountNano ?? deal.listing.priceNano;
-  const paymentAddress = deal.escrowPaymentAddress ?? "";
+  const escrowAmountNano = deal.escrow.amountNano ?? deal.listingSnapshot.priceNano;
+  const paymentAddress = deal.escrow.paymentAddress ?? "";
 
   const displayAmount = escrowAmountNano
     ? `${formatTon(escrowAmountNano, language)} ${t("common.ton")}`
     : t("common.emptyValue");
-
-  console.log("[PAY DEBUG] escrowAmountNano raw =", escrowAmountNano);
-  console.log("[PAY DEBUG] deal.escrowAmountNano raw =", deal.escrowAmountNano);
-  console.log("[PAY DEBUG] deal.listing.priceNano raw =", deal.listing.priceNano);
-
 
   const walletStatusLabel = useMemo(() => {
     if (!isConnected) return t("deals.stage.payment.walletDisconnected");
@@ -125,9 +120,9 @@ export default function StagePayment({
 
   useEffect(() => {
     setIsWaiting(false);
-  }, [deal.id, deal.escrowStatus]);
+  }, [deal.id, deal.escrow.status]);
 
-  if (deal.escrowStatus !== DEAL_ESCROW_STATUS.PAYMENT_AWAITING) {
+  if (deal.escrow.status !== EscrowStatus.PaymentAwaiting) {
     return null;
   }
 
@@ -159,15 +154,12 @@ export default function StagePayment({
         ],
       });
 
-      toast.success(
-        t("deals.stage.payment.paymentSent") ??
-        "Transaction sent. Waiting for confirmation..."
-      );
+      toast.success(t("deals.stage.payment.paymentSent"));
     } catch (error: any) {
       const message =
         typeof error?.message === "string"
           ? error.message
-          : t("deals.stage.payment.paymentCanceled") ?? "Payment canceled";
+          : t("deals.stage.payment.paymentCanceled");
       toast.error(message);
       setIsWaiting(false);
     }

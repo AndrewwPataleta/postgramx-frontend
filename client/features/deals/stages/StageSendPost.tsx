@@ -1,15 +1,15 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import InfoCard from "@/components/deals/InfoCard";
-import type { DealListItem } from "@/types/deals";
+import type { DealEntity } from "@/models/entities";
 import { openTelegramLink } from "@/lib/telegramLinks";
-import { post } from "@/api/core/apiClient";
+import { submitCreative } from "@/api/features/dealsApi";
 import { getErrorMessage } from "@/lib/api/errors";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/i18n/LanguageProvider";
 
 interface StageSendPostProps {
-  deal: DealListItem;
+  deal: DealEntity;
   readonly: boolean;
   onAction?: {
     onOpenBot?: () => void;
@@ -23,17 +23,11 @@ export default function StageSendPost({ deal, readonly, onAction }: StageSendPos
   const queryClient = useQueryClient();
   const { t } = useLanguage();
   const botLink = `https://t.me/${BOT_USERNAME}?start=deal_${deal.id}`;
-  const hasCreative = Boolean(deal.creativeText);
+  const hasCreative = deal.creatives.length > 0;
 
   const mutation = useMutation({
     mutationFn: async () => {
-      if (import.meta.env.VITE_API_MOCK === "true") {
-        console.info("Mock creative submit", { dealId: deal.id });
-        return null;
-      }
-      return post<unknown, { dealId: string }>("/deals/creative/submit", {
-        dealId: deal.id,
-      });
+      return submitCreative({ id: deal.id });
     },
     onSuccess: () => {
       toast.success(t("deals.stage.sendPost.submittedToast"));
