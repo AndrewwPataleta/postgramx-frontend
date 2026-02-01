@@ -1,1 +1,0 @@
-const a=1000000000n,i=t=>t.replace(/^0+(?=\d)/,"").replace(/\B(?=(\d{3})+(?!\d))/g,","),l=t=>{const n=typeof t=="bigint"?t:BigInt(t),o=n<0n,r=o?-n:n,e=r/a,c=(r%a).toString().padStart(9,"0").replace(/0+$/,""),s=c?`${e.toString()}.${c}`:e.toString();return o?`-${s}`:s},f=t=>{const[n,o]=t.split("."),r=i(n??"0");return o?`${r}.${o}`:r};export{f,l as n};

@@ -1,1 +1,0 @@
-import{C as e}from"./channels-CCH0-4EZ.js";const r={1:{id:"1",name:"My Crypto Channel",username:"@mycryptocha",avatar:"📰",status:e.VERIFIED,verified:!0,subscribers:45e3,activeDeals:1,description:"Verified creator channel ready for sponsor placements."}};export{r as m};
