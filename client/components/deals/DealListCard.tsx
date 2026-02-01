@@ -32,7 +32,7 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
 
   const currentUserId = (user as { id?: string } | null)?.id;
 
-  // ✅ Защита от "частичных" объектов
+
   const channelTitle = deal?.channel?.title ?? t("common.emptyValue");
   const channelUsername = deal?.channel?.username ?? "";
   const channelInitial = channelTitle?.trim()?.[0] ?? "•";
@@ -46,6 +46,8 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
   const pinnedLabel = listingSnapshot?.pinDurationHours
     ? getPinnedDurationLabel(t, listingSnapshot.pinDurationHours)
     : null;
+
+  console.log(deal)
 
   const detailLine = [visibilityLabel, pinnedLabel].filter(Boolean).join(" • ");
 
@@ -63,7 +65,7 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
       ? USER_ROLE.ADVERTISER
       : USER_ROLE.PUBLISHER;
 
-  // (опционально) полезно быстро найти "битые" сделки
+
   useMemo(() => {
     if (!deal?.escrow && !(deal as any)?.escrowStatus) {
       // eslint-disable-next-line no-console

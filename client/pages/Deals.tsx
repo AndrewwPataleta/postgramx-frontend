@@ -241,7 +241,7 @@ export default function Deals() {
                 </div>
                 <div className="space-y-3">
                   {sellerDeals.map((deal) => (
-                    <DealListCard key={deal.id} deal={deal} onSelect={handleSelectDeal} />
+                    <DealListCard  deal={deal} onSelect={handleSelectDeal} />
                   ))}
                 </div>
               </div>
