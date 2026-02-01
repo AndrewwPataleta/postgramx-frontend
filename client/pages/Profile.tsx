@@ -262,7 +262,7 @@ export default function Profile() {
             onRetry={() => refetch()}
           />
         ) : (
-          <>
+          <div>
             <div className="glass p-5">
               <div className="flex items-center gap-4">
                 <Avatar className="h-14 w-14">
@@ -539,7 +539,7 @@ export default function Profile() {
                 </div>
               </div>
             </div>
-          </>
+          </div>
         )}
       </PageContainer>
       <Sheet
