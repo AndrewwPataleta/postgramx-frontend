@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { TELEGRAM_MOCK } from "@/config/env";
@@ -7,8 +7,11 @@ import { ROUTES } from "@/constants/routes";
 
 const Splash = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { initSession, retry, isLoading, isReady, error, user } = useAuth();
   const [copied, setCopied] = useState(false);
+  const redirectTo =
+    (location.state as { from?: string } | null)?.from ?? ROUTES.MARKETPLACE;
 
   useEffect(() => {
     if (isReady && user) {
@@ -19,9 +22,11 @@ const Splash = () => {
 
   useEffect(() => {
     if (isReady && user) {
-      navigate(ROUTES.MARKETPLACE, { replace: true });
+      navigate(redirectTo === ROUTES.SPLASH ? ROUTES.MARKETPLACE : redirectTo, {
+        replace: true,
+      });
     }
-  }, [isReady, navigate, user]);
+  }, [isReady, navigate, redirectTo, user]);
 
   useEffect(() => {
     if (!copied) {
