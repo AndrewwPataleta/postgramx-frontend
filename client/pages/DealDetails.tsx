@@ -112,19 +112,23 @@ export default function DealDetails() {
       return null;
     }
     const currentUserId = (user as { id?: string } | null)?.id;
-    const isAdvertiser = currentUserId && currentUserId === resolvedDeal.advertiserUserId;
+    const isAdvertiser = currentUserId === resolvedDeal.advertiserUserId;
+    console.log('is averstired '+isAdvertiser)
+    console.log('currentUserId '+currentUserId)
+    console.log('deal.advertiserUserId '+deal.advertiserUserId)
     const readonlyForPublisher = !isAdvertiser;
     const stageComponents: Record<DealStage, JSX.Element> = {
 
       [DealStage.CREATIVE_AWAITING_SUBMIT]: (
         <StageSendPost deal={resolvedDeal} readonly={!isAdvertiser} />
       ),
+      [DealStage.CREATIVE_AWAITING_CONFIRM]: (
+        <StageAdminApproval deal={resolvedDeal} readonly={isAdvertiser} />
+      ),
       /*[DealStage.ADMIN_REVIEW_PENDING]: (
         <StageAdminApproval deal={resolvedDeal} readonly={isAdvertiser} />
       ),
-      [DealStage.CreativeAwaitingConfirm]: (
-        <StageAdminApproval deal={resolvedDeal} readonly={isAdvertiser} />
-      ),
+
       [DealStage.SCHEDULING_PENDING]: (
           <StageScheduleTime deal={resolvedDeal} readonly={!isAdvertiser} />
       ),
