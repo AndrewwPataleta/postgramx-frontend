@@ -11,18 +11,16 @@ import { PageContainer } from "@/components/layout/PageContainer";
 import { getErrorMessage } from "@/lib/api/errors";
 import { DealStage, DealStatus } from "@/models/enums";
 import type { DealEntity } from "@/models/entities";
-import { allStages } from "@/features/deals/dealStageMachine";
 import StageScheduleTime from "@/features/deals/stages/StageScheduleTime";
 import StageSendPost from "@/features/deals/stages/StageSendPost";
-import StageAdminApproval from "@/features/deals/stages/StageAdminApproval";
 import StagePayment from "@/features/deals/stages/StagePayment";
 import StagePaymentPending from "@/features/deals/stages/StagePaymentPending";
-import StageScheduled from "@/features/deals/stages/StageScheduled";
 import StageVerifying from "@/features/deals/stages/StageVerifying";
 import StageDone from "@/features/deals/stages/StageDone";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { stageOrder } from "@/models/helpers";
 import { useLanguage } from "@/i18n/LanguageProvider";
+import InfoCard from "@/components/deals/InfoCard";
+import { getCurrentStep, getStepState, orderedSteps, type StepId } from "@/features/deals/stage-ui";
 
 export default function DealDetails() {
   const { dealId } = useParams<{ dealId: string }>();
@@ -33,7 +31,7 @@ export default function DealDetails() {
   const stateDeal = (location.state as { deal?: DealEntity } | null)?.deal;
   const cachedDeal = dealId ? queryClient.getQueryData<DealEntity>(["deal", dealId]) : undefined;
   const preferredDeal = stateDeal?.id === dealId ? stateDeal : cachedDeal;
-  const [selectedStage, setSelectedStage] = useState<DealStage | null>(null);
+  const [selectedStep, setSelectedStep] = useState<StepId | null>(null);
 
   const {
     data: deal,
@@ -47,10 +45,19 @@ export default function DealDetails() {
       if (!dealId) {
         throw new Error("Missing deal id");
       }
-      return getDealDetail({ id: dealId });
+      return getDealDetail(dealId);
     },
     enabled: Boolean(dealId),
     initialData: preferredDeal,
+    refetchInterval: (data) => {
+      if (!data) {
+        return false;
+      }
+      if (data.status === DealStatus.Completed || data.status === DealStatus.Canceled) {
+        return false;
+      }
+      return 10000;
+    },
   });
 
   const fallbackListQuery = useQuery({
@@ -86,25 +93,14 @@ export default function DealDetails() {
     }
   }, [error, fallbackListQuery.error]);
 
-  const currentStage = resolvedDeal?.stage ?? DealStage.Schedule;
-  const availableStages = resolvedDeal ? allStages : [];
+  const currentStep = resolvedDeal ? getCurrentStep(resolvedDeal.stage) : orderedSteps[0];
 
   useEffect(() => {
     if (!resolvedDeal) {
       return;
     }
-    setSelectedStage(resolvedDeal.stage);
+    setSelectedStep(getCurrentStep(resolvedDeal.stage));
   }, [resolvedDeal?.stage]);
-
-  useEffect(() => {
-    if (!resolvedDeal || resolvedDeal.status === DealStatus.Completed || resolvedDeal.status === DealStatus.Canceled) {
-      return undefined;
-    }
-    const interval = window.setInterval(() => {
-      refetch();
-    }, 10000);
-    return () => window.clearInterval(interval);
-  }, [refetch, resolvedDeal]);
 
   const stagePanel = useMemo(() => {
     if (!resolvedDeal) {
@@ -113,55 +109,114 @@ export default function DealDetails() {
     const currentUserId = (user as { id?: string } | null)?.id;
     const isAdvertiser = currentUserId && currentUserId === resolvedDeal.advertiserUserId;
     const readonlyForPublisher = !isAdvertiser;
+    const activeStep = selectedStep ?? currentStep;
+    const isViewOnly = activeStep !== currentStep;
+    const latestCreative = resolvedDeal.creatives.reduce<DealEntity["creatives"][number] | null>(
+      (latest, creative) => {
+        if (!latest) {
+          return creative;
+        }
+        if (creative.version > latest.version) {
+          return creative;
+        }
+        const latestDate = new Date(latest.createdAt).getTime();
+        const currentDate = new Date(creative.createdAt).getTime();
+        return currentDate > latestDate ? creative : latest;
+      },
+      null
+    );
 
-    const stageComponents: Record<DealStage, JSX.Element> = {
-      [DealStage.Schedule]: (
-        <StageScheduleTime deal={resolvedDeal} readonly={!isAdvertiser} />
-      ),
-      [DealStage.SendPost]: (
-        <StageSendPost deal={resolvedDeal} readonly={!isAdvertiser} />
-      ),
-      [DealStage.CreativeAwaitingAdminReview]: (
-        <StageAdminApproval deal={resolvedDeal} readonly={isAdvertiser} />
-      ),
-      [DealStage.CreativeAwaitingConfirm]: (
-        <StageAdminApproval deal={resolvedDeal} readonly={isAdvertiser} />
-      ),
-      [DealStage.PaymentWindow]: (
-        <StagePaymentPending
+    if (activeStep === "CREATIVE") {
+      const canSubmit =
+        isAdvertiser &&
+        !isViewOnly &&
+        (resolvedDeal.stage === DealStage.CreativePending ||
+          resolvedDeal.stage === DealStage.CreativeChangesRequested);
+      return (
+        <StageSendPost
           deal={resolvedDeal}
-          readonly={readonlyForPublisher}
-          onAction={readonlyForPublisher ? undefined : { onRefresh: () => refetch() }}
-          isRefreshing={isFetching}
+          readonly={!isAdvertiser || isViewOnly}
+          variant={
+            resolvedDeal.stage === DealStage.CreativeChangesRequested ? "changesRequested" : "pending"
+          }
+          showSubmit={canSubmit}
+          adminComment={latestCreative?.adminComment}
         />
-      ),
-      [DealStage.Payment]: (
-        <StagePayment
-          deal={resolvedDeal}
-          readonly={readonlyForPublisher}
-          onAction={readonlyForPublisher ? undefined : { onRefresh: () => refetch() }}
-          isRefreshing={isFetching}
-        />
-      ),
-      [DealStage.PaymentPending]: (
-        <StagePaymentPending
-          deal={resolvedDeal}
-          readonly={readonlyForPublisher}
-          onAction={readonlyForPublisher ? undefined : { onRefresh: () => refetch() }}
-          isRefreshing={isFetching}
-        />
-      ),
-      [DealStage.Scheduled]: (
-        <StageScheduled deal={resolvedDeal} readonly={readonlyForPublisher} />
-      ),
-      [DealStage.Verifying]: (
-        <StageVerifying deal={resolvedDeal} readonly={readonlyForPublisher} />
-      ),
-      [DealStage.Done]: <StageDone deal={resolvedDeal} readonly={readonlyForPublisher} />,
-    };
+      );
+    }
 
-    return stageComponents[resolvedDeal.stage];
-  }, [isFetching, refetch, resolvedDeal]);
+    if (activeStep === "ADMIN_REVIEW") {
+      const reviewText =
+        resolvedDeal.stage === DealStage.CreativeSubmitted
+          ? t("deals.stage.adminReview.pending")
+          : t("deals.stage.adminReview.completed");
+      return (
+        <InfoCard title={t("deals.stage.adminReview.title")}>
+          <p className="text-xs text-muted-foreground">
+            {reviewText}
+          </p>
+        </InfoCard>
+      );
+    }
+
+    if (activeStep === "SCHEDULE") {
+      const canEditSchedule =
+        isAdvertiser && !isViewOnly && resolvedDeal.stage === DealStage.CreativeApproved;
+      return <StageScheduleTime deal={resolvedDeal} readonly={!canEditSchedule} />;
+    }
+
+    if (activeStep === "PAYMENT") {
+      const paymentReadonly = readonlyForPublisher || isViewOnly;
+      if (resolvedDeal.stage === DealStage.PaymentPending) {
+        return (
+          <StagePaymentPending
+            deal={resolvedDeal}
+            readonly={paymentReadonly}
+            onAction={paymentReadonly ? undefined : { onRefresh: () => refetch() }}
+            isRefreshing={isFetching}
+          />
+        );
+      }
+      if (resolvedDeal.stage === DealStage.Scheduled) {
+        return (
+          <StagePayment
+            deal={resolvedDeal}
+            readonly={paymentReadonly}
+            onAction={paymentReadonly ? undefined : { onRefresh: () => refetch() }}
+            isRefreshing={isFetching}
+          />
+        );
+      }
+      return (
+        <InfoCard title={t("deals.stage.payment.title")}>
+          <p className="text-xs text-muted-foreground">
+            {t("deals.stage.payment.completed")}
+          </p>
+        </InfoCard>
+      );
+    }
+
+    if (activeStep === "PUBLISH") {
+      const publicationText =
+        resolvedDeal.stage === DealStage.Paid
+          ? t("deals.stage.publication.waiting")
+          : t("deals.stage.publication.published");
+      return (
+        <InfoCard title={t("deals.stage.publication.title")}>
+          <p className="text-xs text-muted-foreground">{publicationText}</p>
+        </InfoCard>
+      );
+    }
+
+    if (activeStep === "VERIFY") {
+      if (resolvedDeal.stage === DealStage.Completed) {
+        return <StageDone deal={resolvedDeal} readonly={readonlyForPublisher} />;
+      }
+      return <StageVerifying deal={resolvedDeal} readonly={readonlyForPublisher} />;
+    }
+
+    return null;
+  }, [currentStep, isFetching, refetch, resolvedDeal, selectedStep, t, user]);
 
   return (
     <div className="w-full max-w-2xl mx-auto">
@@ -179,17 +234,15 @@ export default function DealDetails() {
             {/*<DealHeaderCard deal={resolvedDeal} />*/}
 
             <StageTimeline
-              stages={availableStages}
-              selectedStage={selectedStage ?? currentStage}
-              currentStage={currentStage}
-              onSelect={(stage) => {
+              steps={orderedSteps}
+              selectedStep={selectedStep ?? currentStep}
+              currentStage={resolvedDeal.stage}
+              onSelect={(step) => {
                 if (!resolvedDeal) {
                   return;
                 }
-                const currentIndex = stageOrder.indexOf(resolvedDeal.stage);
-                const nextIndex = stageOrder.indexOf(stage);
-                if (nextIndex <= currentIndex) {
-                  setSelectedStage(stage);
+                if (getStepState(step, resolvedDeal.stage) !== "locked") {
+                  setSelectedStep(step);
                 }
               }}
             />

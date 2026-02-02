@@ -32,14 +32,14 @@ export const useCreateDealMutation = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
-  return useMutation<DealEntity, Error, { listingId: string; brief?: string; scheduledAt?: string | null }>({
+  return useMutation<DealEntity, Error, { listingId: string; brief?: string }>({
     mutationFn: (payload) => createDeal(payload),
-    onSuccess: () => {
+    onSuccess: (deal) => {
       toast.success("Deal created");
       const webApp = getTelegramWebApp();
       webApp?.HapticFeedback?.notificationOccurred?.("success");
       queryClient.invalidateQueries({ queryKey: ["deals"] });
-      navigate(ROUTES.DEALS, { state: { activeTab: "pending" }, replace: true });
+      navigate(ROUTES.DEAL_DETAILS(deal.id), { state: { deal, dealRole: "advertiser" }, replace: true });
     },
     onError: (error) => {
       toast.error(error.message);

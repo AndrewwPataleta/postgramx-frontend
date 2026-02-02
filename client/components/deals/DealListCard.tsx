@@ -1,11 +1,10 @@
 
-import { memo, useMemo, useState } from "react";
+import { memo, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import type { DealEntity } from "@/models/entities";
 import { formatDate, formatDateTime, formatTon } from "@/i18n/formatters";
 import {
   getDealRoleLabel,
-  getEscrowStatusLabel,
   getListingFormatLabel,
   getPinnedDurationLabel,
   getVisibilityDurationLabel,
@@ -13,6 +12,7 @@ import {
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { USER_ROLE } from "@/constants/roles";
 import { useAuth } from "@/components/auth/AuthProvider";
+import type { TranslationKey } from "@/i18n/translations";
 
 const roleToneMap: Record<string, string> = {
   [USER_ROLE.ADVERTISER]: "bg-emerald-500/10 text-emerald-400",
@@ -33,8 +33,9 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
   const currentUserId = (user as { id?: string } | null)?.id;
 
 
-  const channelTitle = deal?.channel?.title ?? t("common.emptyValue");
-  const channelUsername = deal?.channel?.username ?? "";
+  const channelTitle =
+    deal.channel?.title ?? deal.listingSnapshot?.channelId ?? t("common.emptyValue");
+  const channelUsername = deal.channel?.username ?? "";
   const channelInitial = channelTitle?.trim()?.[0] ?? "•";
 
   const listingSnapshot = deal?.listingSnapshot;
@@ -47,32 +48,15 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
     ? getPinnedDurationLabel(t, listingSnapshot.pinDurationHours)
     : null;
 
-  console.log(deal)
-
   const detailLine = [visibilityLabel, pinnedLabel].filter(Boolean).join(" • ");
 
-  // ✅ Самая важная правка: escrow может отсутствовать
-
-  const escrowStatus = deal.stage
-   // (deal as any)?.escrow?.status ?? (deal as any)?.escrowStatus ?? null;
-
-  // const escrowText = escrowStatus
-  //   ? getEscrowStatusLabel(t, escrowStatus)
-  //   : t("common.emptyValue");
+  const stageLabel = t(`deals.timeline.stage.${deal.stage}` as TranslationKey);
 
   const resolvedRole =
     currentUserId && currentUserId === deal?.advertiserUserId
       ? USER_ROLE.ADVERTISER
       : USER_ROLE.PUBLISHER;
 
-
-  useMemo(() => {
-    if (!deal?.escrow && !(deal as any)?.escrowStatus) {
-      // eslint-disable-next-line no-console
-      console.warn("[DealListCard] deal without escrow:", deal?.id, deal);
-    }
-    return null;
-  }, [deal]);
 
   return (
     <div
@@ -120,7 +104,7 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
           className="max-w-[200px] truncate whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold"
           style={{ textOverflow: "ellipsis" }}
         >
-          {deal.stage}
+          {stageLabel}
         </span>
 
         <span className="text-xs text-muted-foreground">
@@ -200,4 +184,3 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
 };
 
 export default memo(DealListCard);
-

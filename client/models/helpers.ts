@@ -38,14 +38,14 @@ export const isDealCanceled = (status: DealStatus): boolean =>
   status === DealStatus.Canceled;
 
 export const stageOrder: DealStage[] = [
-  DealStage.Schedule,
-  DealStage.SendPost,
-  DealStage.CreativeAwaitingAdminReview,
-  DealStage.CreativeAwaitingConfirm,
-  DealStage.PaymentWindow,
-  DealStage.Payment,
-  DealStage.PaymentPending,
+  DealStage.CreativePending,
+  DealStage.CreativeSubmitted,
+  DealStage.CreativeChangesRequested,
+  DealStage.CreativeApproved,
   DealStage.Scheduled,
-  DealStage.Verifying,
-  DealStage.Done,
+  DealStage.PaymentPending,
+  DealStage.Paid,
+  DealStage.Published,
+  DealStage.Verified,
+  DealStage.Completed,
 ];

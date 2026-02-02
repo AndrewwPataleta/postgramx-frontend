@@ -19,7 +19,6 @@ export type DealsGroupedResponse = {
 export const createDeal = async (data: {
   listingId: string;
   brief?: string;
-  scheduledAt?: string | null;
 }): Promise<DealEntity> =>
   apiPost<DealEntity, typeof data>("/deals/create", data);
 
@@ -47,20 +46,20 @@ export const listDeals = async (data: {
     },
   }));
 
-export const getDealDetail = async (data: { id: string }): Promise<DealDetailResponse> =>
-  apiPost<DealDetailResponse, typeof data>("/deals/detail", data);
+export const getDealDetail = async (dealId: string): Promise<DealDetailResponse> =>
+  apiPost<DealDetailResponse, { id: string }>("/deals/detail", { id: dealId });
 
-export const scheduleDeal = async (data: {
-  id: string;
-  scheduledAt: string;
-}): Promise<{ id: string; status: DealStatus; stage: DealStage; scheduledAt: string }> =>
-  apiPost<{ id: string; status: DealStatus; stage: DealStage; scheduledAt: string }, typeof data>(
+export const scheduleDeal = async (
+  dealId: string,
+  scheduledAt: string
+): Promise<{ id: string; status: DealStatus; stage: DealStage; scheduledAt: string }> =>
+  apiPost<{ id: string; status: DealStatus; stage: DealStage; scheduledAt: string }, { id: string; scheduledAt: string }>(
     "/deals/schedule",
-    data
+    { id: dealId, scheduledAt }
   );
 
-export const submitCreative = async (data: { id: string }): Promise<DealDetailResponse> =>
-  apiPost<DealDetailResponse, typeof data>("/deals/creative/submit", data);
+export const submitCreative = async (dealId: string): Promise<DealDetailResponse> =>
+  apiPost<DealDetailResponse, { id: string }>("/deals/creative/submit", { id: dealId });
 
 export const cancelDeal = async (data: { id: string; reason?: string }): Promise<DealDetailResponse> =>
   apiPost<DealDetailResponse, typeof data>("/deals/cancel", data);
