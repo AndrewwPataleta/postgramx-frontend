@@ -148,9 +148,6 @@ export default function ChannelDetailsView() {
           <>
             <div className="rounded-2xl border border-border/60 bg-card/80 p-4">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
-                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-2xl">
-                  {resolvedChannel.title?.[0]?.toUpperCase() ?? t("common.avatarFallback")}
-                </div>
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <h2 className="text-lg font-semibold text-foreground">
@@ -169,23 +166,7 @@ export default function ChannelDetailsView() {
                       {minPriceTon ?? t("common.emptyValue")} {t("common.ton")}
                     </span>
                   </p>
-                  {channelTags.visible.length > 0 ? (
-                    <div className="flex flex-wrap gap-2 text-[11px] text-muted-foreground">
-                      {channelTags.visible.map((tag) => (
-                        <span
-                          key={`${resolvedChannel.id}-${tag}`}
-                          className="rounded-full border border-border/60 bg-card px-2.5 py-1 text-foreground"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                      {channelTags.hiddenCount > 0 ? (
-                        <span className="rounded-full border border-border/60 bg-card px-2.5 py-1 text-muted-foreground">
-                          +{channelTags.hiddenCount}
-                        </span>
-                      ) : null}
-                    </div>
-                  ) : null}
+
                 </div>
               </div>
             </div>
@@ -199,16 +180,7 @@ export default function ChannelDetailsView() {
                   <p className="text-sm font-semibold text-foreground">
                     {t("marketplace.availablePlacements")}
                   </p>
-                  <p className="text-xs text-muted-foreground">
-                    {activeListings.length}{" "}
-                    {t("marketplace.placementsAvailable")}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="text-xs text-muted-foreground">{t("common.from")}</p>
-                  <p className="text-lg font-semibold text-primary">
-                    {minPriceTon ?? t("common.emptyValue")} {t("common.ton")}
-                  </p>
+
                 </div>
               </div>
 

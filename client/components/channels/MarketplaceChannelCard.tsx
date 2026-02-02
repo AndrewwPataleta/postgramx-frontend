@@ -122,20 +122,7 @@ export default function MarketplaceChannelCard({ channel }: MarketplaceChannelCa
           <ChannelListingsPreview channelId={channel.id} isExpanded={isExpanded} mode="viewer" />
         ) : undefined
       }
-      actions={
-        telegramLink ? (
-          <button
-            type="button"
-            onClick={(event) => {
-              event.stopPropagation();
-              openTelegramLink(telegramLink);
-            }}
-            className="rounded-lg border border-border/60 bg-background/70 px-3 py-1 text-[11px] font-semibold text-muted-foreground"
-          >
-            {t("marketplace.openChannel")}
-          </button>
-        ) : null
-      }
+
     />
   );
 }

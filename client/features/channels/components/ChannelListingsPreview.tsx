@@ -63,7 +63,7 @@ const ListingPreviewRow = memo(
         )}
       >
         <div className="flex-1 space-y-1">
-          <div className="text-sm font-semibold text-foreground">
+          <div className="text-sm font-semibold text-primary">
             {formatTon(listing.priceNano, language)} {t("common.ton")}
           </div>
           <div className="text-[11px] text-muted-foreground">
