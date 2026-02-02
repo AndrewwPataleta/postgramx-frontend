@@ -12,6 +12,7 @@ import { getErrorMessage } from "@/lib/api/errors";
 import { DealStage, DealStatus } from "@/models/enums";
 import type { DealEntity } from "@/models/entities";
 import { allStages } from "@/features/deals/dealStageMachine";
+import DealScheduleCard from "@/components/deals/DealScheduleCard";
 import StageScheduleTime from "@/features/deals/stages/StageScheduleTime";
 import StageSendPost from "@/features/deals/stages/StageSendPost";
 import StageScheduleApproval from "@/features/deals/stages/StageScheduleApproval.tsx";
@@ -178,6 +179,7 @@ export default function DealDetails() {
         ) : (
           <>
             <DealHeaderCard deal={resolvedDeal} />
+            <DealScheduleCard scheduledAt={resolvedDeal.scheduledAt} />
 
             <StageTimeline
               stages={availableStages}
