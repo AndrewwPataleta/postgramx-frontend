@@ -122,10 +122,6 @@ export default function StagePayment({
     setIsWaiting(false);
   }, [deal.id, deal.escrow.status]);
 
-  if (deal.escrow.status !== EscrowStatus.PaymentAwaiting) {
-    return null;
-  }
-
   const handlePay = async () => {
     if (readonly || !paymentAddress || !escrowAmountNano) return;
 
