@@ -134,9 +134,9 @@ export default function DealDetails() {
           isRefreshing={isFetching}
         />
       ),
-      [DealStage.ADMIN_REVIEW_PENDING]: (
-        <StageAdminApproval deal={resolvedDeal} readonly={isAdvertiser} />
-      ),
+      // [DealStage.ADMIN_REVIEW_PENDING]: (
+      //   <StageAdminApproval deal={resolvedDeal} readonly={isAdvertiser} />
+      // ),
 /*
       [DealStage.SCHEDULING_PENDING]: (
           <StageScheduleTime deal={resolvedDeal} readonly={!isAdvertiser} />
