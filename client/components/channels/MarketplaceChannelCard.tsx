@@ -54,6 +54,8 @@ export default function MarketplaceChannelCard({ channel }: MarketplaceChannelCa
   const telegramLink = trimmedUsername ? `https://t.me/${trimmedUsername}` : null;
   const listings = channel.listings ?? [];
   const hasListings = listings.length > 0;
+  const placementsCount = channel.placementsCount ?? listings.length;
+  const hasExpandableListings = placementsCount > 0;
   const rules = hasListings ? collectRules(listings, t) : null;
 
   const minListingPrice = useMemo(() => {
@@ -113,10 +115,10 @@ export default function MarketplaceChannelCard({ channel }: MarketplaceChannelCa
     <ChannelCard
       channel={cardModel}
       onClick={handleNavigate}
-      isExpanded={hasListings ? isExpanded : undefined}
-      onToggleExpand={hasListings ? () => setIsExpanded((prev) => !prev) : undefined}
+      isExpanded={hasExpandableListings ? isExpanded : undefined}
+      onToggleExpand={hasExpandableListings ? () => setIsExpanded((prev) => !prev) : undefined}
       expandedContent={
-        hasListings ? (
+        hasExpandableListings ? (
           <ChannelListingsPreview channelId={channel.id} isExpanded={isExpanded} mode="viewer" />
         ) : undefined
       }
