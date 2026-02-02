@@ -49,7 +49,7 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
 
   console.log(deal)
 
-  const detailLine = [visibilityLabel, pinnedLabel].filter(Boolean).join(" • ");
+  const detailLine = [getListingFormatLabel(t, deal.listingSnapshot.format), visibilityLabel, pinnedLabel].filter(Boolean).join(" • ");
 
   const escrowStatus =
     (deal as any)?.escrow?.status ?? (deal as any)?.escrowStatus ?? null;
@@ -66,7 +66,6 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
 
   useMemo(() => {
     if (!deal?.escrow && !(deal as any)?.escrowStatus) {
-      // eslint-disable-next-line no-console
       console.warn("[DealListCard] deal without escrow:", deal?.id, deal);
     }
     return null;
@@ -115,29 +114,9 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
         </span>
 
       </div>
-
-      <div className="mt-2 flex items-center gap-2 overflow-hidden">
-
-        <span
-          className="max-w-[200px] truncate whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold"
-          style={{ textOverflow: "ellipsis" }}
-        >
-          {deal.stage}
-        </span>
-
-
-      </div>
-
       <div className="mt-3 space-y-1">
         {detailLine ? <p className="text-xs text-muted-foreground">{detailLine}</p> : null}
-
-        {deal?.scheduledAt ? (
-          <p className="text-xs text-muted-foreground">
-            {t("deals.scheduledAt")}: {formatDateTime(deal.scheduledAt, language)}
-          </p>
-        ) : null}
       </div>
-
       <button
         type="button"
         onClick={(event) => {
@@ -152,13 +131,6 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
 
       {expanded ? (
         <div className="mt-3 space-y-3 text-xs text-muted-foreground">
-          <div className="grid gap-2 sm:grid-cols-2">
-
-            <div>
-              <span className="font-medium text-foreground">{t("deals.scheduledAt")}:</span>{" "}
-              {formatDate(deal?.scheduledAt, language) || t("common.emptyValue")}
-            </div>
-          </div>
 
           {listingSnapshot?.tags?.length ? (
             <div className="flex flex-wrap ">
@@ -173,20 +145,7 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
             </div>
           ) : null}
 
-          <div className="flex flex-wrap gap-2">
-            <span className="rounded-full bg-secondary/60 px-3 py-1 text-xs font-medium text-foreground">
-              {t("listings.formatLabel")}:{" "}
-              {listingSnapshot?.format
-                ? getListingFormatLabel(t, listingSnapshot.format)
-                : t("common.emptyValue")}
-            </span>
-            <span className="rounded-full bg-secondary/60 px-3 py-1 text-xs font-medium text-foreground">
-              {pinnedLabel ?? t("listings.meta.notPinned")}
-            </span>
-            <span className="rounded-full bg-secondary/60 px-3 py-1 text-xs font-medium text-foreground">
-              {visibilityLabel ?? t("listings.meta.noVisibility")}
-            </span>
-          </div>
+
         </div>
       ) : null}
     </div>
