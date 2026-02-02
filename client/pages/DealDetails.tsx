@@ -115,7 +115,8 @@ export default function DealDetails() {
     const isAdvertiser = currentUserId === resolvedDeal.advertiserUserId;
     console.log('is averstired '+isAdvertiser)
     console.log('currentUserId '+currentUserId)
-    console.log('deal.advertiserUserId '+deal.advertiserUserId)
+    console.log('deal.advertiserUserId '+resolvedDeal.advertiserUserId)
+    console.log('stage is '+resolvedDeal.stage)
     const readonlyForPublisher = !isAdvertiser;
     const stageComponents: Record<DealStage, JSX.Element> = {
 
@@ -125,10 +126,18 @@ export default function DealDetails() {
       [DealStage.CREATIVE_AWAITING_CONFIRM]: (
         <StageAdminApproval deal={resolvedDeal} readonly={isAdvertiser} />
       ),
-      /*[DealStage.ADMIN_REVIEW_PENDING]: (
+      [DealStage.PAYMENT_AWAITING]: (
+        <StagePayment
+          deal={resolvedDeal}
+          readonly={readonlyForPublisher}
+          onAction={readonlyForPublisher ? undefined : { onRefresh: () => refetch() }}
+          isRefreshing={isFetching}
+        />
+      ),
+      [DealStage.ADMIN_REVIEW_PENDING]: (
         <StageAdminApproval deal={resolvedDeal} readonly={isAdvertiser} />
       ),
-
+/*
       [DealStage.SCHEDULING_PENDING]: (
           <StageScheduleTime deal={resolvedDeal} readonly={!isAdvertiser} />
       ),
@@ -140,14 +149,7 @@ export default function DealDetails() {
           isRefreshing={isFetching}
         />
       ),
-      [DealStage.Payment]: (
-        <StagePayment
-          deal={resolvedDeal}
-          readonly={readonlyForPublisher}
-          onAction={readonlyForPublisher ? undefined : { onRefresh: () => refetch() }}
-          isRefreshing={isFetching}
-        />
-      ),
+
       [DealStage.PaymentPending]: (
         <StagePaymentPending
           deal={resolvedDeal}
