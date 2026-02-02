@@ -233,12 +233,7 @@ export default function Deals() {
 
             {sellerDeals.length > 0 ? (
               <div className="space-y-3">
-                <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
-                  <Megaphone size={14} />
-                  {t("deals.sellingAds")}
-                  <span className="text-[11px] font-normal">·</span>
-                  <span className="text-[11px] font-normal">{sellerDeals.length}</span>
-                </div>
+
                 <div className="space-y-3">
                   {sellerDeals.map((deal) => (
                     <DealListCard  key={deal.id} deal={deal} onSelect={handleSelectDeal} />
