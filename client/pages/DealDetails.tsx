@@ -144,15 +144,6 @@ export default function DealDetails() {
       ),
 /*
 
-      [DealStage.PaymentWindow]: (
-        <StagePaymentPending
-          deal={resolvedDeal}
-          readonly={readonlyForPublisher}
-          onAction={readonlyForPublisher ? undefined : { onRefresh: () => refetch() }}
-          isRefreshing={isFetching}
-        />
-      ),
-
       [DealStage.PaymentPending]: (
         <StagePaymentPending
           deal={resolvedDeal}

@@ -268,7 +268,7 @@
   "deals.stage.scheduleTime.notScheduled": "Not scheduled",
   "deals.stage.scheduleTime.readonly": "Schedule is set by the advertiser.",
   "deals.stage.scheduleTime.saveError": "Failed to save schedule.",
-  "deals.stage.scheduleTime.selectDateError": "Select a date and time.",
+  "deals.stage.scheduleTime.selectDateError": "Incorrect time to publish",
   "deals.stage.scheduleTime.title": "Schedule time",
   "deals.stage.scheduleTime.updatedToast": "Schedule updated.",
   "deals.stage.scheduled.cta": "View schedule",

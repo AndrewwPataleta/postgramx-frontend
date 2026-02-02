@@ -43,9 +43,6 @@ export function ListingCard({ listing, variant = "full", actionSlot }: ListingCa
           <p className="text-sm font-semibold text-foreground">
             {t("listings.format.POST")} • {priceTonLabel} {t("common.ton")}
           </p>
-          <p className="text-xs text-muted-foreground">
-            {variant === "compact" ? t("listings.perPost") : t("listings.perPostOffer")}
-          </p>
         </div>
         <span
           className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${
@@ -57,7 +54,20 @@ export function ListingCard({ listing, variant = "full", actionSlot }: ListingCa
           {listing.isActive ? t("listings.status.active") : t("listings.status.inactive")}
         </span>
       </div>
-
+      <div className="flex flex-wrap gap-2 text-[11px] text-foreground">
+        {pinnedDurationLabel ? (
+            <span className="rounded-full bg-secondary/60 px-2.5 py-1">
+            {t("listings.pinnedLabel")}: {pinnedDurationLabel}
+          </span>
+        ) : (
+            <span className="rounded-full bg-secondary/60 px-2.5 py-1">
+            {t("listings.pinnedLabel")}: {t("common.none")}
+          </span>
+        )}
+        <span className="rounded-full bg-secondary/60 px-2.5 py-1">
+          {t("listings.visibleLabel")}: {visibleDurationLabel}
+        </span>
+      </div>
       <div className="flex flex-wrap gap-2 text-[11px]">
         <span className="rounded-full bg-secondary/60 px-2.5 py-1 text-foreground">
           {getAllowEditsLabel(t, listing.allowEdits)}
@@ -67,20 +77,7 @@ export function ListingCard({ listing, variant = "full", actionSlot }: ListingCa
         </span>
       </div>
 
-      <div className="flex flex-wrap gap-2 text-[11px] text-foreground">
-        {pinnedDurationLabel ? (
-          <span className="rounded-full bg-secondary/60 px-2.5 py-1">
-            {t("listings.pinnedLabel")}: {pinnedDurationLabel}
-          </span>
-        ) : (
-          <span className="rounded-full bg-secondary/60 px-2.5 py-1">
-            {t("listings.pinnedLabel")}: {t("common.none")}
-          </span>
-        )}
-        <span className="rounded-full bg-secondary/60 px-2.5 py-1">
-          {t("listings.visibleLabel")}: {visibleDurationLabel}
-        </span>
-      </div>
+
 
       {normalizedTags.length > 0 ? (
         <div className="flex flex-wrap gap-2 text-[11px] text-foreground">

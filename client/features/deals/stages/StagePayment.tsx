@@ -226,7 +226,7 @@ export default function StagePayment({
           </div>
         ) : null}
 
-        {/* ✅ Official SDK button + Pay logic */}
+        {/*  Official SDK button + Pay logic */}
         <div className="flex flex-wrap items-center gap-2">
           <TonConnectButton className="!w-auto" />
 
