@@ -1,5 +1,5 @@
 import { apiPost } from "@/api/core/http";
-import type { ChannelEntity, ListingEntity, Paged } from "@/models/entities";
+import type { ChannelEntity, ListingEntity, MarketplaceChannelSummary, Paged } from "@/models/entities";
 
 export type ChannelPreview = {
   normalizedUsername: string;
@@ -37,8 +37,8 @@ export const listMarketplaceChannels = async (data: {
   limit?: number;
   sort?: "recent" | "price_min" | "subscribers";
   order?: "asc" | "desc";
-}): Promise<Paged<ChannelEntity & { listings: ListingEntity[] }>> =>
-  apiPost<Paged<ChannelEntity & { listings: ListingEntity[] }>, typeof data>(
+}): Promise<Paged<MarketplaceChannelSummary>> =>
+  apiPost<Paged<MarketplaceChannelSummary>, typeof data>(
     "/marketplace/channels/list",
     data
   );

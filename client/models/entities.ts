@@ -104,6 +104,24 @@ export type ListingEntity = {
   updatedAt: string;
 };
 
+export type MarketplaceChannelSummary = {
+  id: string;
+  name?: string | null;
+  title?: string | null;
+  username?: string | null;
+  about?: string | null;
+  avatarUrl?: string | null;
+  verified?: boolean;
+  subscribers?: number | null;
+  placementsCount?: number | null;
+  minPriceNano?: string | null;
+  currency?: CurrencyCode;
+  tags?: string[] | null;
+  listings?: ListingEntity[] | null;
+  subscribersCount?: number | null;
+  memberCount?: number | null;
+};
+
 export type ChannelEntity = {
   id: string;
   username: string;

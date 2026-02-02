@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import type { FilterState } from "@/components/FilterModal";
 import { listMarketplaceChannels } from "@/api/features/channelsApi";
-import type { ChannelEntity, ListingEntity, Paged } from "@/models/entities";
+import type { MarketplaceChannelSummary, Paged } from "@/models/entities";
 import { useLanguage } from "@/i18n/LanguageProvider";
 
 const defaultFilters: FilterState = {
@@ -36,9 +36,7 @@ export const useMarketplaceViewModel = () => {
   const [limit] = useState(20);
   const [sort] = useState<"recent" | "price_min" | "subscribers">("recent");
   const [order] = useState<"asc" | "desc">("desc");
-  const [channels, setChannels] = useState<Array<ChannelEntity & { listings: ListingEntity[] }>>(
-    []
-  );
+  const [channels, setChannels] = useState<MarketplaceChannelSummary[]>([]);
   const [total, setTotal] = useState(0);
 
   useEffect(() => {
@@ -91,7 +89,7 @@ export const useMarketplaceViewModel = () => {
     setTotal(0);
   }, [filtersKey, limit, order, sort]);
 
-  const query = useQuery<Paged<ChannelEntity & { listings: ListingEntity[] }>>({
+  const query = useQuery<Paged<MarketplaceChannelSummary>>({
     queryKey: marketplaceKeys.channels(filtersKey, page, limit, sort, order),
     queryFn: () => listMarketplaceChannels(queryFilters),
   });

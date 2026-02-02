@@ -5,11 +5,11 @@ import ChannelListingsPreview from "@/features/channels/components/ChannelListin
 import { openTelegramLink } from "@/lib/telegramLinks";
 import { getAllowEditsLabel, getAllowLinkTrackingLabel } from "@/i18n/labels";
 import { useLanguage } from "@/i18n/LanguageProvider";
-import type { ChannelEntity, ListingEntity } from "@/models/entities";
+import type { ListingEntity, MarketplaceChannelSummary } from "@/models/entities";
 import { ROUTES } from "@/constants/routes";
 
 interface MarketplaceChannelCardProps {
-  channel: ChannelEntity & { listings: ListingEntity[] };
+  channel: MarketplaceChannelSummary;
 }
 
 const collectRules = (
@@ -52,39 +52,52 @@ export default function MarketplaceChannelCard({ channel }: MarketplaceChannelCa
   const [isExpanded, setIsExpanded] = useState(false);
   const trimmedUsername = channel.username?.replace(/^@/, "");
   const telegramLink = trimmedUsername ? `https://t.me/${trimmedUsername}` : null;
-  const rules = collectRules(channel.listings ?? [], t);
+  const listings = channel.listings ?? [];
+  const hasListings = listings.length > 0;
+  const rules = hasListings ? collectRules(listings, t) : null;
+
+  const minListingPrice = useMemo(() => {
+    if (!hasListings) {
+      return null;
+    }
+    return (
+      listings
+        .map((listing) => {
+          try {
+            return BigInt(listing.priceNano);
+          } catch {
+            return null;
+          }
+        })
+        .filter((price): price is bigint => price !== null)
+        .reduce<bigint | null>(
+          (currentMin, price) => (currentMin === null || price < currentMin ? price : currentMin),
+          null
+        )
+        ?.toString() ?? null
+    );
+  }, [hasListings, listings]);
 
   const cardModel = useMemo<ChannelCardModel>(
     () => ({
       id: channel.id,
-      name: channel.title,
+      name:
+        channel.name ??
+        channel.title ??
+        channel.username?.replace(/^@/, "") ??
+        t("marketplace.channelTitle"),
       username: channel.username,
-      about: null,
-      avatarUrl: null,
-      subscribers: channel.subscribersCount ?? null,
-      placementsCount: channel.listings?.length ?? 0,
-      minPriceNano: channel.listings?.length
-        ? channel.listings
-            .map((listing) => {
-              try {
-                return BigInt(listing.priceNano);
-              } catch {
-                return null;
-              }
-            })
-            .filter((price): price is bigint => price !== null)
-            .reduce<bigint | null>(
-              (currentMin, price) => (currentMin === null || price < currentMin ? price : currentMin),
-              null
-            )
-            ?.toString() ?? null
-        : null,
-      currency: "TON",
-      tags: Array.from(new Set(channel.listings?.flatMap((listing) => listing.tags) ?? [])),
-      listingsPreview: channel.listings ?? [],
+      about: channel.about ?? null,
+      avatarUrl: channel.avatarUrl ?? null,
+      subscribers: channel.subscribers ?? channel.subscribersCount ?? channel.memberCount ?? null,
+      placementsCount: channel.placementsCount ?? (hasListings ? listings.length : null),
+      minPriceNano: channel.minPriceNano ?? minListingPrice,
+      currency: channel.currency ?? "TON",
+      tags: channel.tags ?? Array.from(new Set(listings.flatMap((listing) => listing.tags))),
+      listingsPreview: hasListings ? listings : null,
       rules,
     }),
-    [channel, rules]
+    [channel, hasListings, listings, minListingPrice, rules, t]
   );
 
   const handleNavigate = () => {
@@ -100,10 +113,12 @@ export default function MarketplaceChannelCard({ channel }: MarketplaceChannelCa
     <ChannelCard
       channel={cardModel}
       onClick={handleNavigate}
-      isExpanded={isExpanded}
-      onToggleExpand={() => setIsExpanded((prev) => !prev)}
+      isExpanded={hasListings ? isExpanded : undefined}
+      onToggleExpand={hasListings ? () => setIsExpanded((prev) => !prev) : undefined}
       expandedContent={
-        <ChannelListingsPreview channelId={channel.id} isExpanded={isExpanded} mode="viewer" />
+        hasListings ? (
+          <ChannelListingsPreview channelId={channel.id} isExpanded={isExpanded} mode="viewer" />
+        ) : undefined
       }
       actions={
         telegramLink ? (
