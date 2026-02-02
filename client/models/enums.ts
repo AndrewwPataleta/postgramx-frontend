@@ -6,16 +6,16 @@ export enum DealStatus {
 }
 
 export enum DealStage {
-  CreativePending = "CREATIVE_PENDING",
-  CreativeSubmitted = "CREATIVE_SUBMITTED",
-  CreativeChangesRequested = "CREATIVE_CHANGES_REQUESTED",
-  CreativeApproved = "CREATIVE_APPROVED",
-  Scheduled = "SCHEDULED",
+  Schedule = "SCHEDULE",
+  SendPost = "SEND_POST",
+  CreativeAwaitingAdminReview = "CREATIVE_AWAITING_ADMIN_REVIEW",
+  CreativeAwaitingConfirm = "CREATIVE_AWAITING_CONFIRM",
+  PaymentWindow = "PAYMENT_WINDOW",
+  Payment = "PAYMENT",
   PaymentPending = "PAYMENT_PENDING",
-  Paid = "PAID",
-  Published = "PUBLISHED",
-  Verified = "VERIFIED",
-  Completed = "COMPLETED",
+  Scheduled = "SCHEDULED",
+  Verifying = "VERIFYING",
+  Done = "DONE",
 }
 
 export enum EscrowStatus {

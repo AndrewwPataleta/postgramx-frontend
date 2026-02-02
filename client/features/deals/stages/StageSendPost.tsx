@@ -11,9 +11,6 @@ import { useLanguage } from "@/i18n/LanguageProvider";
 interface StageSendPostProps {
   deal: DealEntity;
   readonly: boolean;
-  variant?: "pending" | "changesRequested";
-  showSubmit?: boolean;
-  adminComment?: string | null;
   onAction?: {
     onOpenBot?: () => void;
     onConfirmSent?: () => Promise<void> | void;
@@ -22,23 +19,15 @@ interface StageSendPostProps {
 
 const BOT_USERNAME = "postgramx_bot";
 
-export default function StageSendPost({
-  deal,
-  readonly,
-  variant = "pending",
-  showSubmit = true,
-  adminComment,
-  onAction,
-}: StageSendPostProps) {
+export default function StageSendPost({ deal, readonly, onAction }: StageSendPostProps) {
   const queryClient = useQueryClient();
   const { t } = useLanguage();
   const botLink = `https://t.me/${BOT_USERNAME}?start=deal_${deal.id}`;
   const hasCreative = deal.creatives.length > 0;
-  const isChangesRequested = variant === "changesRequested";
 
   const mutation = useMutation({
     mutationFn: async () => {
-      return submitCreative(deal.id);
+      return submitCreative({ id: deal.id });
     },
     onSuccess: () => {
       toast.success(t("deals.stage.sendPost.submittedToast"));
@@ -55,14 +44,6 @@ export default function StageSendPost({
         <p className="text-xs text-muted-foreground">
           {t("deals.stage.sendPost.readonly")}
         </p>
-        {adminComment ? (
-          <div className="rounded-lg border border-border/60 bg-background/50 p-3 text-xs text-foreground">
-            <p className="text-[11px] uppercase text-muted-foreground">
-              {t("deals.stage.sendPost.adminComment")}
-            </p>
-            <p className="mt-1 text-xs text-foreground">{adminComment}</p>
-          </div>
-        ) : null}
         {hasCreative ? (
           <div className="rounded-lg border border-border/60 bg-background/50 p-3 text-xs text-foreground">
             {t("deals.stage.sendPost.creativeSubmitted")}
@@ -93,43 +74,29 @@ export default function StageSendPost({
   return (
     <InfoCard title={t("deals.stage.sendPost.title")}>
       <p className="text-xs text-muted-foreground">
-        {isChangesRequested
-          ? t("deals.stage.sendPost.changesRequested")
-          : t("deals.stage.sendPost.description")}
+        {t("deals.stage.sendPost.description")}
       </p>
-      {adminComment ? (
-        <div className="rounded-lg border border-border/60 bg-background/50 p-3 text-xs text-foreground">
-          <p className="text-[11px] uppercase text-muted-foreground">
-            {t("deals.stage.sendPost.adminComment")}
-          </p>
-          <p className="mt-1 text-xs text-foreground">{adminComment}</p>
-        </div>
-      ) : null}
       <div className="flex flex-wrap gap-2">
         <button
           type="button"
           onClick={handleOpenBot}
           className="rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground transition hover:bg-primary/90"
         >
-          {isChangesRequested
-            ? t("deals.stage.sendPost.openBotResend")
-            : t("deals.stage.sendPost.openBot")}
+          {t("deals.stage.sendPost.openBot")}
         </button>
-        {showSubmit ? (
-          <button
-            type="button"
-            onClick={handleConfirmSent}
-            disabled={mutation.isPending}
-            className={cn(
-              "rounded-lg border border-border/60 px-4 py-2 text-xs font-semibold text-foreground",
-              mutation.isPending && "cursor-not-allowed opacity-60"
-            )}
-          >
-            {t("deals.stage.sendPost.submitCreative")}
-          </button>
-        ) : null}
+        <button
+          type="button"
+          onClick={handleConfirmSent}
+          disabled={mutation.isPending}
+          className={cn(
+            "rounded-lg border border-border/60 px-4 py-2 text-xs font-semibold text-foreground",
+            mutation.isPending && "cursor-not-allowed opacity-60"
+          )}
+        >
+          {t("deals.stage.sendPost.confirmSent")}
+        </button>
       </div>
-      {hasCreative && showSubmit ? (
+      {hasCreative ? (
         <p className="text-xs text-muted-foreground">
           {t("deals.stage.sendPost.waitingReview")}
         </p>

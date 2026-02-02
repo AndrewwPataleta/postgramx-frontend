@@ -9,7 +9,7 @@ import { ScheduleDatePicker } from "@/components/deals/ScheduleDatePicker";
 import { cn } from "@/lib/utils";
 import { formatDateTime } from "@/i18n/formatters";
 import { useLanguage } from "@/i18n/LanguageProvider";
-import { MIN_SCHEDULE_LEAD_TIME_MS } from "@/features/deals/time";
+import { toUtcIsoString } from "@/utils/date";
 
 interface StageScheduleTimeProps {
   deal: DealEntity;
@@ -41,7 +41,7 @@ export default function StageScheduleTime({ deal, readonly, onAction }: StageSch
     if (!scheduledAt) {
       return false;
     }
-    return scheduledAt.getTime() > Date.now() + MIN_SCHEDULE_LEAD_TIME_MS;
+    return scheduledAt.getTime() > Date.now() + 60 * 60 * 1000;
   }, [scheduledAt]);
 
   useEffect(() => {
@@ -53,8 +53,12 @@ export default function StageScheduleTime({ deal, readonly, onAction }: StageSch
       if (!scheduledAt || !isValidSchedule) {
         throw new Error(t("deals.stage.scheduleTime.selectDateError"));
       }
-      const scheduledAtUtc = new Date(scheduledAt).toISOString();
-      return scheduleDeal(deal.id, scheduledAtUtc);
+      const scheduledAtUtc = toUtcIsoString(scheduledAt);
+      if (!scheduledAtUtc.endsWith("Z")) {
+        console.error("Scheduled date must be UTC ISO:", scheduledAtUtc);
+        throw new Error(t("deals.stage.scheduleTime.invalidFormat"));
+      }
+      return scheduleDeal({ id: deal.id, scheduledAt: scheduledAtUtc });
     },
     onSuccess: () => {
       toast.success(t("deals.stage.scheduleTime.updatedToast"));
@@ -89,7 +93,12 @@ export default function StageScheduleTime({ deal, readonly, onAction }: StageSch
       return;
     }
     if (onAction?.onConfirmSchedule) {
-      onAction.onConfirmSchedule(new Date(scheduledAt).toISOString());
+      const scheduledAtUtc = toUtcIsoString(scheduledAt);
+      if (!scheduledAtUtc.endsWith("Z")) {
+        console.error("Scheduled date must be UTC ISO:", scheduledAtUtc);
+        throw new Error(t("deals.stage.scheduleTime.invalidFormat"));
+      }
+      onAction.onConfirmSchedule(scheduledAtUtc);
       return;
     }
     mutation.mutate();
