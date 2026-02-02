@@ -204,7 +204,7 @@ export default function Deals() {
           </div>
         ) : error ? (
           <ErrorState
-            message={getErrorMessage(error, t("deals.loadError"))}
+            message={getErrorMessage(error, t("deals.loadError"), t)}
             description={t("deals.loadErrorHint")}
             onRetry={() => refetch()}
           />

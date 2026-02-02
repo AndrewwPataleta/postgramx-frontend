@@ -67,7 +67,7 @@ export default function StageAdminApproval({
       queryClient.invalidateQueries({ queryKey: ["deal", deal.id] });
     },
     onError: (error) => {
-      toast.error(getErrorMessage(error, t("deals.stage.adminApproval.approveError")));
+      toast.error(getErrorMessage(error, t("deals.stage.adminApproval.approveError"), t));
     },
   });
 
@@ -80,7 +80,7 @@ export default function StageAdminApproval({
       queryClient.invalidateQueries({ queryKey: ["deal", deal.id] });
     },
     onError: (error) => {
-      toast.error(getErrorMessage(error, t("deals.stage.adminApproval.requestError")));
+      toast.error(getErrorMessage(error, t("deals.stage.adminApproval.requestError"), t));
     },
   });
 
@@ -93,7 +93,7 @@ export default function StageAdminApproval({
       queryClient.invalidateQueries({ queryKey: ["deal", deal.id] });
     },
     onError: (error) => {
-      toast.error(getErrorMessage(error, t("deals.stage.adminApproval.rejectError")));
+      toast.error(getErrorMessage(error, t("deals.stage.adminApproval.rejectError"), t));
     },
   });
 

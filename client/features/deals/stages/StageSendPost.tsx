@@ -45,7 +45,7 @@ export default function StageSendPost({
       queryClient.invalidateQueries({ queryKey: ["deal", deal.id] });
     },
     onError: (error) => {
-      toast.error(getErrorMessage(error, t("deals.stage.sendPost.submitError")));
+      toast.error(getErrorMessage(error, t("deals.stage.sendPost.submitError"), t));
     },
   });
 

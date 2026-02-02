@@ -257,7 +257,7 @@ export default function Profile() {
           <LoadingSkeleton items={2} />
         ) : error ? (
           <ErrorState
-            message={getErrorMessage(error, t("profile.loadError"))}
+            message={getErrorMessage(error, t("profile.loadError"), t)}
             description={t("profile.loadErrorHint")}
             onRetry={() => refetch()}
           />

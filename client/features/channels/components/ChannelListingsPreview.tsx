@@ -165,7 +165,7 @@ const ChannelListingsPreview = memo(
         </div>
       ) : query.isError ? (
         <div className="rounded-xl border border-border/60 bg-red-500/5 px-4 py-3 text-xs text-red-200">
-          <p>{getErrorMessage(query.error, t("marketplace.listingsLoadFailed"))}</p>
+          <p>{getErrorMessage(query.error, t("marketplace.listingsLoadFailed"), t)}</p>
           <button
             type="button"
             onClick={() => query.refetch()}
