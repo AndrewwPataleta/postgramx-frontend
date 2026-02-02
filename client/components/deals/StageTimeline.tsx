@@ -31,20 +31,6 @@ export default function StageTimeline({
         </span>
       </div>
       <div className="mt-3 flex items-center gap-2">
-        {isInteractive ? (
-          <button
-            type="button"
-            onClick={() => previousStage && onSelect?.(previousStage)}
-            disabled={!previousStage}
-            className={cn(
-              "flex h-9 w-9 items-center justify-center rounded-full border border-border/60 text-muted-foreground transition",
-              previousStage ? "hover:text-foreground" : "cursor-not-allowed opacity-40"
-            )}
-            aria-label={t("deals.timeline.previousStage")}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </button>
-        ) : null}
 
 
         <div className="flex flex-1 flex-wrap gap-2">
@@ -83,20 +69,6 @@ export default function StageTimeline({
             );
           })}
         </div>
-        {isInteractive ? (
-          <button
-            type="button"
-            onClick={() => nextStage && onSelect?.(nextStage)}
-            disabled={!nextStage}
-            className={cn(
-              "flex h-9 w-9 items-center justify-center rounded-full border border-border/60 text-muted-foreground transition",
-              nextStage ? "hover:text-foreground" : "cursor-not-allowed opacity-40"
-            )}
-            aria-label={t("deals.timeline.nextStage")}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
-        ) : null}
       </div>
     </div>
   );
