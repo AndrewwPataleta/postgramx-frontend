@@ -153,6 +153,7 @@
   "deals.detail.releaseIn": "Release in",
   "deals.detail.scheduleSample": "Schedule time for publishing",
   "deals.detail.scheduleTitle": "Schedule",
+  "deals.detail.schedulePublishAt": "Post will be published at",
   "deals.detail.selectTime": "Select time",
   "deals.detail.updatedAt": "Updated",
   "deals.detail.verifying": "Verifying post",
