@@ -46,6 +46,7 @@
   "channels.emptyTitle": "Каналов нет",
   "channels.emptyVerified": "Нет подтвержденных каналов.",
   "channels.expandPlacements": "Показать размещения",
+  "channels.errors.bot_forbidden": "Бот PostGramX не может публиковать в этом канале.",
   "channels.loadError": "Не удалось загрузить каналы.",
   "channels.notFound": "Канал не найден.",
   "channels.pendingVerificationSubtitle": "Мы проверяем права администратора. Попробуйте позже.",

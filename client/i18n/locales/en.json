@@ -46,6 +46,7 @@
   "channels.emptyTitle": "No channels yet",
   "channels.emptyVerified": "No verified channels yet.",
   "channels.expandPlacements": "Show placements",
+  "channels.errors.bot_forbidden": "The PostGramX bot cannot post in this channel.",
   "channels.loadError": "Failed to load channels.",
   "channels.notFound": "Channel not found.",
   "channels.pendingVerificationSubtitle": "We're checking your admin permissions. Try again in a minute.",

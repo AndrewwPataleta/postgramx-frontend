@@ -97,7 +97,7 @@ export default function EditListing() {
 
   useEffect(() => {
     if (listingsQuery.error) {
-      toast.error(getErrorMessage(listingsQuery.error, t("listings.loadError")));
+      toast.error(getErrorMessage(listingsQuery.error, t("listings.loadError"), t));
     }
   }, [listingsQuery.error, t]);
 

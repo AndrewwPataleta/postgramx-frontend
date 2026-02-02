@@ -140,7 +140,7 @@ export default function CreateListing() {
         state: rootBackTo ? { rootBackTo } : undefined,
       });
     } catch (error) {
-      toast.error(getErrorMessage(error, t("listings.publishError")));
+      toast.error(getErrorMessage(error, t("listings.publishError"), t));
     } finally {
       setIsSubmitting(false);
     }

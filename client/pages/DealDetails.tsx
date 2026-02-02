@@ -89,7 +89,7 @@ export default function DealDetails() {
 
   useEffect(() => {
     if (error || fallbackListQuery.error) {
-      toast.error(getErrorMessage(error ?? fallbackListQuery.error, "Unable to load deal"));
+      toast.error(getErrorMessage(error ?? fallbackListQuery.error, "Unable to load deal", t));
     }
   }, [error, fallbackListQuery.error]);
 
@@ -225,7 +225,7 @@ export default function DealDetails() {
           <LoadingSkeleton items={3} />
         ) : error || fallbackListQuery.error || !resolvedDeal ? (
           <ErrorState
-            message={getErrorMessage(error ?? fallbackListQuery.error, t("deals.detailNotFound"))}
+            message={getErrorMessage(error ?? fallbackListQuery.error, t("deals.detailNotFound"), t)}
             description={t("deals.detailLoadHint")}
             onRetry={() => refetch()}
           />

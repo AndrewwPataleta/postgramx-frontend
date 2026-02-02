@@ -61,7 +61,7 @@ export default function StageScheduleTime({ deal, readonly, onAction }: StageSch
       queryClient.invalidateQueries({ queryKey: ["deal", deal.id] });
     },
     onError: (error) => {
-      toast.error(getErrorMessage(error, t("deals.stage.scheduleTime.saveError")));
+      toast.error(getErrorMessage(error, t("deals.stage.scheduleTime.saveError"), t));
     },
   });
 

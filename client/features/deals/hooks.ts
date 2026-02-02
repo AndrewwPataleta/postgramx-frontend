@@ -14,6 +14,7 @@ import {
 } from "./api";
 import { getDealCategory } from "./status";
 import { getErrorMessage } from "@/lib/api/errors";
+import { useLanguage } from "@/i18n/LanguageProvider";
 
 type DealTab = "active" | "pending" | "completed";
 
@@ -44,6 +45,7 @@ export const useDeal = (id?: string) =>
 
 export const useCreateDeal = () => {
   const queryClient = useQueryClient();
+  const { t } = useLanguage();
 
   return useMutation({
     mutationFn: (payload: CreateDealPayload) => createDeal(payload),
@@ -53,13 +55,14 @@ export const useCreateDeal = () => {
       toast.success("Request sent");
     },
     onError: (error) => {
-      toast.error(getErrorMessage(error, "Unable to create deal"));
+      toast.error(getErrorMessage(error, "Unable to create deal", t));
     },
   });
 };
 
 export const useApproveCreative = () => {
   const queryClient = useQueryClient();
+  const { t } = useLanguage();
 
   return useMutation({
     mutationFn: (id: string) => approveCreative(id),
@@ -69,13 +72,14 @@ export const useApproveCreative = () => {
       toast.success("Creative approved");
     },
     onError: (error) => {
-      toast.error(getErrorMessage(error, "Unable to approve creative"));
+      toast.error(getErrorMessage(error, "Unable to approve creative", t));
     },
   });
 };
 
 export const useRequestEdits = () => {
   const queryClient = useQueryClient();
+  const { t } = useLanguage();
 
   return useMutation({
     mutationFn: ({ id, note }: { id: string; note?: string }) => requestEdits(id, note),
@@ -85,13 +89,14 @@ export const useRequestEdits = () => {
       toast.success("Edits requested");
     },
     onError: (error) => {
-      toast.error(getErrorMessage(error, "Unable to request edits"));
+      toast.error(getErrorMessage(error, "Unable to request edits", t));
     },
   });
 };
 
 export const useSimulatePayment = () => {
   const queryClient = useQueryClient();
+  const { t } = useLanguage();
 
   return useMutation({
     mutationFn: (id: string) => simulatePayment(id),
@@ -101,13 +106,14 @@ export const useSimulatePayment = () => {
       toast.success("Payment confirmed");
     },
     onError: (error) => {
-      toast.error(getErrorMessage(error, "Unable to process payment"));
+      toast.error(getErrorMessage(error, "Unable to process payment", t));
     },
   });
 };
 
 export const useSimulatePost = () => {
   const queryClient = useQueryClient();
+  const { t } = useLanguage();
 
   return useMutation({
     mutationFn: (id: string) => simulatePost(id),
@@ -117,13 +123,14 @@ export const useSimulatePost = () => {
       toast.success("Post published");
     },
     onError: (error) => {
-      toast.error(getErrorMessage(error, "Unable to simulate post"));
+      toast.error(getErrorMessage(error, "Unable to simulate post", t));
     },
   });
 };
 
 export const useSimulateVerifyPass = () => {
   const queryClient = useQueryClient();
+  const { t } = useLanguage();
 
   return useMutation({
     mutationFn: (id: string) => simulateVerifyPass(id),
@@ -133,13 +140,14 @@ export const useSimulateVerifyPass = () => {
       toast.success("Escrow released");
     },
     onError: (error) => {
-      toast.error(getErrorMessage(error, "Unable to simulate release"));
+      toast.error(getErrorMessage(error, "Unable to simulate release", t));
     },
   });
 };
 
 export const useSimulateVerifyFail = () => {
   const queryClient = useQueryClient();
+  const { t } = useLanguage();
 
   return useMutation({
     mutationFn: (id: string) => simulateVerifyFail(id),
@@ -149,7 +157,7 @@ export const useSimulateVerifyFail = () => {
       toast.success("Deal refunded");
     },
     onError: (error) => {
-      toast.error(getErrorMessage(error, "Unable to simulate refund"));
+      toast.error(getErrorMessage(error, "Unable to simulate refund", t));
     },
   });
 };
