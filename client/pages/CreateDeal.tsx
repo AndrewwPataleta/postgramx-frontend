@@ -1,11 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getTelegramWebApp } from "@/lib/telegram";
 import { useCreateDealMutation } from "@/hooks/use-deals";
 import ErrorState from "@/components/feedback/ErrorState";
-import { ScheduleDatePicker } from "@/components/deals/ScheduleDatePicker";
 import { PageContainer } from "@/components/layout/PageContainer";
-import { toUtcIsoString } from "@/utils/date";
 import { ROUTES } from "@/constants/routes";
 import { useLanguage } from "@/i18n/LanguageProvider";
 
@@ -21,24 +19,10 @@ export default function CreateDeal() {
   const { t } = useLanguage();
 
   const [brief, setBrief] = useState("");
-  const [scheduledAt, setScheduledAt] = useState<Date | null>(null);
   const createDealMutation = useCreateDealMutation();
   const isSubmitting = createDealMutation.isPending;
 
-  const isValidSchedule =
-    !scheduledAt || scheduledAt.getTime() > Date.now() + 60 * 60 * 1000;
-  const canSubmit = Boolean(listingId) && !isSubmitting && isValidSchedule;
-
-  const scheduledIso = useMemo(() => {
-    if (!scheduledAt) {
-      return undefined;
-    }
-    try {
-      return toUtcIsoString(scheduledAt);
-    } catch {
-      return undefined;
-    }
-  }, [scheduledAt]);
+  const canSubmit = Boolean(listingId) && !isSubmitting;
 
   useEffect(() => {
     const webApp = getTelegramWebApp();
@@ -57,19 +41,11 @@ export default function CreateDeal() {
     if (!listingId) {
       return;
     }
-    if (!isValidSchedule) {
-      return;
-    }
 
     try {
-      if (scheduledIso && !scheduledIso.endsWith("Z")) {
-        console.error("Scheduled date must be UTC ISO:", scheduledIso);
-        throw new Error("Invalid datetime format");
-      }
       await createDealMutation.mutateAsync({
         listingId,
         brief: brief.trim() || undefined,
-        scheduledAt: scheduledIso,
       });
     } catch {
       return;
@@ -110,19 +86,6 @@ export default function CreateDeal() {
               placeholder={t("deals.create.briefPlaceholder")}
               className="min-h-[120px] w-full rounded-xl border border-border/60 bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
             />
-          </div>
-          <div className="space-y-2">
-            <label className="text-xs font-semibold text-foreground">
-              {t("deals.create.scheduleLabel")}
-            </label>
-            <div className="pb-safe-bottom rounded-2xl border border-border/60 bg-card/80 p-3">
-              <ScheduleDatePicker value={scheduledAt} onChange={setScheduledAt} />
-            </div>
-            {!isValidSchedule && (
-              <p className="text-xs text-destructive">
-                {t("deals.create.scheduleHint")}
-              </p>
-            )}
           </div>
         </div>
 
