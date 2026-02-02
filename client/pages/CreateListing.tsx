@@ -112,7 +112,7 @@ export default function CreateListing() {
     const payload = {
       channelId: channel.id,
       format: ListingFormat.Post,
-      priceNano: parseTonInputToNano(priceTon),
+      priceTon: priceTon,
       currency: CurrencyCode.Ton,
       pinDurationHours,
       visibilityDurationHours,
@@ -526,8 +526,6 @@ export default function CreateListing() {
             tags={selectedTags}
             requiresApproval
             additionalRequirementsText={contentRulesText}
-            availabilityFrom={availabilityFrom.toISOString()}
-            availabilityTo={availabilityTo.toISOString()}
           />
         </section>
 

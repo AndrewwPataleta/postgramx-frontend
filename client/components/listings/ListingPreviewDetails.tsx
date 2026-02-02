@@ -15,8 +15,6 @@ interface ListingPreviewDetailsProps {
   requiresApproval?: boolean;
   restrictionRulesText?: string;
   additionalRequirementsText?: string;
-  availabilityFrom?: string;
-  availabilityTo?: string;
 }
 
 const buildAvailabilityLabel = (
@@ -49,11 +47,8 @@ export function ListingPreviewDetails({
   requiresApproval,
   restrictionRulesText,
   additionalRequirementsText,
-  availabilityFrom,
-  availabilityTo,
 }: ListingPreviewDetailsProps) {
   const { t, language } = useLanguage();
-  const availabilityLabel = buildAvailabilityLabel(availabilityFrom, availabilityTo, t);
   const pinnedLabel = pinDurationHours ? formatDuration(pinDurationHours, t) : t("common.none");
   const visibilityLabel = formatDuration(visibilityDurationHours, t);
   const pinnedAvailable = pinDurationHours !== null || Boolean(allowPinnedPlacement);
@@ -104,11 +99,6 @@ export function ListingPreviewDetails({
             <p className="text-sm font-semibold text-foreground">{visibilityLabel}</p>
           </div>
         </div>
-        {availabilityLabel ? (
-          <div className="rounded-xl border border-border/60 bg-secondary/30 px-3 py-2 text-xs font-medium text-foreground">
-            {availabilityLabel}
-          </div>
-        ) : null}
       </section>
 
       <section className="space-y-3">
