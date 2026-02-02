@@ -153,7 +153,7 @@ export default function Channels() {
 
   useEffect(() => {
     if (error) {
-      toast.error(getErrorMessage(error, t("channels.loadError")));
+      toast.error(getErrorMessage(error, t("channels.loadError"), t));
     }
   }, [error, t]);
 
@@ -218,7 +218,7 @@ export default function Channels() {
       }
       setUnlinkTarget(null);
     } catch (unlinkError) {
-      toast.error(getErrorMessage(unlinkError, t("channels.unlinkError")));
+      toast.error(getErrorMessage(unlinkError, t("channels.unlinkError"), t));
     } finally {
       setIsUnlinking(false);
     }
@@ -235,7 +235,7 @@ export default function Channels() {
           </div>
         ) : error ? (
           <ErrorState
-            message={getErrorMessage(error, t("channels.loadError"))}
+            message={getErrorMessage(error, t("channels.loadError"), t)}
             description={t("errors.genericSubtitle")}
             onRetry={() => refetch()}
           />

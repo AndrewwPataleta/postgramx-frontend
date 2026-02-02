@@ -14,6 +14,7 @@ import { getErrorMessage } from "@/lib/api/errors";
 import { formatStatusLabel } from "@/lib/formatting";
 import { openTelegramLink } from "@/lib/telegramLinks";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/i18n/LanguageProvider";
 import { PREDEAL_STATUS, type PredealStatus } from "@/constants/deals";
 import { ROUTES } from "@/constants/routes";
 
@@ -76,6 +77,7 @@ export default function PreDealStatus() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [now, setNow] = useState(Date.now());
+  const { t } = useLanguage();
 
   const predealQuery = useQuery({
     queryKey: ["predeal", id],
@@ -97,15 +99,15 @@ export default function PreDealStatus() {
       navigate(ROUTES.MARKETPLACE, { replace: true });
     },
     onError: (error) => {
-      toast.error(getErrorMessage(error, "Unable to cancel pre-deal"));
+      toast.error(getErrorMessage(error, "Unable to cancel pre-deal", t));
     },
   });
 
   useEffect(() => {
     if (predealQuery.error) {
-      toast.error(getErrorMessage(predealQuery.error, "Unable to load pre-deal"));
+      toast.error(getErrorMessage(predealQuery.error, "Unable to load pre-deal", t));
     }
-  }, [predealQuery.error]);
+  }, [predealQuery.error, t]);
 
   useEffect(() => {
     if (!predealQuery.data?.paymentExpiresAt) {

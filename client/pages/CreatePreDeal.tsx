@@ -7,6 +7,7 @@ import { ScheduleDatePicker } from "@/components/deals/ScheduleDatePicker";
 import ErrorState from "@/components/feedback/ErrorState";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { getErrorMessage } from "@/lib/api/errors";
+import { useLanguage } from "@/i18n/LanguageProvider";
 import { toUtcIsoString } from "@/utils/date";
 import { ROUTES } from "@/constants/routes";
 
@@ -14,6 +15,7 @@ export default function CreatePreDeal() {
   const { listingId } = useParams<{ listingId: string }>();
   const navigate = useNavigate();
   const [scheduledAt, setScheduledAt] = useState<Date | null>(null);
+  const { t } = useLanguage();
 
   const createMutation = useMutation({
     mutationFn: predealsCreate,
@@ -21,7 +23,7 @@ export default function CreatePreDeal() {
       navigate(ROUTES.DEAL_PREDEAL(predeal.id));
     },
     onError: (error) => {
-      toast.error(getErrorMessage(error, "Unable to create pre-deal"));
+      toast.error(getErrorMessage(error, "Unable to create pre-deal", t));
     },
   });
 
