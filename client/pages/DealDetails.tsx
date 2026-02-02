@@ -14,7 +14,7 @@ import type { DealEntity } from "@/models/entities";
 import { allStages } from "@/features/deals/dealStageMachine";
 import StageScheduleTime from "@/features/deals/stages/StageScheduleTime";
 import StageSendPost from "@/features/deals/stages/StageSendPost";
-import StageAdminApproval from "@/features/deals/stages/StageAdminApproval";
+import StageScheduleApproval from "@/features/deals/stages/StageScheduleApproval.tsx";
 import StagePayment from "@/features/deals/stages/StagePayment";
 import StagePaymentPending from "@/features/deals/stages/StagePaymentPending";
 import StageScheduled from "@/features/deals/stages/StageScheduled";
@@ -23,6 +23,7 @@ import StageDone from "@/features/deals/stages/StageDone";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { stageOrder } from "@/models/helpers";
 import { useLanguage } from "@/i18n/LanguageProvider";
+import StageCreativeApproval from "@/features/deals/stages/StageCreativeApproval.tsx";
 
 export default function DealDetails() {
   const { dealId } = useParams<{ dealId: string }>();
@@ -124,7 +125,7 @@ export default function DealDetails() {
         <StageSendPost deal={resolvedDeal} readonly={!isAdvertiser} />
       ),
       [DealStage.CREATIVE_AWAITING_CONFIRM]: (
-        <StageAdminApproval deal={resolvedDeal} readonly={isAdvertiser} />
+        <StageCreativeApproval deal={resolvedDeal} readonly={isAdvertiser} />
       ),
       [DealStage.PAYMENT_AWAITING]: (
         <StagePayment
@@ -138,9 +139,9 @@ export default function DealDetails() {
         <StageScheduleTime deal={resolvedDeal} readonly={!isAdvertiser} />
       ),
 
-      // [DealStage.ADMIN_REVIEW_PENDING]: (
-      //   <StageAdminApproval deal={resolvedDeal} readonly={isAdvertiser} />
-      // ),
+      [DealStage.SCHEDULING_AWAITING_CONFIRM]: (
+        <StageScheduleApproval deal={resolvedDeal} readonly={isAdvertiser} />
+      ),
 /*
 
       [DealStage.PaymentWindow]: (

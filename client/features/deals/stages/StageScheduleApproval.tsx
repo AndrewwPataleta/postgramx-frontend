@@ -34,7 +34,7 @@ const formatAdminCountdown = (deadline: string | null | undefined) => {
   return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
 };
 
-export default function StageAdminApproval({
+export default function StageScheduleApproval({
   deal,
   readonly,
   onAction,
