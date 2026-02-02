@@ -12,6 +12,8 @@ export const formatRelativeTime = (value: string) => {
   return `Updated ${days}d ago`;
 };
 
+export const MIN_SCHEDULE_LEAD_TIME_MS = 60 * 60 * 1000;
+
 export const formatScheduleDate = (value?: string | null) => {
   if (!value) {
     return "Waiting for scheduling";
