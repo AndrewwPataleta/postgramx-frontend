@@ -78,7 +78,7 @@ export default function DealDetails() {
     return allDeals.find((entry) => entry.id === dealId) ?? null;
   }, [dealId, fallbackListQuery.data]);
 
-  const resolvedDeal = deal ?? fallbackDeal;
+  const resolvedDeal = deal
 
   useEffect(() => {
     if (error || fallbackListQuery.error) {
@@ -86,7 +86,8 @@ export default function DealDetails() {
     }
   }, [error, fallbackListQuery.error]);
 
-  const currentStage = resolvedDeal?.stage ?? DealStage.Schedule;
+  const currentStage = resolvedDeal?.stage ?? DealStage.CREATIVE_AWAITING_SUBMIT;
+
   const availableStages = resolvedDeal ? allStages : [];
 
   useEffect(() => {
@@ -113,19 +114,19 @@ export default function DealDetails() {
     const currentUserId = (user as { id?: string } | null)?.id;
     const isAdvertiser = currentUserId && currentUserId === resolvedDeal.advertiserUserId;
     const readonlyForPublisher = !isAdvertiser;
-
     const stageComponents: Record<DealStage, JSX.Element> = {
-      [DealStage.Schedule]: (
-        <StageScheduleTime deal={resolvedDeal} readonly={!isAdvertiser} />
-      ),
-      [DealStage.SendPost]: (
+
+      [DealStage.CREATIVE_AWAITING_SUBMIT]: (
         <StageSendPost deal={resolvedDeal} readonly={!isAdvertiser} />
       ),
-      [DealStage.CreativeAwaitingAdminReview]: (
+      /*[DealStage.ADMIN_REVIEW_PENDING]: (
         <StageAdminApproval deal={resolvedDeal} readonly={isAdvertiser} />
       ),
       [DealStage.CreativeAwaitingConfirm]: (
         <StageAdminApproval deal={resolvedDeal} readonly={isAdvertiser} />
+      ),
+      [DealStage.SCHEDULING_PENDING]: (
+          <StageScheduleTime deal={resolvedDeal} readonly={!isAdvertiser} />
       ),
       [DealStage.PaymentWindow]: (
         <StagePaymentPending
@@ -157,7 +158,7 @@ export default function DealDetails() {
       [DealStage.Verifying]: (
         <StageVerifying deal={resolvedDeal} readonly={readonlyForPublisher} />
       ),
-      [DealStage.Done]: <StageDone deal={resolvedDeal} readonly={readonlyForPublisher} />,
+      [DealStage.Done]: <StageDone deal={resolvedDeal} readonly={readonlyForPublisher} />,*/
     };
 
     return stageComponents[resolvedDeal.stage];
@@ -176,7 +177,7 @@ export default function DealDetails() {
           />
         ) : (
           <>
-            {/*<DealHeaderCard deal={resolvedDeal} />*/}
+            <DealHeaderCard deal={resolvedDeal} />
 
             <StageTimeline
               stages={availableStages}

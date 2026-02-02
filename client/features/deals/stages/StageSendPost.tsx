@@ -23,7 +23,7 @@ export default function StageSendPost({ deal, readonly, onAction }: StageSendPos
   const queryClient = useQueryClient();
   const { t } = useLanguage();
   const botLink = `https://t.me/${BOT_USERNAME}?start=deal_${deal.id}`;
-  const hasCreative = deal.creatives.length > 0;
+  const hasCreative = false
 
   const mutation = useMutation({
     mutationFn: async () => {

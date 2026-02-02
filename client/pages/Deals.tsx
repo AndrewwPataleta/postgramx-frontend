@@ -151,7 +151,7 @@ export default function Deals() {
         currentUserId && currentUserId === deal.advertiserUserId
           ? "advertiser"
           : "publisher";
-      navigate(ROUTES.DEAL_DETAILS(deal.id), { state: { deal, dealRole } });
+      navigate(ROUTES.DEAL_DETAILS(deal.id));
     },
     [navigate, queryClient, user]
   );
@@ -241,7 +241,7 @@ export default function Deals() {
                 </div>
                 <div className="space-y-3">
                   {sellerDeals.map((deal) => (
-                    <DealListCard  deal={deal} onSelect={handleSelectDeal} />
+                    <DealListCard  key={deal.id} deal={deal} onSelect={handleSelectDeal} />
                   ))}
                 </div>
               </div>

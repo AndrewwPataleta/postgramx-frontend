@@ -51,8 +51,6 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
 
   const detailLine = [visibilityLabel, pinnedLabel].filter(Boolean).join(" • ");
 
-  // ✅ Самая важная правка: escrow может отсутствовать
-  // Подстрахуемся ещё escrowStatus (если у тебя где-то так называется в DTO)
   const escrowStatus =
     (deal as any)?.escrow?.status ?? (deal as any)?.escrowStatus ?? null;
 
@@ -105,30 +103,29 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
               <p className="text-xs text-muted-foreground">{t("common.emptyValue")}</p>
             )}
           </div>
+
         </div>
 
         <span
           className={`max-w-[160px] truncate whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold ${roleToneMap[resolvedRole]}`}
           style={{ textOverflow: "ellipsis" }}
         >
+
           {t("deals.badge.youAreRole", { role: getDealRoleLabel(t, resolvedRole) })}
         </span>
+
       </div>
 
       <div className="mt-2 flex items-center gap-2 overflow-hidden">
+
         <span
           className="max-w-[200px] truncate whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold"
           style={{ textOverflow: "ellipsis" }}
         >
-          {escrowText}
+          {deal.stage}
         </span>
 
-        <span className="text-xs text-muted-foreground">
-          {listingSnapshot?.priceNano
-            ? formatTon(listingSnapshot.priceNano, language)
-            : t("common.emptyValue")}{" "}
-          {t("common.ton")}
-        </span>
+
       </div>
 
       <div className="mt-3 space-y-1">
@@ -156,10 +153,7 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
       {expanded ? (
         <div className="mt-3 space-y-3 text-xs text-muted-foreground">
           <div className="grid gap-2 sm:grid-cols-2">
-            <div>
-              <span className="font-medium text-foreground">{t("common.createdAt")}:</span>{" "}
-              {formatDate(deal?.createdAt, language) || t("common.emptyValue")}
-            </div>
+
             <div>
               <span className="font-medium text-foreground">{t("deals.scheduledAt")}:</span>{" "}
               {formatDate(deal?.scheduledAt, language) || t("common.emptyValue")}
@@ -167,7 +161,7 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
           </div>
 
           {listingSnapshot?.tags?.length ? (
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap ">
               {listingSnapshot.tags.map((tag, index) => (
                 <span
                   key={`${tag}-${index}`}

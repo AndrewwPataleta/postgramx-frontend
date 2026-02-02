@@ -47,8 +47,8 @@ export const listDeals = async (data: {
     },
   }));
 
-export const getDealDetail = async (data: { id: string }): Promise<DealDetailResponse> =>
-  apiPost<DealDetailResponse, typeof data>("/deals/detail", data);
+export const getDealDetail = async (data: { id: string }): Promise<DealEntity> =>
+  apiPost<DealEntity, typeof data>("/deals/detail", data);
 
 export const scheduleDeal = async (data: {
   id: string;
