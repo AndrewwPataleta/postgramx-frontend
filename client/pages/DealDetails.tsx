@@ -134,13 +134,15 @@ export default function DealDetails() {
           isRefreshing={isFetching}
         />
       ),
+      [DealStage.SCHEDULING_AWAITING_SUBMIT]: (
+        <StageScheduleTime deal={resolvedDeal} readonly={!isAdvertiser} />
+      ),
+
       // [DealStage.ADMIN_REVIEW_PENDING]: (
       //   <StageAdminApproval deal={resolvedDeal} readonly={isAdvertiser} />
       // ),
 /*
-      [DealStage.SCHEDULING_PENDING]: (
-          <StageScheduleTime deal={resolvedDeal} readonly={!isAdvertiser} />
-      ),
+
       [DealStage.PaymentWindow]: (
         <StagePaymentPending
           deal={resolvedDeal}

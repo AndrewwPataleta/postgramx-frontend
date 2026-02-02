@@ -84,17 +84,6 @@ export default function StageSendPost({ deal, readonly, onAction }: StageSendPos
         >
           {t("deals.stage.sendPost.openBot")}
         </button>
-        <button
-          type="button"
-          onClick={handleConfirmSent}
-          disabled={mutation.isPending}
-          className={cn(
-            "rounded-lg border border-border/60 px-4 py-2 text-xs font-semibold text-foreground",
-            mutation.isPending && "cursor-not-allowed opacity-60"
-          )}
-        >
-          {t("deals.stage.sendPost.confirmSent")}
-        </button>
       </div>
       {hasCreative ? (
         <p className="text-xs text-muted-foreground">
