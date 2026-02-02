@@ -52,13 +52,13 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
   const detailLine = [visibilityLabel, pinnedLabel].filter(Boolean).join(" • ");
 
   // ✅ Самая важная правка: escrow может отсутствовать
-  // Подстрахуемся ещё escrowStatus (если у тебя где-то так называется в DTO)
-  const escrowStatus =
-    (deal as any)?.escrow?.status ?? (deal as any)?.escrowStatus ?? null;
 
-  const escrowText = escrowStatus
-    ? getEscrowStatusLabel(t, escrowStatus)
-    : t("common.emptyValue");
+  const escrowStatus = deal.stage
+   // (deal as any)?.escrow?.status ?? (deal as any)?.escrowStatus ?? null;
+
+  // const escrowText = escrowStatus
+  //   ? getEscrowStatusLabel(t, escrowStatus)
+  //   : t("common.emptyValue");
 
   const resolvedRole =
     currentUserId && currentUserId === deal?.advertiserUserId
@@ -120,7 +120,7 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
           className="max-w-[200px] truncate whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold"
           style={{ textOverflow: "ellipsis" }}
         >
-          {escrowText}
+          {deal.stage}
         </span>
 
         <span className="text-xs text-muted-foreground">

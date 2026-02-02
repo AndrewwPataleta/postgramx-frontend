@@ -176,7 +176,7 @@ export default function DealDetails() {
           />
         ) : (
           <>
-            <DealHeaderCard deal={resolvedDeal} />
+            {/*<DealHeaderCard deal={resolvedDeal} />*/}
 
             <StageTimeline
               stages={availableStages}

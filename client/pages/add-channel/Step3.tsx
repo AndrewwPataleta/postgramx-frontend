@@ -93,13 +93,6 @@ const AddChannelStep3 = () => {
         {isSuccess ? (
           <>
             <Button
-              onClick={() => navigate(ROUTES.CHANNELS)}
-              className="w-full text-sm font-semibold"
-            >
-              {t("channels.add.step3.goToChannels")}
-            </Button>
-            <Button
-              variant="secondary"
               onClick={() =>
                 linkedChannelId
                   ? navigate(ROUTES.CHANNEL_MANAGE_LISTINGS(linkedChannelId), {

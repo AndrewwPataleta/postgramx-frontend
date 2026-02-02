@@ -8,7 +8,7 @@ export const getTelegramInitDataToken = (): string => {
   if (initData && initData.trim().length > 0) {
     return initData;
   }
-
+  return mockTelegramAuth.initData;
   if (TELEGRAM_MOCK) {
     return mockTelegramAuth.initData;
   }
