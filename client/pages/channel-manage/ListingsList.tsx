@@ -34,6 +34,7 @@ const ListingsList = () => {
       }),
   });
 
+
   useEffect(() => {
     if (listingsQuery.error) {
       toast.error(getErrorMessage(listingsQuery.error, t("listings.loadError"), t));
