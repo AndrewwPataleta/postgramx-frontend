@@ -321,6 +321,8 @@
   "deals.tabs.active": "Активные",
   "deals.tabs.completed": "Завершенные",
   "deals.tabs.pending": "Ожидающие",
+  "deals.create.error": "Не удалось создать сделку.",
+  "errors.deals.active_pending_limit": "Для этого канала достигнут лимит активных или ожидающих сделок.",
   "deals.timeline.nextStage": "Следующий этап",
   "deals.timeline.previousStage": "Предыдущий этап",
   "deals.timeline.stage.SCHEDULING_AWAITING_SUBMIT": "Выбор времени",
