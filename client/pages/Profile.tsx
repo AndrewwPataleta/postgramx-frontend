@@ -234,13 +234,6 @@ export default function Profile() {
                     </button>
                   ))}
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  {mode === "telegram"
-                    ? t("profile.themeTelegramHint")
-                    : mode === "system"
-                      ? t("profile.themeSystemHint")
-                      : t("profile.themeOverrideHint")}
-                </p>
               </div>
             </div>
 
