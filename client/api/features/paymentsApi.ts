@@ -6,7 +6,7 @@ export async function listTransactionsForUser(
   data: PaymentsListFilters
 ): Promise<Paged<TransactionItem>> {
   return apiPost<Paged<TransactionItem>, PaymentsListFilters>(
-    "/payments/transactions",
+    "/payments/transactions/list",
     data
   );
 }

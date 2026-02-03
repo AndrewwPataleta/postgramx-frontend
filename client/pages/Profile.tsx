@@ -153,18 +153,16 @@ export default function Profile() {
             </div>
           </div>
 
-          <div className="grid gap-6 lg:grid-cols-[340px_1fr]">
-            <div className="space-y-6 lg:sticky lg:top-20 lg:self-start">
+          <div className="grid gap-6 lg:grid-cols-[340px_1fr] space-y-2">
+            <div className="space-y-6 lg:sticky lg:top-20 lg:self-start ">
               <div className="relative rounded-[28px] border border-border/40 bg-background/70 shadow-xl overflow-hidden">
-                <div className="px-5 py-4 border-b border-border/40 flex items-center justify-between gap-3">
-                  <p className="text-sm font-semibold text-foreground">
-                    {t("profile.walletTitle")}
-                  </p>
+                <div className="px-5 py-4 border-b border-border/40 flex items-center justify-between gap-1 ">
+
                   <TonConnectButton className="shrink-0" />
                 </div>
               </div>
 
-              <div className="glass p-4 space-y-3">
+              <div className="glass p-4 space-y-4">
                 <div>
                   <p className="text-sm font-semibold text-foreground">
                     {t("profile.language")}
@@ -203,14 +201,11 @@ export default function Profile() {
 
             <div className="space-y-6">
               <div className="rounded-[28px] border border-border/40 bg-background/70 shadow-xl overflow-hidden">
-                <div className="px-5 py-4 border-b border-border/40 space-y-3">
+                <div className="px-5 py-4 border-b border-border/40 space-y-1">
                   <div>
                     <h3 className="text-lg font-semibold text-foreground">
                       {t("profile.payoutsTitle")}
                     </h3>
-                    <p className="text-sm text-muted-foreground">
-                      {t("profile.payoutsSubtitle")}
-                    </p>
                   </div>
                   {channelPayoutsTotal ? (
                     <p className="text-sm text-muted-foreground">
@@ -255,6 +250,16 @@ export default function Profile() {
                                 {t("profile.availableBalance")}
                               </p>
                             </div>
+                            <button
+                              type="button"
+                              onClick={() => handleWithdraw(item.channel.id, item.availableNano)}
+                              disabled={isWithdrawing}
+                              className="inline-flex items-center gap-1.5 bg-primary/20 hover:bg-primary/30 text-primary px-3 py-1.5 rounded-full text-xs font-medium transition-colors"
+                            >
+                              {isWithdrawing
+                                ? t("common.loading")
+                                : t("profile.withdrawAction")}
+                            </button>
                             {hasBalance ? (
                               <button
                                 type="button"
@@ -277,14 +282,6 @@ export default function Profile() {
 
               <div className="rounded-[28px] border border-border/40 bg-background/70 shadow-xl overflow-hidden">
                 <div className="px-5 py-4 border-b border-border/40 space-y-3">
-                  <div>
-                    <h3 className="text-lg font-semibold text-foreground">
-                      {t("profile.transactionsTitle")}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      {t("profile.transactionsSubtitle")}
-                    </p>
-                  </div>
                   <div className="grid gap-2 sm:grid-cols-2">
                     <Input
                       value={transactionFilters.q ?? ""}

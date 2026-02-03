@@ -29,7 +29,7 @@ export default function MarketplaceView() {
             <button
               type="button"
               onClick={actions.openFilters}
-              className="absolute right-2 inline-flex items-center gap-2 rounded-lg bg-secondary/60 px-3 py-1 text-xs text-muted-foreground"
+              className="absolute right-5 inline-flex items-center gap-2 rounded-lg bg-secondary/60 px-3 py-1 text-xs text-muted-foreground"
             >
               <SlidersHorizontal size={14} />
               {t("marketplace.filters.title")}
