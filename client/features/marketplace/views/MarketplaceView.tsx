@@ -18,24 +18,22 @@ export default function MarketplaceView() {
     <div className="w-full max-w-2xl mx-auto">
       <PageContainer className="pt-4 space-y-6">
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <button
-              type="button"
-              onClick={actions.openFilters}
-              className="inline-flex items-center gap-2 rounded-lg bg-secondary/60 px-3 py-1 text-xs text-muted-foreground"
-            >
-              <SlidersHorizontal size={14} />
-              {t("marketplace.filters.title")}
-            </button>
-          </div>
-          <div className="flex items-center gap-2 rounded-2xl border border-border/60 bg-card px-3 py-2">
+          <div className="relative flex items-center gap-2 rounded-2xl border border-border/60 bg-card px-3 py-2">
             <Search size={16} className="text-muted-foreground" />
             <input
               value={state.searchQuery}
               onChange={(event) => actions.setSearchQuery(event.target.value)}
               placeholder={t("marketplace.filters.searchPlaceholder")}
-              className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+              className="flex-1 bg-transparent pr-20 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
             />
+            <button
+              type="button"
+              onClick={actions.openFilters}
+              className="absolute right-2 inline-flex items-center gap-2 rounded-lg bg-secondary/60 px-3 py-1 text-xs text-muted-foreground"
+            >
+              <SlidersHorizontal size={14} />
+              {t("marketplace.filters.title")}
+            </button>
           </div>
           <ActiveFiltersChips filters={state.filters} onRemoveFilter={actions.removeFilter} />
         </div>
