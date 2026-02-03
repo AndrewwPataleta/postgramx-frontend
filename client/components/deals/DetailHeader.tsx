@@ -42,7 +42,7 @@ export default function DetailHeader({
           <p className="text-xs text-muted-foreground">@{username}</p>
         </div>
         <div className="text-right text-xs text-muted-foreground">
-          <p className="font-semibold text-foreground">{price}</p>
+          <p className="font-semibold price-text">{price}</p>
         </div>
       </div>
 

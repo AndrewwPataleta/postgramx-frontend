@@ -162,7 +162,7 @@ export default function ChannelDetailsView() {
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {t("common.from")}{" "}
-                    <span className="font-semibold text-primary">
+                    <span className="font-semibold price-text">
                       {minPriceTon ?? t("common.emptyValue")} {t("common.ton")}
                     </span>
                   </p>
@@ -226,9 +226,7 @@ export default function ChannelDetailsView() {
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div className="space-y-1">
-                            <p className="text-sm font-semibold text-foreground">
-                              {listing.priceTon}
-                            </p>
+                            <p className="text-sm font-semibold price-text">{listing.priceTon}</p>
                             {metaLabel ? (
                               <p className="text-[11px] text-muted-foreground">{metaLabel}</p>
                             ) : null}

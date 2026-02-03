@@ -59,7 +59,7 @@ export default function DealHeaderCard({ deal }: DealHeaderCardProps) {
           <p className="text-xs text-muted-foreground">@{deal.channel.username}</p>
         </div>
         <div className="text-right">
-          <p className="text-sm font-semibold text-foreground">{priceLabel}</p>
+          <p className="text-sm font-semibold price-text">{priceLabel}</p>
           <p className="text-xs text-muted-foreground">{listingFormat}</p>
         </div>
       </div>
