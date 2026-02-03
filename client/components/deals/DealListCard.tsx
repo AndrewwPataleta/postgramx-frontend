@@ -124,7 +124,7 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
     >
       <div className="flex items-start justify-between gap-3 pb-3">
         <div className="min-w-0">
-          <p className="text-xs font-semibold text-muted-foreground">{stageLabel}</p>
+          <p className="text-sm font-semibold text-foreground">{stageLabel}</p>
           {idleCountdown ? (
             <p className="text-xs text-muted-foreground">
               {t("deals.list.idleExpiresIn", { time: idleCountdown })}

@@ -43,7 +43,6 @@ export const stageOrder: DealStage[] = [
   DealStage.SCHEDULING_AWAITING_SUBMIT,
   DealStage.SCHEDULING_AWAITING_CONFIRM,
   DealStage.PAYMENT_AWAITING,
-  DealStage.PAYMENT_PARTIALLY_PAID,
   DealStage.POST_SCHEDULED,
   DealStage.DELIVERY_CONFIRMED,
   DealStage.FINALIZED,

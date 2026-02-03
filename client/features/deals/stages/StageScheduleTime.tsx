@@ -169,9 +169,7 @@ export default function StageScheduleTime({ deal, readonly, onAction }: StageSch
         <div className="rounded-2xl border border-border/60 bg-card/80 p-3">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="space-y-1">
-              <label className="text-xs text-muted-foreground">
-                {t("deals.stage.scheduleTime.dateLabel") ?? "Date"}
-              </label>
+
               <input
                 type="date"
                 value={dateValue}
@@ -184,9 +182,6 @@ export default function StageScheduleTime({ deal, readonly, onAction }: StageSch
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs text-muted-foreground">
-                {t("deals.stage.scheduleTime.timeLabel") ?? "Time"}
-              </label>
               <input
                 type="time"
                 value={timeValue}
@@ -209,7 +204,7 @@ export default function StageScheduleTime({ deal, readonly, onAction }: StageSch
               </p>
             ) : (
               <p className="text-[11px] text-muted-foreground">
-                {t("deals.stage.scheduleTime.pickDateTimeHint") ?? "Pick date and time."}
+
               </p>
             )}
             {!isValidSchedule && scheduledLocal ? (

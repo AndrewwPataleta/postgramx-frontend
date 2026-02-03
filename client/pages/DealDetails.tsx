@@ -179,7 +179,6 @@ export default function DealDetails() {
         ) : (
           <>
             <DealHeaderCard deal={resolvedDeal} />
-            <DealScheduleCard scheduledAt={resolvedDeal.scheduledAt} />
 
             <StageTimeline
               stages={availableStages}
