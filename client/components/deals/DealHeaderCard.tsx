@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { formatTon } from "@/i18n/formatters";
 import { formatDuration, getAllowEditsLabel, getAllowLinkTrackingLabel, getListingFormatLabel } from "@/i18n/labels";
 import { useLanguage } from "@/i18n/LanguageProvider";
+import { ChevronDown } from "lucide-react";
 
 interface DealHeaderCardProps {
   deal: DealEntity;
@@ -99,10 +100,8 @@ export default function DealHeaderCard({ deal }: DealHeaderCardProps) {
           onClick={() => setExpanded((prev) => !prev)}
           className="flex w-full items-center justify-between rounded-lg border border-border/60 bg-background/60 px-3 py-2 text-xs font-semibold text-muted-foreground transition hover:text-foreground"
         >
-          <span>{expanded ? t("common.hideDetails") : t("common.more")}</span>
-          <span className={cn("text-xs", expanded ? "text-foreground" : "text-muted-foreground")}>
-            {expanded ? t("common.collapseSymbol") : t("common.expandSymbol")}
-          </span>
+          <span>{expanded ? t("common.hideDetails") : t("common.showDetails")}</span>
+          <ChevronDown size={14} className={`transition-transform ${expanded ? "rotate-180" : ""}`} />
         </button>
       </div>
 

@@ -115,10 +115,6 @@ export default function DealDetails() {
     }
     const currentUserId = (user as { id?: string } | null)?.id;
     const isAdvertiser = currentUserId === resolvedDeal.advertiserUserId;
-    console.log('is averstired '+isAdvertiser)
-    console.log('currentUserId '+currentUserId)
-    console.log('deal.advertiserUserId '+resolvedDeal.advertiserUserId)
-    console.log('stage is '+resolvedDeal.stage)
     const readonlyForPublisher = !isAdvertiser;
     const stageComponents: Record<DealStage, JSX.Element> = {
 
