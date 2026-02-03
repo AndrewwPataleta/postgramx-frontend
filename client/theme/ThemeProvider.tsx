@@ -77,7 +77,7 @@ const applyThemeParams = (
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const storedMode = loadThemeMode();
-  const [mode, setModeState] = useState<ThemeMode>(storedMode ?? "telegram");
+  const [mode, setModeState] = useState<ThemeMode>(storedMode ?? "light");
   const [telegramTheme, setTelegramTheme] = useState<ResolvedTheme | null>(() =>
     getTelegramTheme(),
   );
