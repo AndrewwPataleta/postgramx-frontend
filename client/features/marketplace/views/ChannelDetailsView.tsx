@@ -85,7 +85,9 @@ export default function ChannelDetailsView() {
       activeListings.map((listing) => ({
         ...listing,
         priceTon: `${formatTon(listing.priceNano, language)} ${t("common.ton")}`,
-        tags: listing.tags.map((tag) => tag.trim()).filter(Boolean),
+        tags: Array.from(
+          new Set(listing.tags.map((tag) => tag.trim()).filter(Boolean))
+        ),
       })),
     [activeListings, language, t]
   );
@@ -256,7 +258,7 @@ export default function ChannelDetailsView() {
                             </button>
                           </div>
                         </div>
-                        {tagList.visible.length > 0 ? (
+                        {!isExpanded && tagList.visible.length > 0 ? (
                           <div className="flex flex-wrap gap-2 text-[11px] text-muted-foreground">
                             {tagList.visible.map((tag) => (
                               <span
