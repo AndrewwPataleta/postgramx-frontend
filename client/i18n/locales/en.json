@@ -282,7 +282,7 @@
   "deals.stage.scheduled.waiting": "Waiting for the post to go live.",
   "deals.stage.sendPost.confirmSent": "I've sent the post",
   "deals.stage.sendPost.creativeSubmitted": "Creative submitted",
-  "deals.stage.sendPost.description": "Send the creative through the bot.",
+  "deals.stage.sendPost.description": "Send the creative through the bot, following all applicable rules and guidelines.",
   "deals.stage.sendPost.noCreative": "No creative submitted yet.",
   "deals.stage.sendPost.openBot": "Open bot",
   "deals.stage.sendPost.readonly": "Waiting for creative submission.",
