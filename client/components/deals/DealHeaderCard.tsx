@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { DealEntity } from "@/models/entities";
 import { cn } from "@/lib/utils";
 import { formatTon } from "@/i18n/formatters";
@@ -12,6 +12,7 @@ interface DealHeaderCardProps {
 export default function DealHeaderCard({ deal }: DealHeaderCardProps) {
   const { t, language } = useLanguage();
   const [expanded, setExpanded] = useState(false);
+  const [idleCountdown, setIdleCountdown] = useState<string | null>(null);
   const priceLabel = `${formatTon(deal.listingSnapshot.priceNano, language)} ${t("common.ton")}`;
   const listingFormat = getListingFormatLabel(t, deal.listingSnapshot.format);
   const tags = deal.listingSnapshot.tags ?? [];
@@ -46,8 +47,36 @@ export default function DealHeaderCard({ deal }: DealHeaderCardProps) {
     [deal.listingSnapshot.allowEdits, deal.listingSnapshot.allowLinkTracking, pinDurationHours, lifetimeHours, t]
   );
 
+  useEffect(() => {
+    if (!deal.idleExpiresAt) {
+      setIdleCountdown(null);
+      return;
+    }
+    const updateCountdown = () => {
+      const deadlineMs = new Date(deal.idleExpiresAt ?? "").getTime();
+      if (Number.isNaN(deadlineMs)) {
+        setIdleCountdown(null);
+        return;
+      }
+      const diff = Math.max(0, deadlineMs - Date.now());
+      const hours = Math.floor(diff / 3_600_000);
+      const minutes = Math.floor((diff % 3_600_000) / 60_000);
+      const seconds = Math.floor((diff % 60_000) / 1000);
+      const pad = (value: number) => value.toString().padStart(2, "0");
+      setIdleCountdown(`${pad(hours)}:${pad(minutes)}:${pad(seconds)}`);
+    };
+    updateCountdown();
+    const interval = window.setInterval(updateCountdown, 1000);
+    return () => window.clearInterval(interval);
+  }, [deal.idleExpiresAt]);
+
   return (
     <div className="rounded-2xl border border-border/60 bg-card/80 p-4 shadow-sm">
+      {idleCountdown ? (
+        <p className="mb-3 text-sm font-semibold text-muted-foreground">
+          {t("deals.list.idleExpiresIn", { time: idleCountdown })}
+        </p>
+      ) : null}
       <div className="flex items-center gap-3">
         <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-secondary/60 text-lg font-semibold text-muted-foreground">
           {deal.channel.title.slice(0, 1)}
