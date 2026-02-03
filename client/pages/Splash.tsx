@@ -1,15 +1,25 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { listMarketplaceChannels } from "@/api/features/channelsApi";
 import { TELEGRAM_MOCK } from "@/config/env";
 import { ROUTES } from "@/constants/routes";
+import {
+  buildMarketplaceFiltersKey,
+  buildMarketplaceQueryFilters,
+  defaultMarketplaceFilters,
+  marketplaceKeys,
+} from "@/features/marketplace/viewmodels/marketplaceQuery";
 
 const Splash = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const queryClient = useQueryClient();
   const { initSession, retry, isLoading, isReady, error, user } = useAuth();
   const [copied, setCopied] = useState(false);
+  const hasPrefetchedRef = useRef(false);
   const redirectTo =
     (location.state as { from?: string } | null)?.from ?? ROUTES.MARKETPLACE;
 
@@ -21,12 +31,61 @@ const Splash = () => {
   }, [initSession, isReady, user]);
 
   useEffect(() => {
-    if (isReady && user) {
+    if (!isReady || !user) {
+      return;
+    }
+    let isActive = true;
+
+    const preloadMarketplace = async () => {
+      if (!hasPrefetchedRef.current) {
+        hasPrefetchedRef.current = true;
+        const page = 1;
+        const limit = 20;
+        const sort = "recent" as const;
+        const order = "desc" as const;
+        const filtersKey = buildMarketplaceFiltersKey(
+          defaultMarketplaceFilters,
+          ""
+        );
+        const queryFilters = buildMarketplaceQueryFilters({
+          filters: defaultMarketplaceFilters,
+          query: "",
+          page,
+          limit,
+          sort,
+          order,
+        });
+
+        try {
+          await queryClient.prefetchQuery({
+            queryKey: marketplaceKeys.channels(
+              filtersKey,
+              page,
+              limit,
+              sort,
+              order
+            ),
+            queryFn: () => listMarketplaceChannels(queryFilters),
+          });
+        } catch {
+          // ignore preload errors and continue to marketplace
+        }
+      }
+
+      if (!isActive) {
+        return;
+      }
       navigate(redirectTo === ROUTES.SPLASH ? ROUTES.MARKETPLACE : redirectTo, {
         replace: true,
       });
-    }
-  }, [isReady, navigate, redirectTo, user]);
+    };
+
+    void preloadMarketplace();
+
+    return () => {
+      isActive = false;
+    };
+  }, [isReady, navigate, queryClient, redirectTo, user]);
 
   useEffect(() => {
     if (!copied) {

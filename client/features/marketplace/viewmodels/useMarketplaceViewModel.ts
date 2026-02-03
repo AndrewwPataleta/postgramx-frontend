@@ -5,33 +5,19 @@ import type { FilterState } from "@/components/FilterModal";
 import { listMarketplaceChannels } from "@/api/features/channelsApi";
 import type { MarketplaceChannelSummary, Paged } from "@/models/entities";
 import { useLanguage } from "@/i18n/LanguageProvider";
-
-const defaultFilters: FilterState = {
-  priceRange: [0, 100],
-  subscribersRange: [0, 1_000_000],
-  languages: [],
-  categories: [],
-  tags: [],
-  verifiedOnly: false,
-  dateRange: ["", ""],
-};
-
-const marketplaceKeys = {
-  channels: (
-    filters: FilterState & { q?: string },
-    page: number,
-    limit: number,
-    sort: "recent" | "price_min" | "subscribers",
-    order: "asc" | "desc"
-  ) => ["marketplaceChannels", filters, page, limit, sort, order] as const,
-};
+import {
+  buildMarketplaceFiltersKey,
+  buildMarketplaceQueryFilters,
+  defaultMarketplaceFilters,
+  marketplaceKeys,
+} from "@/features/marketplace/viewmodels/marketplaceQuery";
 
 export const useMarketplaceViewModel = () => {
   const { t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [filters, setFilters] = useState<FilterState>(defaultFilters);
+  const [filters, setFilters] = useState<FilterState>(defaultMarketplaceFilters);
   const [page, setPage] = useState(1);
   const [limit] = useState(20);
   const [sort] = useState<"recent" | "price_min" | "subscribers">("recent");
@@ -49,37 +35,21 @@ export const useMarketplaceViewModel = () => {
     };
   }, [searchQuery]);
 
-  const queryFilters = useMemo(() => {
-    const hasDefaultPriceRange =
-      filters.priceRange[0] === defaultFilters.priceRange[0] &&
-      filters.priceRange[1] === defaultFilters.priceRange[1];
-    const hasDefaultSubscriberRange =
-      filters.subscribersRange[0] === defaultFilters.subscribersRange[0] &&
-      filters.subscribersRange[1] === defaultFilters.subscribersRange[1];
-    return {
-      q: debouncedQuery || undefined,
-      tags: filters.tags.length > 0 ? filters.tags : undefined,
-      minSubscribers: hasDefaultSubscriberRange
-        ? undefined
-        : filters.subscribersRange[0],
-      maxSubscribers: hasDefaultSubscriberRange
-        ? undefined
-        : filters.subscribersRange[1],
-      minPriceTon: hasDefaultPriceRange ? undefined : filters.priceRange[0],
-      maxPriceTon: hasDefaultPriceRange ? undefined : filters.priceRange[1],
-      ...(filters.verifiedOnly ? { verifiedOnly: true } : {}),
-      page,
-      limit,
-      sort,
-      order,
-    };
-  }, [debouncedQuery, filters, limit, order, page, sort]);
+  const queryFilters = useMemo(
+    () =>
+      buildMarketplaceQueryFilters({
+        filters,
+        query: debouncedQuery,
+        page,
+        limit,
+        sort,
+        order,
+      }),
+    [debouncedQuery, filters, limit, order, page, sort]
+  );
 
   const filtersKey = useMemo(
-    () => ({
-      ...filters,
-      q: debouncedQuery || undefined,
-    }),
+    () => buildMarketplaceFiltersKey(filters, debouncedQuery),
     [debouncedQuery, filters]
   );
 
@@ -135,9 +105,12 @@ export const useMarketplaceViewModel = () => {
     setFilters((prev) => {
       switch (filterType) {
         case "priceRange":
-          return { ...prev, priceRange: defaultFilters.priceRange };
+          return { ...prev, priceRange: defaultMarketplaceFilters.priceRange };
         case "subscribersRange":
-          return { ...prev, subscribersRange: defaultFilters.subscribersRange };
+          return {
+            ...prev,
+            subscribersRange: defaultMarketplaceFilters.subscribersRange,
+          };
         case "verifiedOnly":
           return { ...prev, verifiedOnly: false };
         case "languages":
@@ -164,7 +137,7 @@ export const useMarketplaceViewModel = () => {
   const openFilters = () => setIsFilterOpen(true);
   const closeFilters = () => setIsFilterOpen(false);
   const applyFilters = (nextFilters: FilterState) => setFilters(nextFilters);
-  const resetFilters = () => setFilters(defaultFilters);
+  const resetFilters = () => setFilters(defaultMarketplaceFilters);
 
   return {
     state: {
