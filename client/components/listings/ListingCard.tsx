@@ -50,8 +50,8 @@ export function ListingCard({ listing, variant = "full", actionSlot }: ListingCa
         <span
           className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${
             listing.isActive
-              ? "bg-emerald-500/15 text-emerald-400"
-              : "bg-rose-500/15 text-rose-400"
+              ? "bg-success/15 text-success"
+              : "bg-destructive/15 text-destructive"
           }`}
         >
           {listing.isActive ? t("listings.status.active") : t("listings.status.inactive")}

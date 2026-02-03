@@ -179,7 +179,7 @@ export default function StagePayment({
         <span
           className={cn(
             "h-2 w-2 rounded-full",
-            isConnected ? "bg-emerald-400" : "bg-muted-foreground/50"
+            isConnected ? "bg-success" : "bg-muted-foreground/50"
           )}
         />
         <span className="text-xs text-muted-foreground">{walletStatusLabel}</span>

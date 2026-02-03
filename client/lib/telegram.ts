@@ -20,6 +20,17 @@ export interface TelegramWebApp {
   initDataUnsafe?: {
     user?: TelegramUser;
   };
+  colorScheme?: "light" | "dark";
+  themeParams?: {
+    bg_color?: string;
+    text_color?: string;
+    hint_color?: string;
+    link_color?: string;
+    button_color?: string;
+    button_text_color?: string;
+    secondary_bg_color?: string;
+    destructive_text_color?: string;
+  };
   MainButton?: {
     showProgress?: (leaveActive?: boolean) => void;
     hideProgress?: () => void;
@@ -36,11 +47,19 @@ export interface TelegramWebApp {
   safeAreaInset?: Partial<TelegramInsets>;
   contentSafeAreaInset?: Partial<TelegramInsets>;
   onEvent?: (
-    event: "viewportChanged" | "safeAreaChanged" | "contentSafeAreaChanged",
+    event:
+      | "viewportChanged"
+      | "safeAreaChanged"
+      | "contentSafeAreaChanged"
+      | "themeChanged",
     handler: () => void
   ) => void;
   offEvent?: (
-    event: "viewportChanged" | "safeAreaChanged" | "contentSafeAreaChanged",
+    event:
+      | "viewportChanged"
+      | "safeAreaChanged"
+      | "contentSafeAreaChanged"
+      | "themeChanged",
     handler: () => void
   ) => void;
   ready?: () => void;

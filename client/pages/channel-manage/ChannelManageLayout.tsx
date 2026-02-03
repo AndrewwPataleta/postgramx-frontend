@@ -143,11 +143,11 @@ const ChannelManageLayout = () => {
           </div>
         </div>
         {isPendingVerification ? (
-          <div className="rounded-2xl border border-yellow-500/40 bg-yellow-500/10 px-4 py-3 text-xs text-yellow-100">
+          <div className="rounded-2xl border border-warning/40 bg-warning/10 px-4 py-3 text-xs text-warning">
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div>
-                <p className="font-semibold text-yellow-100">{t("channels.pendingVerificationTitle")}</p>
-                <p className="text-yellow-100/80">
+                <p className="font-semibold text-warning">{t("channels.pendingVerificationTitle")}</p>
+                <p className="text-warning/80">
                   {t("channels.pendingVerificationSubtitle")}
                 </p>
               </div>
@@ -155,7 +155,7 @@ const ChannelManageLayout = () => {
                 type="button"
                 onClick={handleRetryVerification}
                 disabled={isPending}
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-yellow-500/80 px-4 py-2 text-xs font-semibold text-yellow-950 transition disabled:cursor-not-allowed disabled:opacity-70"
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-warning/80 px-4 py-2 text-xs font-semibold text-warning-foreground transition disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {isPending ? (
                   <Loader2 size={14} className="animate-spin" />
@@ -166,7 +166,7 @@ const ChannelManageLayout = () => {
               </button>
             </div>
             {inlineError ? (
-              <p className="mt-2 text-[11px] text-yellow-100/80">{inlineError}</p>
+              <p className="mt-2 text-[11px] text-warning/80">{inlineError}</p>
             ) : null}
           </div>
         ) : null}

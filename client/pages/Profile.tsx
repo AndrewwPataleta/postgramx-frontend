@@ -18,6 +18,7 @@ import { formatDateTime, formatTon } from "@/i18n/formatters";
 import { TRANSACTION_DIRECTION, TRANSACTION_STATUS, TRANSACTION_TYPE } from "@/constants/payments";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useWalletContext } from "@/contexts/WalletContext";
+import { useTheme } from "@/theme/ThemeProvider";
 
 type ProfileUser = {
   firstName?: string | null;
@@ -34,6 +35,7 @@ export default function Profile() {
   const { t, language, setLanguage } = useLanguage();
   const queryClient = useQueryClient();
   const { walletAddress, isConnected } = useWalletContext();
+  const { mode, setMode } = useTheme();
   const [transactionFilters, setTransactionFilters] = useState<PaymentsListFilters>({
     page: 1,
     limit: 10,
@@ -53,6 +55,12 @@ export default function Profile() {
     .slice(0, 2)
     .map((part) => part[0]?.toUpperCase())
     .join("");
+  const themeOptions: Array<{ value: "telegram" | "light" | "dark" | "system"; label: string }> = [
+    { value: "telegram", label: t("profile.themeTelegram") },
+    { value: "system", label: t("profile.themeSystem") },
+    { value: "light", label: t("profile.themeLight") },
+    { value: "dark", label: t("profile.themeDark") },
+  ];
 
   const transactionsQuery = useQuery({
     queryKey: ["transactions", transactionFilters],
@@ -196,6 +204,40 @@ export default function Profile() {
                     </button>
                   ))}
                 </div>
+              </div>
+
+              <div className="glass p-4 space-y-4">
+                <div>
+                  <p className="text-sm font-semibold text-foreground">
+                    {t("profile.themeTitle")}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {t("profile.themeDescription")}
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {themeOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => setMode(option.value)}
+                      className={`rounded-md border px-3 py-1 text-xs transition ${
+                        mode === option.value
+                          ? "border-primary/60 bg-primary/20 text-primary"
+                          : "border-border/40 text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {mode === "telegram"
+                    ? t("profile.themeTelegramHint")
+                    : mode === "system"
+                      ? t("profile.themeSystemHint")
+                      : t("profile.themeOverrideHint")}
+                </p>
               </div>
             </div>
 

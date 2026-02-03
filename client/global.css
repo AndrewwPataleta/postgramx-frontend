@@ -24,7 +24,6 @@
     --app-toolbar-height: 52px;
     --bottom-nav-height: 0px;
 
-    /* Dark mode first (Telegram native) */
     --background: 213 26% 11%;
     --foreground: 0 0% 95%;
 
@@ -34,32 +33,87 @@
     --popover: 213 27% 16%;
     --popover-foreground: 0 0% 95%;
 
-    /* Telegram blue - primary accent */
     --primary: 197 91% 52%;
     --primary-foreground: 213 26% 11%;
 
-    /* Secondary - lighter surface */
     --secondary: 213 26% 20%;
     --secondary-foreground: 0 0% 95%;
 
-    /* Muted - for less important text */
     --muted: 213 15% 35%;
     --muted-foreground: 213 10% 70%;
 
-    /* Accent - cyan/blue highlight */
     --accent: 190 98% 48%;
     --accent-foreground: 213 26% 11%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 95%;
 
-    /* Borders and inputs */
+    --success: 142 68% 45%;
+    --success-foreground: 0 0% 95%;
+
+    --warning: 43 96% 56%;
+    --warning-foreground: 26 83% 14%;
+
+    --danger: 0 84% 60%;
+    --danger-foreground: 0 0% 95%;
+
     --border: 213 20% 25%;
     --input: 213 25% 18%;
     --ring: 197 91% 52%;
 
+    --sidebar-background: 213 26% 11%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 197 91% 52%;
+    --sidebar-primary-foreground: 213 26% 11%;
+    --sidebar-accent: 190 98% 48%;
+    --sidebar-accent-foreground: 213 26% 11%;
+    --sidebar-border: 213 20% 25%;
+    --sidebar-ring: 197 91% 52%;
+
     /* Radius - Telegram style rounded cards */
     --radius: 0.75rem;
+    --shadow-sm: 0 1px 2px hsl(213 20% 8% / 0.4);
+    --shadow-md: 0 10px 30px hsl(213 30% 8% / 0.45);
+  }
+
+  [data-theme="dark"] {
+    color-scheme: dark;
+    --background: 213 26% 11%;
+    --foreground: 0 0% 95%;
+
+    --card: 213 27% 16%;
+    --card-foreground: 0 0% 95%;
+
+    --popover: 213 27% 16%;
+    --popover-foreground: 0 0% 95%;
+
+    --primary: 197 91% 52%;
+    --primary-foreground: 213 26% 11%;
+
+    --secondary: 213 26% 20%;
+    --secondary-foreground: 0 0% 95%;
+
+    --muted: 213 15% 35%;
+    --muted-foreground: 213 10% 70%;
+
+    --accent: 190 98% 48%;
+    --accent-foreground: 213 26% 11%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 95%;
+
+    --success: 142 68% 45%;
+    --success-foreground: 0 0% 95%;
+
+    --warning: 43 96% 56%;
+    --warning-foreground: 26 83% 14%;
+
+    --danger: 0 84% 60%;
+    --danger-foreground: 0 0% 95%;
+
+    --border: 213 20% 25%;
+    --input: 213 25% 18%;
+    --ring: 197 91% 52%;
 
     --sidebar-background: 213 26% 11%;
     --sidebar-foreground: 0 0% 95%;
@@ -71,36 +125,56 @@
     --sidebar-ring: 197 91% 52%;
   }
 
-  .dark {
-    /* Same as root - dark mode is default */
-    --background: 213 26% 11%;
-    --foreground: 0 0% 95%;
-    --card: 213 27% 16%;
-    --card-foreground: 0 0% 95%;
-    --popover: 213 27% 16%;
-    --popover-foreground: 0 0% 95%;
-    --primary: 197 91% 52%;
-    --primary-foreground: 213 26% 11%;
-    --secondary: 213 26% 20%;
-    --secondary-foreground: 0 0% 95%;
-    --muted: 213 15% 35%;
-    --muted-foreground: 213 10% 70%;
-    --accent: 190 98% 48%;
-    --accent-foreground: 213 26% 11%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 95%;
-    --border: 213 20% 25%;
-    --input: 213 25% 18%;
-    --ring: 197 91% 52%;
-    --radius: 0.75rem;
-    --sidebar-background: 213 26% 11%;
-    --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 197 91% 52%;
-    --sidebar-primary-foreground: 213 26% 11%;
-    --sidebar-accent: 190 98% 48%;
-    --sidebar-accent-foreground: 213 26% 11%;
-    --sidebar-border: 213 20% 25%;
-    --sidebar-ring: 197 91% 52%;
+  [data-theme="light"] {
+    color-scheme: light;
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
+
+    --card: 0 0% 98%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 207 90% 54%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
+
+    --muted: 210 32% 92%;
+    --muted-foreground: 215 16% 45%;
+
+    --accent: 207 90% 54%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142 72% 32%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 43 96% 45%;
+    --warning-foreground: 26 83% 14%;
+
+    --danger: 0 84% 50%;
+    --danger-foreground: 0 0% 100%;
+
+    --border: 214 20% 86%;
+    --input: 214 24% 94%;
+    --ring: 207 90% 54%;
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 222 47% 11%;
+    --sidebar-primary: 207 90% 54%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 40% 96%;
+    --sidebar-accent-foreground: 222 47% 11%;
+    --sidebar-border: 214 20% 86%;
+    --sidebar-ring: 207 90% 54%;
+
+    --shadow-sm: 0 1px 2px hsl(222 47% 11% / 0.08);
+    --shadow-md: 0 10px 30px hsl(222 47% 11% / 0.12);
   }
 }
 

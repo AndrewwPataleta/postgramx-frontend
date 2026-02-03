@@ -6,7 +6,7 @@ export default function Index() {
   const { data } = useDealsOverview();
 
   return (
-    <div className="min-h-screen bg-slate-950 px-4 py-8 text-slate-100">
+    <div className="min-h-screen bg-background px-4 py-8 text-foreground">
       <div className="mx-auto flex max-w-6xl flex-col gap-10">
         <div className="grid gap-8 lg:grid-cols-3">
           <DealsFrame title="Active" deals={data.active} quickFilters={data.quickFilters} />
@@ -22,7 +22,7 @@ export default function Index() {
             dealId="DL-1002"
             status="Payment Required"
             statusKey="paymentRequired"
-            icon="💳"
+            icon="payment"
             timelineItems={data.timeline}
             primary="Pay Now"
             secondary="Open Chat Bot"
@@ -36,7 +36,7 @@ export default function Index() {
             dealId="DL-1006"
             status="Post Live — Verifying"
             statusKey="verifying"
-            icon="👁️"
+            icon="view"
             timelineItems={data.timelineVerifying}
             primary="View Post"
             secondary="Message via Bot"

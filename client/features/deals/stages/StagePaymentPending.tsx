@@ -18,7 +18,7 @@ export default function StagePaymentPending({ onAction, isRefreshing }: StagePay
   return (
     <InfoCard title={t("deals.stage.paymentPending.title")}>
       <div className="flex flex-wrap items-center gap-2">
-        <span className="rounded-full border border-emerald-400/40 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-semibold text-emerald-300">
+        <span className="rounded-full border border-success/40 bg-success/10 px-2.5 py-1 text-[11px] font-semibold text-success">
           {t("deals.stage.payment.paymentDetected")}
         </span>
       </div>

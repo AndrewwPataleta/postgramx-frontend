@@ -15,9 +15,9 @@ import { USER_ROLE } from "@/constants/roles";
 import { useAuth } from "@/components/auth/AuthProvider";
 
 const roleToneMap: Record<string, string> = {
-  [USER_ROLE.ADVERTISER]: "bg-emerald-500/10 text-emerald-400",
-  [USER_ROLE.PUBLISHER]: "bg-emerald-500/10 text-emerald-400",
-  [USER_ROLE.PUBLISHER_MANAGER]: "bg-emerald-500/10 text-emerald-400",
+  [USER_ROLE.ADVERTISER]: "bg-success/10 text-success",
+  [USER_ROLE.PUBLISHER]: "bg-success/10 text-success",
+  [USER_ROLE.PUBLISHER_MANAGER]: "bg-success/10 text-success",
 };
 
 interface DealListCardProps {
@@ -153,4 +153,3 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
 };
 
 export default memo(DealListCard);
-

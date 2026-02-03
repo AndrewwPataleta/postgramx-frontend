@@ -40,7 +40,7 @@ export default function StageTimeline({
             const sharedClasses = cn(
               "rounded-full border px-3 py-1 text-xs font-semibold transition",
               isActive
-                ? "bg-primary text-white"
+                ? "bg-primary text-primary-foreground"
                 : "border-border/60 bg-background/50 text-muted-foreground",
               isInteractive && !isDisabled ? "hover:border-primary/40 hover:text-foreground" : "opacity-70"
             );

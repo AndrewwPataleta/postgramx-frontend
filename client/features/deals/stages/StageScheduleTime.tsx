@@ -213,7 +213,7 @@ export default function StageScheduleTime({ deal, readonly, onAction }: StageSch
               </p>
             )}
             {!isValidSchedule && scheduledLocal ? (
-              <p className="mt-1 text-[11px] text-rose-200">
+              <p className="mt-1 text-[11px] text-destructive">
                 {t("deals.stage.scheduleTime.selectDateError")}
               </p>
             ) : null}

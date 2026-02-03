@@ -69,7 +69,7 @@ const AddChannelStep3 = () => {
           <div
             className={`flex h-16 w-16 items-center justify-center rounded-full ${
               isSuccess
-                ? "bg-emerald-500/20 text-emerald-400"
+                ? "bg-success/20 text-success"
                 : "bg-destructive/15 text-destructive"
             }`}
           >

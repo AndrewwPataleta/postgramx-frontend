@@ -135,7 +135,7 @@ const ChannelPendingVerification = () => {
                 <p className="text-sm text-muted-foreground">@{channel.username}</p>
               ) : null}
             </div>
-            <span className="rounded-full border border-yellow-500/40 bg-yellow-500/15 px-3 py-1 text-[11px] font-semibold text-yellow-200">
+            <span className="rounded-full border border-warning/40 bg-warning/15 px-3 py-1 text-[11px] font-semibold text-warning">
               {t("channels.status.PENDING_VERIFY")}
             </span>
           </div>

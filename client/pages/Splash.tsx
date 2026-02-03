@@ -69,9 +69,9 @@ const Splash = () => {
         ) : null}
 
         <div className="relative flex h-24 w-24 items-center justify-center">
-          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-sky-500/70 via-blue-500/70 to-indigo-600/70 blur-2xl opacity-80" />
-          <div className="relative z-10 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-400 via-blue-500 to-indigo-600 shadow-[0_0_25px_rgba(56,189,248,0.45)]">
-            <span className="text-lg font-semibold tracking-[0.2em] text-white">X</span>
+          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/70 via-accent/70 to-primary/60 blur-2xl opacity-80" />
+          <div className="relative z-10 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary via-accent to-primary shadow-[0_0_25px_hsl(var(--primary)/0.45)]">
+            <span className="text-lg font-semibold tracking-[0.2em] text-primary-foreground">X</span>
           </div>
         </div>
 
