@@ -145,7 +145,7 @@ export const FilterModal = ({
       />
 
       {/* Bottom Sheet Modal */}
-      <div className="fixed inset-x-0 bottom-0 top-0 bg-card rounded-t-2xl z-50 animate-in slide-in-from-bottom-10 duration-300 flex flex-col h-[100dvh] sm:h-auto sm:top-auto sm:max-h-[90vh] overflow-hidden">
+      <div className="fixed inset-x-0 bottom-0 top-auto bg-card rounded-t-2xl z-50 animate-in slide-in-from-bottom-10 duration-300 flex flex-col max-h-[85dvh] sm:max-h-[80vh] overflow-hidden shadow-2xl">
         {/* Header */}
         <div className="bg-card border-b border-border/50 px-4 py-4 flex items-center justify-between rounded-t-2xl shrink-0">
           <h2 className="text-lg font-semibold text-foreground">
