@@ -139,6 +139,13 @@ export default function DealDetails() {
       [DealStage.SCHEDULING_AWAITING_CONFIRM]: (
         <StageScheduleApproval deal={resolvedDeal} readonly={isAdvertiser} />
       ),
+      [DealStage.POST_SCHEDULED]: (
+        <StageScheduled deal={resolvedDeal} readonly={readonlyForPublisher} />
+      ),
+      [DealStage.DELIVERY_CONFIRMED]: (
+        <StageVerifying deal={resolvedDeal} readonly={readonlyForPublisher} />
+      ),
+      [DealStage.FINALIZED]: <StageDone deal={resolvedDeal} readonly={readonlyForPublisher} />
 /*
 
       [DealStage.PaymentPending]: (
@@ -149,13 +156,9 @@ export default function DealDetails() {
           isRefreshing={isFetching}
         />
       ),
-      [DealStage.Scheduled]: (
-        <StageScheduled deal={resolvedDeal} readonly={readonlyForPublisher} />
-      ),
-      [DealStage.Verifying]: (
-        <StageVerifying deal={resolvedDeal} readonly={readonlyForPublisher} />
-      ),
-      [DealStage.Done]: <StageDone deal={resolvedDeal} readonly={readonlyForPublisher} />,*/
+
+
+     ,*/
     };
 
     return stageComponents[resolvedDeal.stage];
