@@ -1,8 +1,8 @@
 
-import { memo, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import type { DealEntity } from "@/models/entities";
-import { formatDate, formatDateTime, formatTon } from "@/i18n/formatters";
+import { formatTon } from "@/i18n/formatters";
 import {
   getDealRoleLabel,
   getEscrowStatusLabel,
@@ -13,6 +13,7 @@ import {
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { USER_ROLE } from "@/constants/roles";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { stageToLabel } from "@/features/deals/dealStageMachine";
 
 const roleToneMap: Record<string, string> = {
   [USER_ROLE.ADVERTISER]: "bg-success/10 text-success",
@@ -25,10 +26,29 @@ interface DealListCardProps {
   onSelect: (deal: DealEntity) => void;
 }
 
+const formatIdleCountdown = (deadline: string | null | undefined) => {
+  if (!deadline) {
+    return null;
+  }
+  const deadlineMs = new Date(deadline).getTime();
+  if (Number.isNaN(deadlineMs)) {
+    return null;
+  }
+  const diff = Math.max(0, deadlineMs - Date.now());
+  const hours = Math.floor(diff / 3_600_000);
+  const minutes = Math.floor((diff % 3_600_000) / 60_000);
+  const seconds = Math.floor((diff % 60_000) / 1000);
+  const pad = (value: number) => value.toString().padStart(2, "0");
+  return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+};
+
 const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
   const { t, language } = useLanguage();
   const { user } = useAuth();
   const [expanded, setExpanded] = useState(false);
+  const [idleCountdown, setIdleCountdown] = useState<string | null>(() =>
+    formatIdleCountdown(deal.idleExpiresAt)
+  );
 
   const currentUserId = (user as { id?: string } | null)?.id;
 
@@ -38,6 +58,10 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
   const channelInitial = channelTitle?.trim()?.[0] ?? "•";
 
   const listingSnapshot = deal?.listingSnapshot;
+  const stageLabel = stageToLabel(deal.stage, t);
+  const priceLabel = listingSnapshot?.priceNano
+    ? `${formatTon(listingSnapshot.priceNano, language)} ${t("common.ton")}`
+    : t("common.emptyValue");
 
   const visibilityLabel = listingSnapshot?.visibilityDurationHours
     ? getVisibilityDurationLabel(t, listingSnapshot.visibilityDurationHours)
@@ -46,8 +70,6 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
   const pinnedLabel = listingSnapshot?.pinDurationHours
     ? getPinnedDurationLabel(t, listingSnapshot.pinDurationHours)
     : null;
-
-  console.log(deal)
 
   const detailLine = [getListingFormatLabel(t, deal.listingSnapshot.format), visibilityLabel, pinnedLabel].filter(Boolean).join(" • ");
 
@@ -71,6 +93,19 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
     return null;
   }, [deal]);
 
+  useEffect(() => {
+    if (!deal.idleExpiresAt) {
+      setIdleCountdown(null);
+      return;
+    }
+    const updateCountdown = () => {
+      setIdleCountdown(formatIdleCountdown(deal.idleExpiresAt));
+    };
+    updateCountdown();
+    const interval = window.setInterval(updateCountdown, 1000);
+    return () => window.clearInterval(interval);
+  }, [deal.idleExpiresAt]);
+
   return (
     <div
       className={`w-full rounded-2xl border border-border/60 bg-card/80 p-4 text-left shadow-sm transition ${
@@ -87,6 +122,19 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
         }
       }}
     >
+      <div className="flex items-start justify-between gap-3 pb-3">
+        <div className="min-w-0">
+          <p className="text-xs font-semibold text-muted-foreground">{stageLabel}</p>
+          {idleCountdown ? (
+            <p className="text-xs text-muted-foreground">
+              {t("deals.list.idleExpiresIn", { time: idleCountdown })}
+            </p>
+          ) : null}
+        </div>
+        <div className="text-right">
+          <p className="text-sm font-semibold text-foreground">{priceLabel}</p>
+        </div>
+      </div>
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
           <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-secondary/60 text-lg font-semibold text-muted-foreground">
