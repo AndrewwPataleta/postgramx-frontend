@@ -1,0 +1,1 @@
+import{D as I}from"./enums-s5S7F9er.js";BigInt(1e9);const s=[I.CREATIVE_AWAITING_SUBMIT,I.CREATIVE_AWAITING_CONFIRM,I.SCHEDULING_AWAITING_SUBMIT,I.SCHEDULING_AWAITING_CONFIRM,I.PAYMENT_AWAITING,I.POST_SCHEDULED,I.DELIVERY_CONFIRMED,I.FINALIZED],A=[...s],E=(a,e)=>e(`deals.timeline.stage.${a}`),N=(a,e)=>s.indexOf(a)<=s.indexOf(e);export{A as a,s as b,N as c,E as s};
