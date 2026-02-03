@@ -7,13 +7,17 @@ import LoadingSkeleton from "@/components/feedback/LoadingSkeleton";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { Input } from "@/components/ui/input";
 import { PageContainer } from "@/components/layout/PageContainer";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { listTransactionsForUser } from "@/api/features/paymentsApi";
-import { listChannelPayouts } from "@/api/features/paymentsPayoutsApi";
+import {
+  listChannelPayouts,
+  withdrawFromChannel,
+} from "@/api/features/paymentsPayoutsApi";
 import type { PaymentsListFilters } from "@/models/payments";
 import { formatDateTime, formatTon } from "@/i18n/formatters";
 import { TRANSACTION_DIRECTION, TRANSACTION_STATUS, TRANSACTION_TYPE } from "@/constants/payments";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { useWalletContext } from "@/contexts/WalletContext";
 
 type ProfileUser = {
   firstName?: string | null;
@@ -28,10 +32,13 @@ type ProfileUser = {
 export default function Profile() {
   const { user } = useAuth();
   const { t, language, setLanguage } = useLanguage();
+  const queryClient = useQueryClient();
+  const { walletAddress, isConnected } = useWalletContext();
   const [transactionFilters, setTransactionFilters] = useState<PaymentsListFilters>({
     page: 1,
     limit: 10,
   });
+  const [withdrawingChannelIds, setWithdrawingChannelIds] = useState<string[]>([]);
   const profileUser = user as ProfileUser | null;
   const firstName = profileUser?.firstName ?? profileUser?.first_name ?? "";
   const lastName = profileUser?.lastName ?? profileUser?.last_name ?? "";
@@ -89,6 +96,35 @@ export default function Profile() {
       ...prev,
       page: (prev.page ?? 1) + 1,
     }));
+  };
+
+  const handleWithdraw = async (channelId: string, amountNano: string) => {
+    if (!isConnected || !walletAddress) {
+      toast.error(t("profile.toastConnectWallet"));
+      return;
+    }
+
+    if (BigInt(amountNano) <= 0n) {
+      toast.error(t("profile.toastInsufficientBalance"));
+      return;
+    }
+
+    setWithdrawingChannelIds((prev) => [...new Set([...prev, channelId])]);
+    try {
+      await withdrawFromChannel({
+        channelId,
+        amountNano,
+        destinationAddress: walletAddress,
+      });
+      toast.success(t("profile.withdrawSubmitted"));
+      await queryClient.invalidateQueries({ queryKey: ["channel-payouts"] });
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : t("profile.toastWithdrawFailed")
+      );
+    } finally {
+      setWithdrawingChannelIds((prev) => prev.filter((id) => id !== channelId));
+    }
   };
 
   return (
@@ -198,10 +234,12 @@ export default function Profile() {
                         const channelName = item.channel.username
                           ? `@${item.channel.username}`
                           : item.channel.name;
+                        const hasBalance = BigInt(item.availableNano) > 0n;
+                        const isWithdrawing = withdrawingChannelIds.includes(item.channel.id);
                         return (
                           <div
                             key={item.channel.id}
-                            className="glass p-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
+                            className="glass p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
                           >
                             <div>
                               <p className="text-sm font-semibold text-foreground">
@@ -209,7 +247,7 @@ export default function Profile() {
                               </p>
                               <p className="text-xs text-muted-foreground">{channelName}</p>
                             </div>
-                            <div className="text-right">
+                            <div className="text-left sm:text-right">
                               <p className="text-sm font-semibold text-foreground">
                                 {formatTon(item.availableNano, language)} {t("common.ton")}
                               </p>
@@ -217,6 +255,18 @@ export default function Profile() {
                                 {t("profile.availableBalance")}
                               </p>
                             </div>
+                            {hasBalance ? (
+                              <button
+                                type="button"
+                                onClick={() => handleWithdraw(item.channel.id, item.availableNano)}
+                                disabled={isWithdrawing}
+                                className="inline-flex items-center justify-center rounded-lg border border-border/60 bg-card/80 px-4 py-2 text-xs font-semibold text-foreground transition hover:bg-card disabled:cursor-not-allowed disabled:opacity-60"
+                              >
+                                {isWithdrawing
+                                  ? t("common.loading")
+                                  : t("profile.withdrawAction")}
+                              </button>
+                            ) : null}
                           </div>
                         );
                       })}
