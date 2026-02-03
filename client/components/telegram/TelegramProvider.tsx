@@ -12,13 +12,11 @@ import {
   ensureWebAppReady,
   getTelegramUser,
   getTelegramWebApp,
-  mockTelegramAuth,
   normalizeInsets,
   setInsetCssVars,
   TelegramInsets,
   TelegramUser,
 } from "@/lib/telegram";
-import { TELEGRAM_MOCK } from "@/config/env";
 
 interface TelegramContextValue {
   webAppDetected: boolean;
@@ -47,7 +45,7 @@ export const TelegramProvider = ({ children }: { children: ReactNode }) => {
     initializedRef.current = true;
 
     const webApp = getTelegramWebApp();
-    if (!webApp && !TELEGRAM_MOCK) {
+    if (!webApp) {
       setWebAppDetected(false);
       setUser(null);
       setSafeAreaInset(DEFAULT_INSETS);
@@ -57,19 +55,6 @@ export const TelegramProvider = ({ children }: { children: ReactNode }) => {
         console.warn("Telegram WebApp not detected.");
         hasWarnedMissingWebApp = true;
       }
-      return;
-    }
-
-    if (!webApp && TELEGRAM_MOCK) {
-      setWebAppDetected(true);
-      setUser(mockTelegramAuth.user);
-      setSafeAreaInset(DEFAULT_INSETS);
-      setContentSafeAreaInset(null);
-      setInsetCssVars(DEFAULT_INSETS, DEFAULT_INSETS);
-      return;
-    }
-
-    if (!webApp) {
       return;
     }
 

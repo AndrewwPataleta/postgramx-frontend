@@ -1,5 +1,4 @@
-import { TELEGRAM_MOCK } from "@/config/env";
-import { getTelegramWebApp, mockTelegramAuth } from "@/lib/telegram";
+import { getTelegramWebApp } from "@/lib/telegram";
 
 export const getTelegramInitDataToken = (): string => {
   const webApp = getTelegramWebApp();
@@ -7,10 +6,6 @@ export const getTelegramInitDataToken = (): string => {
 
   if (initData && initData.trim().length > 0) {
     return initData;
-  }
-  return mockTelegramAuth.initData;
-  if (TELEGRAM_MOCK) {
-    return mockTelegramAuth.initData;
   }
 
   throw new Error("Telegram initData missing");
