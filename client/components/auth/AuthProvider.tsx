@@ -12,7 +12,9 @@ import { AUTH_EXPIRED_EVENT, clearAuthToken, setAuthToken } from "@/lib/api/auth
 import {
   getTelegramUser,
   getTelegramWebApp,
+  mockTelegramAuth,
 } from "@/lib/telegram";
+import { TELEGRAM_MOCK } from "@/config/env";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { authTelegram } from "@/api/features/authApi";
@@ -94,21 +96,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       const webApp = getTelegramWebApp();
-      const telegramUser = getTelegramUser(webApp);
+      const telegramUser = TELEGRAM_MOCK
+        ? mockTelegramAuth.user
+        : getTelegramUser(webApp);
 
-      if (!webApp || !telegramUser) {
-        setIsReady(false);
-        setUser(null);
-        setAccessToken(null);
-        clearAuthToken();
-        setError({
-          type: "missing_telegram",
-          message: "Telegram WebApp not detected.",
-        });
-        return { ok: false };
-      }
-
-      const response = await authTelegram(telegramUser as TelegramUserLike);
+      const response = await authTelegram(
+        (telegramUser ?? mockTelegramAuth.user) as TelegramUserLike
+      );
       const { accessToken: nextToken, user: profile } = extractAuthResult(response);
 
       if (nextToken) {
