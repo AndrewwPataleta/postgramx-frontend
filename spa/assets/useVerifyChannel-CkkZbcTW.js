@@ -1,0 +1,6 @@
+import{c as a,v as c}from"./index-ClJWBNR3.js";import{u as d}from"./useMutation-CpiS8Ru0.js";import{v as u}from"./channelsApi-5hzYXAX1.js";/**
+ * @license lucide-react v0.539.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const f=[["path",{d:"M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8",key:"v9h5vc"}],["path",{d:"M21 3v5h-5",key:"1q7to0"}],["path",{d:"M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16",key:"3uifl3"}],["path",{d:"M8 16H3v5",key:"1cv678"}]],m=a("refresh-cw",f),s={BOT_NOT_ADMIN:"Please add the bot as admin in channel settings",BOT_MISSING_RIGHTS:"Enable 'Post messages' permission for the bot",USER_NOT_ADMIN:"You must be an admin of the channel"},o=e=>{if(!(!e||typeof e!="object")){if("code"in e&&typeof e.code=="string")return e.code;if("details"in e&&e.details&&typeof e.details=="object"&&"code"in e.details){const t=e.details;if(typeof t?.code=="string")return t.code}}},g=(e,t)=>{if(!e)return t;if(typeof e=="string")return e;if(typeof e=="object"&&"message"in e){const i=o(e);return i&&i in s?s[i]:String(e.message??t)}const n=o(e);return n&&n in s?s[n]:t},l=(e,t)=>t,v=()=>{const e=c();return d({mutationFn:t=>u({id:t}),onSuccess:()=>{e.invalidateQueries({queryKey:["channelsList"]})}})};export{m as R,g as a,l as g,v as u};
