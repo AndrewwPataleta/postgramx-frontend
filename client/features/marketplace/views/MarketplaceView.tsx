@@ -69,12 +69,12 @@ export default function MarketplaceView() {
           ) : null}
 
           {!state.isLoading && state.error && computed.channels.length > 0 ? (
-            <div className="rounded-2xl border border-border/60 bg-red-500/5 p-4 text-sm text-red-200">
+            <div className="rounded-2xl border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">
               <p className="font-medium">{errorMessage}</p>
               <button
                 type="button"
                 onClick={actions.refetch}
-                className="mt-3 inline-flex items-center rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-1 text-xs font-semibold text-red-100"
+                className="mt-3 inline-flex items-center rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-1 text-xs font-semibold text-destructive"
               >
                 {t("common.retry")}
               </button>

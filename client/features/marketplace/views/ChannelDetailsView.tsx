@@ -201,7 +201,7 @@ export default function ChannelDetailsView() {
                   ))}
                 </div>
               ) : listingsQuery.isError ? (
-                <div className="rounded-xl border border-border/60 bg-red-500/5 p-4 text-sm text-red-200">
+                <div className="rounded-xl border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">
                   {t("marketplace.listingsLoadFailed")}
                 </div>
               ) : formattedListings.length > 0 ? (

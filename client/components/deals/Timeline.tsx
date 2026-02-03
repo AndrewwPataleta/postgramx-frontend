@@ -25,18 +25,18 @@ export default function Timeline({ items }: TimelineProps) {
             key={item.label}
             className={`flex items-center gap-2 rounded-xl border px-2.5 py-2 text-xs ${
               item.state === "completed"
-                ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-100"
+                ? "border-success/40 bg-success/10 text-success"
                 : item.state === "current"
-                ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-400"
+                ? "border-success/40 bg-success/10 text-success"
                 : "border-border/60 bg-background/40 text-muted-foreground"
             }`}
           >
             <div
               className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-semibold ${
                 item.state === "completed"
-                  ? "bg-emerald-500/80 text-emerald-950"
+                  ? "bg-success/80 text-success-foreground"
                   : item.state === "current"
-                  ? "bg-emerald-500/10 text-emerald-400"
+                  ? "bg-success/10 text-success"
                   : "border border-border/70 text-muted-foreground"
               }`}
             >

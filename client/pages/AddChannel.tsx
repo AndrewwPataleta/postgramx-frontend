@@ -109,7 +109,7 @@ export default function AddChannel() {
         <div className="glass p-4 space-y-3">
           <div className="flex items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary/60 text-lg">
-              📣
+              F
             </div>
             <div className="flex-1">
               <p className="text-sm font-semibold text-foreground">FlowgramX Updates</p>
@@ -135,7 +135,7 @@ export default function AddChannel() {
               <p className="text-sm font-semibold text-foreground">Public</p>
             </div>
           </div>
-          <p className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
+          <p className="rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-xs text-warning">
             You must be an admin to continue.
           </p>
         </div>
@@ -187,8 +187,8 @@ export default function AddChannel() {
       {activeStep === 4 && (
         <div className="glass p-4 space-y-3">
           <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/15">
-              <Check className="h-6 w-6 text-emerald-400" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-success/15">
+              <Check className="h-6 w-6 text-success" />
             </div>
             <div>
               <p className="text-sm font-semibold text-foreground">Channel connected</p>
@@ -206,7 +206,7 @@ export default function AddChannel() {
             </div>
             <div className="flex items-center justify-between rounded-lg bg-secondary/30 px-3 py-2">
               <span>Verification</span>
-              <span className="flex items-center gap-1 text-emerald-400">
+              <span className="flex items-center gap-1 text-success">
                 <ShieldCheck className="h-4 w-4" /> Connected via Telegram
               </span>
             </div>

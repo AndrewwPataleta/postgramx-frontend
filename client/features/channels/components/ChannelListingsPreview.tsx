@@ -202,12 +202,12 @@ const ChannelListingsPreview = memo(
             ))}
           </div>
         ) : query.isError ? (
-          <div className="rounded-xl border border-border/60 bg-red-500/5 px-4 py-3 text-xs text-red-200">
+          <div className="rounded-xl border border-destructive/40 bg-destructive/5 px-4 py-3 text-xs text-destructive">
             <p>{getErrorMessage(query.error, t("marketplace.listingsLoadFailed"), t)}</p>
             <button
               type="button"
               onClick={() => query.refetch()}
-              className="mt-2 inline-flex items-center gap-2 rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-1 text-[11px] font-semibold text-red-200"
+              className="mt-2 inline-flex items-center gap-2 rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-1 text-[11px] font-semibold text-destructive"
             >
               <RefreshCcw size={12} />
               {t("common.retry")}

@@ -24,10 +24,10 @@ const STATUS_STYLES: Record<PredealStatus, string> = {
     "border-border/60 bg-secondary/40 text-muted-foreground",
   [PREDEAL_STATUS.AWAITING_ADMIN_APPROVAL]:
     "border-border/60 bg-secondary/40 text-muted-foreground",
-  [PREDEAL_STATUS.READY_FOR_PAYMENT]: "border-emerald-500/30 bg-emerald-500/15 text-emerald-200",
-  [PREDEAL_STATUS.REJECTED]: "border-rose-500/30 bg-rose-500/15 text-rose-200",
-  [PREDEAL_STATUS.EXPIRED]: "border-rose-500/30 bg-rose-500/15 text-rose-200",
-  [PREDEAL_STATUS.CANCELED]: "border-rose-500/30 bg-rose-500/15 text-rose-200",
+  [PREDEAL_STATUS.READY_FOR_PAYMENT]: "border-success/30 bg-success/15 text-success",
+  [PREDEAL_STATUS.REJECTED]: "border-destructive/30 bg-destructive/15 text-destructive",
+  [PREDEAL_STATUS.EXPIRED]: "border-destructive/30 bg-destructive/15 text-destructive",
+  [PREDEAL_STATUS.CANCELED]: "border-destructive/30 bg-destructive/15 text-destructive",
 };
 
 const TERMINAL_STATUSES = new Set<PredealStatus>([

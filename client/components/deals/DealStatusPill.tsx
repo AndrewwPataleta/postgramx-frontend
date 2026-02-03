@@ -2,11 +2,11 @@ import { cn } from "@/lib/utils";
 
 const toneStyles = {
   primary: "bg-primary/20 text-primary",
-  warning: "bg-yellow-500/20 text-yellow-300",
-  info: "bg-sky-500/15 text-sky-200",
-  success: "bg-emerald-500/20 text-emerald-300",
+  warning: "bg-warning/20 text-warning",
+  info: "bg-accent/15 text-accent",
+  success: "bg-success/20 text-success",
   neutral: "bg-muted text-muted-foreground",
-  danger: "bg-rose-500/20 text-rose-300",
+  danger: "bg-destructive/20 text-destructive",
 };
 
 export type DealStatusTone = keyof typeof toneStyles;

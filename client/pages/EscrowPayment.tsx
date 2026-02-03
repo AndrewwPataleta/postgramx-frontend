@@ -32,7 +32,7 @@ export default function EscrowPayment() {
         {/* Main placeholder */}
         <div className="glass p-8 rounded-lg text-center">
           <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-            <span className="text-3xl">💰</span>
+            <span className="text-sm font-semibold text-primary">Ton</span>
           </div>
           <h2 className="text-lg font-semibold text-foreground mb-2">
             Escrow Payment Screen

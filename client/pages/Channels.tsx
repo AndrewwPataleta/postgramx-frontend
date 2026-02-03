@@ -396,7 +396,7 @@ export default function Channels() {
           <button
             type="button"
             onClick={handleUnlinkConfirm}
-            className="flex-1 rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-70"
+            className="flex-1 rounded-lg bg-destructive px-4 py-2 text-sm font-semibold text-destructive-foreground transition hover:bg-destructive/90 disabled:cursor-not-allowed disabled:opacity-70"
             disabled={isUnlinking}
           >
             {isUnlinking ? t("channels.unlinking") : t("channels.unlinkAction")}
