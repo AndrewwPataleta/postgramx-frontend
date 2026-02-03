@@ -5,6 +5,8 @@ import { createDeal, listDeals } from "@/api/features/dealsApi";
 import { getTelegramWebApp } from "@/lib/telegram";
 import { ROUTES } from "@/constants/routes";
 import type { DealEntity } from "@/models/entities";
+import { getErrorMessage } from "@/lib/api/errors";
+import { useLanguage } from "@/i18n/LanguageProvider";
 
 export const useDealsListQuery = (params: {
   role?: "all" | "advertiser" | "publisher";
@@ -31,6 +33,7 @@ export const useDealsListQuery = (params: {
 export const useCreateDealMutation = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   return useMutation<DealEntity, Error, { listingId: string; brief?: string; scheduledAt?: string | null }>({
     mutationFn: (payload) => createDeal(payload),
@@ -42,7 +45,7 @@ export const useCreateDealMutation = () => {
       navigate(ROUTES.DEALS, { state: { activeTab: "pending" }, replace: true });
     },
     onError: (error) => {
-      toast.error(error.message);
+      toast.error(getErrorMessage(error, t("deals.create.error"), t));
     },
   });
 };

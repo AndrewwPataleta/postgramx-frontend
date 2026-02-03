@@ -321,6 +321,8 @@
   "deals.tabs.active": "Active",
   "deals.tabs.completed": "Completed",
   "deals.tabs.pending": "Pending",
+  "deals.create.error": "Unable to create a deal.",
+  "errors.deals.active_pending_limit": "This channel has reached the limit for active or pending deals.",
   "deals.timeline.nextStage": "Next stage",
   "deals.timeline.previousStage": "Previous stage",
   "deals.timeline.stage.SCHEDULING_AWAITING_SUBMIT": "Schedule time",
