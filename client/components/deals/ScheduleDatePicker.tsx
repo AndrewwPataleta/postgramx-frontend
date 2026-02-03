@@ -186,6 +186,9 @@ export function ScheduleDatePicker({ value, onChange }: ScheduleDatePickerProps)
             </button>
           )}
         </div>
+        <p className="mb-3 text-xs text-muted-foreground">
+          Выбранное время должно быть минимум на час вперед от текущего.
+        </p>
 
         {step === "date" ? (
           <div className="space-y-2">
