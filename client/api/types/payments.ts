@@ -21,11 +21,15 @@ export type TransactionsListFilters = {
 export type TransactionListItem = {
   id: string;
   type: TransactionType;
+  typeLabel?: string | null;
   direction: TransactionDirection;
+  directionLabel?: string | null;
   status: TransactionStatus;
+  statusLabel?: string | null;
   amountNano: string;
   currency: string;
   description: string | null;
+  descriptionLabel?: string | null;
   dealId: string | null;
   channelId: string | null;
   externalTxHash: string | null;
