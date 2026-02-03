@@ -241,9 +241,6 @@ export default function Channels() {
           />
         ) : visibleItems.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border/60 bg-card/70 p-8 text-center">
-            <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-2xl">
-              {t("channels.emptyIcon")}
-            </div>
             <p className="text-sm font-semibold text-foreground">
               {t("channels.emptyTitle")}
             </p>

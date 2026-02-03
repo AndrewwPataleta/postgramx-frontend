@@ -97,9 +97,6 @@ const ListingsList = () => {
         </div>
       ) : (
         <div className="text-center py-12">
-          <div className="w-12 h-12 rounded-full bg-secondary/30 flex items-center justify-center mx-auto mb-3">
-            <span className="text-xl">{t("listings.emptyIcon")}</span>
-          </div>
           <p className="text-foreground font-semibold mb-2">{t("listings.emptyTitle")}</p>
           <p className="text-muted-foreground text-sm mb-6">
             {t("listings.emptySubtitle")}
