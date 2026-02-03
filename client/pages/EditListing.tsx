@@ -17,7 +17,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { listingTagCategories } from "@/features/listings/tagOptions";
+import { getListingTagLabel, listingTagCategories } from "@/features/listings/tagOptions";
 import { getErrorMessage } from "@/lib/api/errors";
 import { nanoToTonString } from "@/lib/ton";
 import type { ListingEntity } from "@/models/entities";
@@ -468,6 +468,7 @@ export default function EditListing() {
             <div className="flex flex-wrap gap-2 text-[11px] text-foreground">
               {selectedTags.map((tag) => {
                 const isLocked = tag === "Must be pre-approved";
+                const label = getListingTagLabel(tag, t);
                 return (
                   <button
                     key={tag}
@@ -484,7 +485,7 @@ export default function EditListing() {
                         : "bg-secondary/60 text-foreground hover:bg-secondary"
                     }`}
                   >
-                    {tag}
+                    {label}
                     {isLocked ? ` • ${t("listings.lockedLabel")}` : ` ${t("common.removeSymbol")}`}
                   </button>
                 );
@@ -494,32 +495,40 @@ export default function EditListing() {
 
           <div className="space-y-4">
             {listingTagCategories.map((category) => {
-              const filteredTags = category.tags.filter((tag) =>
-                tag.toLowerCase().includes(tagQuery.trim().toLowerCase()),
-              );
-              const displayTags = tagQuery ? filteredTags : category.tags;
+              const query = tagQuery.trim().toLowerCase();
+              const filteredTags = category.tags.filter((tag) => {
+                if (!query) {
+                  return true;
+                }
+                const label = t(tag.labelKey).toLowerCase();
+                return label.includes(query) || tag.value.toLowerCase().includes(query);
+              });
+              const displayTags = query ? filteredTags : category.tags;
               if (displayTags.length === 0) {
                 return null;
               }
               return (
-                <div key={category.title} className="space-y-2">
-                  <p className="text-xs font-semibold text-foreground">{category.title}</p>
+                <div key={category.titleKey} className="space-y-2">
+                  <p className="text-xs font-semibold text-foreground">
+                    {t(category.titleKey)}
+                  </p>
                   <div className="flex flex-wrap gap-2">
                     {displayTags.map((tag) => {
-                      const isLocked = tag === "Must be pre-approved";
-                      const isSelected = selectedTags.includes(tag);
+                      const isLocked = tag.value === "Must be pre-approved";
+                      const isSelected = selectedTags.includes(tag.value);
+                      const label = t(tag.labelKey);
                       return (
                         <button
-                          key={tag}
+                          key={tag.value}
                           type="button"
                           onClick={() => {
                             if (isLocked) {
                               return;
                             }
                             setSelectedTags((prev) =>
-                              prev.includes(tag)
-                                ? prev.filter((item) => item !== tag)
-                                : [...prev, tag],
+                              prev.includes(tag.value)
+                                ? prev.filter((item) => item !== tag.value)
+                                : [...prev, tag.value],
                             );
                           }}
                           className={`rounded-lg border px-3 py-1 text-xs transition-colors ${
@@ -528,7 +537,7 @@ export default function EditListing() {
                               : "border-border/60 bg-card text-muted-foreground hover:text-foreground"
                           } ${isLocked ? "cursor-not-allowed opacity-70" : ""}`}
                         >
-                          {tag}
+                          {label}
                           {isLocked ? ` • ${t("listings.lockedLabel")}` : ""}
                         </button>
                       );
