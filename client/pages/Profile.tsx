@@ -134,7 +134,7 @@ export default function Profile() {
       await queryClient.invalidateQueries({ queryKey: ["channel-payouts"] });
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : t("profile.toastWithdrawFailed")
+        error instanceof Error ? error.message : t("profile.toastWithdrawFailed"),
       );
     } finally {
       setWithdrawingChannelIds((prev) => prev.filter((id) => id !== channelId));
@@ -159,7 +159,8 @@ export default function Profile() {
               <div className="flex-1 min-w-0">
                 <h2 className="text-lg font-semibold text-foreground">{fullName}</h2>
                 <p className="text-sm text-muted-foreground">{username}</p>
-                <div className="mt-2 inline-flex items-center gap-2 rounded-full bg-secondary/60 px-3 py-1 text-[11px] font-medium text-muted-foreground">
+                <div
+                  className="mt-2 inline-flex items-center gap-2 rounded-full bg-secondary/60 px-3 py-1 text-[11px] font-medium text-muted-foreground">
                   <ShieldCheck size={14} className="text-primary/80" />
                   {t("profile.connectedViaTelegram")}
                 </div>
@@ -167,14 +168,10 @@ export default function Profile() {
             </div>
           </div>
 
-          <div className="grid gap-6 lg:grid-cols-[340px_1fr] space-y-2">
+          <div className="grid gap-4 lg:grid-cols-[340px_1fr] ">
             <div className="space-y-6 lg:sticky lg:top-20 lg:self-start ">
-              <div className="relative rounded-[28px] border border-border/40 bg-background/70 shadow-xl overflow-hidden">
-                <div className="px-5 py-4 border-b border-border/40 flex items-center justify-between gap-1 ">
 
-                  <TonConnectButton className="shrink-0" />
-                </div>
-              </div>
+              <TonConnectButton className="shrink-0 py-6" />
 
               <div className="glass p-4 space-y-4">
                 <div>
