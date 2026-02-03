@@ -48,14 +48,17 @@ export function ListingSummaryCard({
         </div>
         <div className="text-right">
           <p className="text-xs text-muted-foreground">{t("common.price")}</p>
-          <p className="text-sm font-semibold text-primary">
+          <p className="text-sm font-semibold price-text">
             {priceLabel} {t("common.ton")} / {t("listings.perPost")}
           </p>
         </div>
       </div>
       <div className="mt-3 space-y-1 text-xs text-muted-foreground">
         <p className="text-[13px] font-semibold text-foreground">
-          {t("listings.format.POST")} • {priceLabel} {t("common.ton")}
+          {t("listings.format.POST")} •{" "}
+          <span className="price-text">
+            {priceLabel} {t("common.ton")}
+          </span>
         </p>
         <div className="flex items-center justify-between">
           <span>{t("listings.pinnedLabel")}</span>

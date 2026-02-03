@@ -74,7 +74,7 @@ export function ListingPreviewDetails({
             <p className="text-[11px] font-semibold text-muted-foreground">
               {t("common.price")}
             </p>
-            <p className="text-sm font-semibold text-foreground">
+            <p className="text-sm font-semibold price-text">
               {priceLabel} {t("common.ton")}
             </p>
           </div>

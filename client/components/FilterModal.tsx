@@ -222,8 +222,10 @@ export const FilterModal = ({
                   />
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  {formatNumber(localFilters.priceRange[0], language)} -{" "}
-                  {formatNumber(localFilters.priceRange[1], language)} {t("common.ton")}
+                  <span className="price-text">
+                    {formatNumber(localFilters.priceRange[0], language)} -{" "}
+                    {formatNumber(localFilters.priceRange[1], language)} {t("common.ton")}
+                  </span>
                 </p>
               </div>
             )}

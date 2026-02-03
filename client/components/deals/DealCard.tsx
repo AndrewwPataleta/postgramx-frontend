@@ -67,7 +67,7 @@ export default function DealCard({
       <div className="mt-4 flex items-center justify-between">
         <div>
           <p className="text-xs text-muted-foreground">{t("common.price")}</p>
-          <p className="text-sm font-semibold text-foreground">{price}</p>
+          <p className="text-sm font-semibold price-text">{price}</p>
         </div>
         <p className="text-xs text-muted-foreground">{updatedLabel}</p>
       </div>

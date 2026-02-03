@@ -210,7 +210,7 @@ export default function Profile() {
                   {channelPayoutsTotal ? (
                     <p className="text-sm text-muted-foreground">
                       {t("profile.payoutsTotalAvailable")}:{" "}
-                      <span className="text-foreground font-semibold">
+                      <span className="font-semibold price-text">
                         {formatTon(channelPayoutsTotal, language)} {t("common.ton")}
                       </span>
                     </p>
@@ -243,7 +243,7 @@ export default function Profile() {
                               <p className="text-xs text-muted-foreground">{channelName}</p>
                             </div>
                             <div className="text-left sm:text-right">
-                              <p className="text-sm font-semibold text-foreground">
+                              <p className="text-sm font-semibold price-text">
                                 {formatTon(item.availableNano, language)} {t("common.ton")}
                               </p>
                               <p className="text-[11px] text-muted-foreground">
@@ -366,7 +366,7 @@ export default function Profile() {
                               </p>
                             </div>
                             <div className="text-right">
-                              <p className="text-sm font-semibold text-foreground">
+                              <p className="text-sm font-semibold price-text">
                                 {amountLabel} {item.currency ?? t("common.ton")}
                               </p>
                               <p className="text-[11px] text-muted-foreground">

@@ -165,6 +165,10 @@
     @apply bg-card/80 border border-border/40 rounded-lg p-3 text-foreground hover:bg-secondary/50 transition-colors;
   }
 
+  .price-text {
+    @apply text-primary;
+  }
+
   .tab-nav {
     @apply flex gap-1 border-b border-border;
   }

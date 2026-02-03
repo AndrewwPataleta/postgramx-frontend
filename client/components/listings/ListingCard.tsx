@@ -40,8 +40,11 @@ export function ListingCard({ listing, variant = "full", actionSlot }: ListingCa
     >
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-sm font-semibold text-foreground text-primary">
-            {t("listings.format.POST")} • {priceTonLabel} {t("common.ton")}
+          <p className="text-sm font-semibold text-foreground">
+            {t("listings.format.POST")} •{" "}
+            <span className="price-text">
+              {priceTonLabel} {t("common.ton")}
+            </span>
           </p>
         </div>
         <span

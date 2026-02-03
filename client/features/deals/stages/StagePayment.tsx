@@ -192,7 +192,7 @@ export default function StagePayment({
               <span className="font-semibold text-foreground">
                 {t("deals.stage.payment.amountToPay")}
               </span>
-              : {displayAmount}
+              : <span className="price-text">{displayAmount}</span>
             </p>
 
             <p>

@@ -90,7 +90,7 @@ const ListingPreview = ({ listings }: { listings: ListingEntity[] }) => {
         return (
           <div key={listing.id} className="rounded-xl border border-border/60 bg-card/80 p-3">
             <div className="flex items-center justify-between gap-3">
-              <div className="text-sm font-semibold text-foreground">
+              <div className="text-sm font-semibold price-text">
                 {listingPrice} {t("common.ton")}
               </div>
               <span className="rounded-full border border-border/60 bg-muted/40 px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
@@ -250,7 +250,7 @@ export default function ChannelCard({
           <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
             <span>
               {t("common.from")}{" "}
-              <span className="font-semibold text-primary">
+              <span className="font-semibold price-text">
                 {formattedPrice ?? t("common.emptyValue")} {t("common.ton")}
               </span>
             </span>
