@@ -298,6 +298,7 @@
   "deals.stage.verifyingPost.open": "Open in Telegram",
   "deals.stage.verifyingPost.pendingLink": "Waiting for post link.",
   "deals.stage.verifyingPost.title": "Verify post",
+  "deals.list.idleExpiresIn": "Deal expires in: {{time}}",
   "deals.status.ACTIVE": "Active",
   "deals.status.CANCELED": "Canceled",
   "deals.status.COMPLETED": "Completed",

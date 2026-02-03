@@ -298,6 +298,7 @@
   "deals.stage.verifyingPost.open": "Открыть в Telegram",
   "deals.stage.verifyingPost.pendingLink": "Ожидаем ссылку на пост.",
   "deals.stage.verifyingPost.title": "Проверка поста",
+  "deals.list.idleExpiresIn": "Сделка завершится через: {{time}}",
   "deals.status.ACTIVE": "Активна",
   "deals.status.CANCELED": "Отменена",
   "deals.status.COMPLETED": "Завершена",
