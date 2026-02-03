@@ -78,6 +78,12 @@ export default function Profile() {
   const transactionHasNext = transactionsQuery.data?.hasNext ?? false;
   const channelPayouts = channelPayoutsQuery.data?.items ?? [];
   const channelPayoutsTotal = channelPayoutsQuery.data?.totals?.availableNano;
+  const formatLabel = (value?: string | null) => {
+    if (!value) return null;
+    const normalized = value.replace(/_/g, " ").trim();
+    if (!normalized) return null;
+    return normalized[0].toUpperCase() + normalized.slice(1).toLowerCase();
+  };
 
   useEffect(() => {
     if (transactionsQuery.error instanceof Error) {
@@ -394,6 +400,14 @@ export default function Profile() {
                     <div className="space-y-3">
                       {transactions.map((item) => {
                         const amountLabel = formatTon(item.amountNano, language);
+                        const typeLabel =
+                          formatLabel(item.typeLabel) ?? t(`transactions.type.${item.type}`);
+                        const statusLabel =
+                          formatLabel(item.statusLabel) ?? t(`transactions.status.${item.status}`);
+                        const descriptionLabel =
+                          formatLabel(item.descriptionLabel) ??
+                          item.description ??
+                          t("profile.transactionNoDescription");
                         return (
                           <div
                             key={item.id}
@@ -401,10 +415,10 @@ export default function Profile() {
                           >
                             <div>
                               <p className="text-sm font-semibold text-foreground">
-                                {t(`transactions.type.${item.type}`)}
+                                {typeLabel}
                               </p>
                               <p className="text-xs text-muted-foreground">
-                                {item.description ?? t("profile.transactionNoDescription")}
+                                {descriptionLabel}
                               </p>
                             </div>
                             <div className="text-right">
@@ -412,7 +426,7 @@ export default function Profile() {
                                 {amountLabel} {item.currency ?? t("common.ton")}
                               </p>
                               <p className="text-[11px] text-muted-foreground">
-                                {t(`transactions.status.${item.status}`)} •{" "}
+                                {statusLabel} •{" "}
                                 {formatDateTime(item.createdAt, language)}
                               </p>
                             </div>

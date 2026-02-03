@@ -15,11 +15,15 @@ export type PaymentsListFilters = {
 export type TransactionItem = {
   id: string;
   type: string;
+  typeLabel?: string | null;
   direction: string;
+  directionLabel?: string | null;
   status: string;
+  statusLabel?: string | null;
   amountNano: string;
   currency: string;
   description: string | null;
+  descriptionLabel?: string | null;
   dealId: string | null;
   channelId: string | null;
   externalTxHash: string | null;
