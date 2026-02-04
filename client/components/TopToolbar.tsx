@@ -135,7 +135,8 @@ const TopToolbar = () => {
     <header
       className="fixed left-0 right-0 z-50 border-b border-border/50 bg-background/90 backdrop-blur-glass"
       style={{
-        top: "max(var(--tg-safe-top), var(--tg-content-safe-area-inset-top))",
+        top: 0,
+        paddingTop: "max(var(--tg-safe-top), var(--tg-content-safe-area-inset-top))",
         paddingLeft: "max(var(--tg-safe-left), var(--tg-content-safe-area-inset-left))",
         paddingRight: "max(var(--tg-safe-right), var(--tg-content-safe-area-inset-right))",
       }}
