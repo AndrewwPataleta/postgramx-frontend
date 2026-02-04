@@ -1,6 +1,6 @@
 import { ShieldCheck } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { TonConnectButton } from "@tonconnect/ui-react";
 import { toast } from "sonner";
 import LoadingSkeleton from "@/components/feedback/LoadingSkeleton";
@@ -8,6 +8,7 @@ import { useLanguage } from "@/i18n/LanguageProvider";
 import { Input } from "@/components/ui/input";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { setWallet } from "@/api/features/walletApi";
 import type { TransactionsListFilters } from "@/api/types/payments";
 import { formatDateTime, formatTon } from "@/i18n/formatters";
 import { TRANSACTION_DIRECTION, TRANSACTION_STATUS, TRANSACTION_TYPE } from "@/constants/payments";
@@ -46,6 +47,7 @@ export default function Profile() {
   const [withdrawSheetOpen, setWithdrawSheetOpen] = useState(false);
   const [withdrawAll, setWithdrawAll] = useState(true);
   const [withdrawAmount, setWithdrawAmount] = useState("");
+  const lastSyncedWalletRef = useRef<string | null>(null);
   const profileUser = user as ProfileUser | null;
   const firstName = profileUser?.firstName ?? profileUser?.first_name ?? "";
   const lastName = profileUser?.lastName ?? profileUser?.last_name ?? "";
@@ -174,6 +176,28 @@ export default function Profile() {
       page: patch.page ?? 1,
     }));
   };
+
+  const { mutate: syncWallet } = useMutation({
+    mutationFn: setWallet,
+    onError: (error) => {
+      console.error("[Profile] wallet sync failed", error);
+      toast.error(t("profile.walletSyncFailed"));
+    },
+  });
+
+  useEffect(() => {
+    if (!isConnected || !connectedWalletAddress) {
+      lastSyncedWalletRef.current = null;
+      return;
+    }
+
+    if (lastSyncedWalletRef.current === connectedWalletAddress) {
+      return;
+    }
+
+    lastSyncedWalletRef.current = connectedWalletAddress;
+    syncWallet(connectedWalletAddress);
+  }, [connectedWalletAddress, isConnected, syncWallet]);
 
   const handleWithdrawOpen = () => {
     console.debug("[Profile] withdraw open", {
