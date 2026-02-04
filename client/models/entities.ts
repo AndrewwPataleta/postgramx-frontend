@@ -35,7 +35,7 @@ export type DealEscrowEntity = {
   amountNano: string;
   paidNano: string;
   walletId: string | null;
-  paymentAddress: string | null;
+  depositAddress: string | null;
   paymentDeadlineAt: string | null;
   confirmedAt: string | null;
   releasedAt: string | null;

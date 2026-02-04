@@ -82,7 +82,7 @@ export default function StagePayment({
   const paymentDeadlineAt = deal.escrow.paymentDeadlineAt;
 
   const escrowAmountNano = deal.escrow.amountNano ?? deal.listingSnapshot.priceNano;
-  const paymentAddress = deal.escrow.paymentAddress ?? "";
+  const paymentAddress = deal.escrow.depositAddress ?? "";
 
   const displayAmount = escrowAmountNano
     ? `${formatTon(escrowAmountNano, language)} ${t("common.ton")}`
