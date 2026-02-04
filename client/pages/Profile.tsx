@@ -1,24 +1,28 @@
 import { ShieldCheck } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { TonConnectButton } from "@tonconnect/ui-react";
 import { toast } from "sonner";
 import LoadingSkeleton from "@/components/feedback/LoadingSkeleton";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { Input } from "@/components/ui/input";
 import { PageContainer } from "@/components/layout/PageContainer";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { listTransactionsForUser } from "@/api/features/paymentsApi";
-import {
-  listChannelPayouts,
-  withdrawFromChannel,
-} from "@/api/features/paymentsPayoutsApi";
-import type { PaymentsListFilters } from "@/models/payments";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import type { TransactionsListFilters } from "@/api/types/payments";
 import { formatDateTime, formatTon } from "@/i18n/formatters";
 import { TRANSACTION_DIRECTION, TRANSACTION_STATUS, TRANSACTION_TYPE } from "@/constants/payments";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useWalletContext } from "@/contexts/WalletContext";
 import { useTheme } from "@/theme/ThemeProvider";
+import BottomSheet from "@/components/BottomSheet";
+import { formatTonFromNano, isPositiveNano, parseTonToNano } from "@/lib/ton";
+import { useBalanceOverview } from "@/hooks/useBalanceOverview";
+import { useUserWallet } from "@/hooks/useUserWallet";
+import { useEarningsByChannel } from "@/hooks/useEarningsByChannel";
+import { useTransactions } from "@/hooks/useTransactions";
+import { requestPayout, requestPayoutAll } from "@/api/paymentsBalanceApi";
+import { setUserWallet } from "@/api/walletApi";
+import type { EarningsByChannelItem } from "@/api/paymentsEarningsApi";
 
 type ProfileUser = {
   firstName?: string | null;
@@ -36,11 +40,16 @@ export default function Profile() {
   const queryClient = useQueryClient();
   const { walletAddress, isConnected } = useWalletContext();
   const { mode, setMode } = useTheme();
-  const [transactionFilters, setTransactionFilters] = useState<PaymentsListFilters>({
+  const [transactionFilters, setTransactionFilters] = useState<TransactionsListFilters>({
     page: 1,
     limit: 10,
   });
-  const [withdrawingChannelIds, setWithdrawingChannelIds] = useState<string[]>([]);
+  const [earningsPage, setEarningsPage] = useState(1);
+  const [earningsItems, setEarningsItems] = useState<EarningsByChannelItem[]>([]);
+  const [withdrawSheetOpen, setWithdrawSheetOpen] = useState(false);
+  const [withdrawAll, setWithdrawAll] = useState(true);
+  const [withdrawAmount, setWithdrawAmount] = useState("");
+  const lastSyncedWallet = useRef<string | null>(null);
   const profileUser = user as ProfileUser | null;
   const firstName = profileUser?.firstName ?? profileUser?.first_name ?? "";
   const lastName = profileUser?.lastName ?? profileUser?.last_name ?? "";
@@ -62,22 +71,25 @@ export default function Profile() {
     { value: "dark", label: t("profile.themeDark") },
   ];
 
-  const transactionsQuery = useQuery({
-    queryKey: ["transactions", transactionFilters],
-    queryFn: () => listTransactionsForUser(transactionFilters),
-    refetchOnWindowFocus: false,
-  });
+  const balanceOverviewQuery = useBalanceOverview();
+  const walletQuery = useUserWallet();
+  const earningsQuery = useEarningsByChannel({ page: earningsPage, limit: 5 });
+  const transactionsQuery = useTransactions(transactionFilters);
 
-  const channelPayoutsQuery = useQuery({
-    queryKey: ["channel-payouts"],
-    queryFn: () => listChannelPayouts(),
-    refetchOnWindowFocus: false,
-  });
+  const transactions = useMemo(
+    () => transactionsQuery.data?.pages.flatMap((page) => page.items) ?? [],
+    [transactionsQuery.data?.pages]
+  );
+  const lastTransactionsPage = transactionsQuery.data?.pages.at(-1);
+  const transactionHasNext = lastTransactionsPage?.hasNext ?? false;
+  const walletAddressDisplay = walletQuery.data?.tonAddress;
+  const balanceOverview = balanceOverviewQuery.data;
+  const availableNano = balanceOverview?.availableNano ?? "0";
+  const pendingNano = balanceOverview?.pendingNano ?? "0";
+  const lifetimeEarnedNano = balanceOverview?.lifetimeEarnedNano ?? "0";
+  const lifetimePaidOutNano = balanceOverview?.lifetimePaidOutNano ?? "0";
+  const hasAvailableBalance = isPositiveNano(availableNano);
 
-  const transactions = transactionsQuery.data?.items ?? [];
-  const transactionHasNext = transactionsQuery.data?.hasNext ?? false;
-  const channelPayouts = channelPayoutsQuery.data?.items ?? [];
-  const channelPayoutsTotal = channelPayoutsQuery.data?.totals?.availableNano;
   const formatLabel = (value?: string | null) => {
     if (!value) return null;
     const normalized = value.replace(/_/g, " ").trim();
@@ -92,12 +104,98 @@ export default function Profile() {
   }, [transactionsQuery.error]);
 
   useEffect(() => {
-    if (channelPayoutsQuery.error instanceof Error) {
-      toast.error(channelPayoutsQuery.error.message);
+    if (balanceOverviewQuery.error instanceof Error) {
+      toast.error(balanceOverviewQuery.error.message);
     }
-  }, [channelPayoutsQuery.error]);
+  }, [balanceOverviewQuery.error]);
 
-  const updateTransactionFilters = (patch: Partial<PaymentsListFilters>) => {
+  useEffect(() => {
+    if (walletQuery.error instanceof Error) {
+      toast.error(walletQuery.error.message);
+    }
+  }, [walletQuery.error]);
+
+  useEffect(() => {
+    if (earningsQuery.error instanceof Error) {
+      toast.error(earningsQuery.error.message);
+    }
+  }, [earningsQuery.error]);
+
+  useEffect(() => {
+    if (!earningsQuery.data?.items) {
+      return;
+    }
+    setEarningsItems((prev) => {
+      if (earningsPage === 1) {
+        return earningsQuery.data?.items ?? [];
+      }
+      const existingIds = new Set(prev.map((item) => item.channelId));
+      const nextItems = earningsQuery.data?.items.filter(
+        (item) => !existingIds.has(item.channelId)
+      );
+      return [...prev, ...nextItems];
+    });
+  }, [earningsPage, earningsQuery.data?.items]);
+
+  const setWalletMutation = useMutation({
+    mutationFn: setUserWallet,
+    onSuccess: (data) => {
+      lastSyncedWallet.current = data.tonAddress;
+      queryClient.invalidateQueries({ queryKey: ["wallet"] });
+    },
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : t("profile.walletSyncFailed"));
+    },
+  });
+
+  useEffect(() => {
+    if (!isConnected || !walletAddress) {
+      return;
+    }
+    if (walletQuery.isLoading) {
+      return;
+    }
+    if (walletAddressDisplay === walletAddress) {
+      return;
+    }
+    if (lastSyncedWallet.current === walletAddress || setWalletMutation.isPending) {
+      return;
+    }
+    lastSyncedWallet.current = walletAddress;
+    setWalletMutation.mutate({ tonAddress: walletAddress });
+  }, [
+    isConnected,
+    walletAddress,
+    walletAddressDisplay,
+    walletQuery.isLoading,
+    setWalletMutation,
+  ]);
+
+  const requestPayoutMutation = useMutation({
+    mutationFn: requestPayout,
+    onSuccess: () => {
+      toast.success(t("profile.withdrawSubmitted"));
+      queryClient.invalidateQueries({ queryKey: ["balanceOverview"] });
+      queryClient.invalidateQueries({ queryKey: ["transactions"] });
+    },
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : t("profile.toastWithdrawFailed"));
+    },
+  });
+
+  const requestPayoutAllMutation = useMutation({
+    mutationFn: requestPayoutAll,
+    onSuccess: () => {
+      toast.success(t("profile.withdrawSubmitted"));
+      queryClient.invalidateQueries({ queryKey: ["balanceOverview"] });
+      queryClient.invalidateQueries({ queryKey: ["transactions"] });
+    },
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : t("profile.toastWithdrawFailed"));
+    },
+  });
+
+  const updateTransactionFilters = (patch: Partial<TransactionsListFilters>) => {
     setTransactionFilters((prev) => ({
       ...prev,
       ...patch,
@@ -105,39 +203,64 @@ export default function Profile() {
     }));
   };
 
-  const handleLoadMoreTransactions = () => {
-    setTransactionFilters((prev) => ({
-      ...prev,
-      page: (prev.page ?? 1) + 1,
-    }));
-  };
-
-  const handleWithdraw = async (channelId: string, amountNano: string) => {
-    if (!isConnected || !walletAddress) {
+  const handleWithdrawOpen = () => {
+    if (!walletAddressDisplay) {
       toast.error(t("profile.toastConnectWallet"));
       return;
     }
+    setWithdrawAll(true);
+    setWithdrawAmount(formatTonFromNano(availableNano));
+    setWithdrawSheetOpen(true);
+  };
 
-    if (BigInt(amountNano) <= 0n) {
+  const handleWithdrawSubmit = () => {
+    if (!walletAddressDisplay) {
+      toast.error(t("profile.toastConnectWallet"));
+      return;
+    }
+    if (!hasAvailableBalance) {
       toast.error(t("profile.toastInsufficientBalance"));
       return;
     }
+    if (withdrawAll) {
+      requestPayoutAllMutation.mutate();
+      setWithdrawSheetOpen(false);
+      return;
+    }
+    const parsed = parseTonToNano(withdrawAmount);
+    if (!parsed || parsed <= 0n) {
+      toast.error(t("profile.toastSelectValidWithdraw"));
+      return;
+    }
+    const available = BigInt(availableNano);
+    if (parsed > available) {
+      toast.error(t("profile.toastInsufficientBalance"));
+      return;
+    }
+    requestPayoutMutation.mutate({ amountNano: parsed.toString(), currency: "TON" });
+    setWithdrawSheetOpen(false);
+  };
 
-    setWithdrawingChannelIds((prev) => [...new Set([...prev, channelId])]);
-    try {
-      await withdrawFromChannel({
-        channelId,
-        amountNano,
-        destinationAddress: walletAddress,
-      });
-      toast.success(t("profile.withdrawSubmitted"));
-      await queryClient.invalidateQueries({ queryKey: ["channel-payouts"] });
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : t("profile.toastWithdrawFailed"),
-      );
-    } finally {
-      setWithdrawingChannelIds((prev) => prev.filter((id) => id !== channelId));
+  const shortAddress = (value: string | null | undefined) => {
+    if (!value) return t("profile.walletNotConnected");
+    if (value.length <= 10) return value;
+    return `${value.slice(0, 4)}…${value.slice(-4)}`;
+  };
+
+  const shortHash = (value: string | null | undefined) => {
+    if (!value) return null;
+    if (value.length <= 12) return value;
+    return `${value.slice(0, 6)}…${value.slice(-4)}`;
+  };
+
+  const directionBadgeStyle = (direction?: string) => {
+    switch (direction) {
+      case "IN":
+        return "bg-emerald-500/10 text-emerald-500";
+      case "OUT":
+        return "bg-rose-500/10 text-rose-500";
+      default:
+        return "bg-primary/10 text-primary";
     }
   };
 
@@ -160,7 +283,8 @@ export default function Profile() {
                 <h2 className="text-lg font-semibold text-foreground">{fullName}</h2>
                 <p className="text-sm text-muted-foreground">{username}</p>
                 <div
-                  className="mt-2 inline-flex items-center gap-2 rounded-full bg-secondary/60 px-3 py-1 text-[11px] font-medium text-muted-foreground">
+                  className="mt-2 inline-flex items-center gap-2 rounded-full bg-secondary/60 px-3 py-1 text-[11px] font-medium text-muted-foreground"
+                >
                   <ShieldCheck size={14} className="text-primary/80" />
                   {t("profile.connectedViaTelegram")}
                 </div>
@@ -170,14 +294,9 @@ export default function Profile() {
 
           <div className="grid gap-4 lg:grid-cols-[340px_1fr] ">
             <div className="space-y-6 lg:sticky lg:top-20 lg:self-start ">
-
-              <TonConnectButton className="shrink-0 py-6" />
-
               <div className="glass p-4 space-y-4">
                 <div>
-                  <p className="text-sm font-semibold text-foreground">
-                    {t("profile.language")}
-                  </p>
+                  <p className="text-sm font-semibold text-foreground">{t("profile.language")}</p>
                   <p className="text-xs text-muted-foreground">
                     {t("profile.languageDescription")}
                   </p>
@@ -211,9 +330,7 @@ export default function Profile() {
 
               <div className="glass p-4 space-y-4">
                 <div>
-                  <p className="text-sm font-semibold text-foreground">
-                    {t("profile.themeTitle")}
-                  </p>
+                  <p className="text-sm font-semibold text-foreground">{t("profile.themeTitle")}</p>
                   <p className="text-xs text-muted-foreground">
                     {t("profile.themeDescription")}
                   </p>
@@ -240,81 +357,173 @@ export default function Profile() {
             <div className="space-y-6">
               <div className="rounded-[28px] border border-border/40 bg-background/70 shadow-xl overflow-hidden">
                 <div className="px-5 py-4 border-b border-border/40 space-y-1">
-                  <div>
-                    <h3 className="text-lg font-semibold text-foreground">
-                      {t("profile.payoutsTitle")}
-                    </h3>
-                  </div>
-                  {channelPayoutsTotal ? (
-                    <p className="text-sm text-muted-foreground">
-                      {t("profile.payoutsTotalAvailable")}:{" "}
-                      <span className="font-semibold price-text">
-                        {formatTon(channelPayoutsTotal, language)} {t("common.ton")}
-                      </span>
-                    </p>
-                  ) : null}
+                  <h3 className="text-lg font-semibold text-foreground">
+                    {t("profile.balanceOverviewTitle")}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    {t("profile.balanceOverviewSubtitle")}
+                  </p>
                 </div>
                 <div className="px-5 py-5 space-y-4 pb-8">
-                  {channelPayoutsQuery.isLoading ? (
+                  {balanceOverviewQuery.isLoading ? (
                     <LoadingSkeleton items={2} />
-                  ) : channelPayouts.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">
-                      {t("profile.payoutsEmpty")}
-                    </p>
                   ) : (
+                    <div className="space-y-4">
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <div className="glass p-4">
+                          <p className="text-xs text-muted-foreground">
+                            {t("profile.availableBalance")}
+                          </p>
+                          <p className="text-lg font-semibold price-text">
+                            {formatTon(availableNano, language)} {t("common.ton")}
+                          </p>
+                        </div>
+                        <div className="glass p-4">
+                          <p className="text-xs text-muted-foreground">
+                            {t("profile.pendingBalance")}
+                          </p>
+                          <p className="text-lg font-semibold price-text">
+                            {formatTon(pendingNano, language)} {t("common.ton")}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <div className="rounded-2xl border border-border/40 bg-background/60 p-4 text-xs text-muted-foreground">
+                          <p>{t("profile.lifetimeEarned")}</p>
+                          <p className="text-sm font-semibold text-foreground">
+                            {formatTon(lifetimeEarnedNano, language)} {t("common.ton")}
+                          </p>
+                        </div>
+                        <div className="rounded-2xl border border-border/40 bg-background/60 p-4 text-xs text-muted-foreground">
+                          <p>{t("profile.lifetimePaidOut")}</p>
+                          <p className="text-sm font-semibold text-foreground">
+                            {formatTon(lifetimePaidOutNano, language)} {t("common.ton")}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                        <p className="text-xs text-muted-foreground">
+                          {t("profile.lastUpdated")} {""}
+                          {formatDateTime(balanceOverview?.lastUpdatedAt, language)}
+                        </p>
+                        {walletAddressDisplay ? (
+                          <button
+                            type="button"
+                            onClick={handleWithdrawOpen}
+                            disabled={!hasAvailableBalance}
+                            className="inline-flex items-center justify-center rounded-lg border border-border/60 bg-card/80 px-4 py-2 text-xs font-semibold text-foreground transition hover:bg-card disabled:cursor-not-allowed disabled:opacity-60"
+                          >
+                            {t("profile.withdrawAction")}
+                          </button>
+                        ) : (
+                          <span className="text-xs text-primary">
+                            {t("profile.connectWalletCta")}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="rounded-[28px] border border-border/40 bg-background/70 shadow-xl overflow-hidden">
+                <div className="px-5 py-4 border-b border-border/40 space-y-1">
+                  <h3 className="text-lg font-semibold text-foreground">
+                    {t("profile.walletSectionTitle")}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    {t("profile.walletSectionSubtitle")}
+                  </p>
+                </div>
+                <div className="px-5 py-5 space-y-4 pb-8">
+                  <div className="glass p-4 space-y-2">
+                    <p className="text-xs text-muted-foreground">{t("profile.payoutWallet")}</p>
+                    <p className="text-sm font-semibold text-foreground">
+                      {shortAddress(walletAddressDisplay)}
+                    </p>
+                    <p className="text-[11px] text-muted-foreground">
+                      {walletAddressDisplay
+                        ? t("profile.walletConnectedHint")
+                        : t("profile.walletNotConnectedHint")}
+                    </p>
+                  </div>
+                  <TonConnectButton className="w-full" />
+                </div>
+              </div>
+
+              <div className="rounded-[28px] border border-border/40 bg-background/70 shadow-xl overflow-hidden">
+                <div className="px-5 py-4 border-b border-border/40 space-y-1">
+                  <h3 className="text-lg font-semibold text-foreground">
+                    {t("profile.earningsByChannelTitle")}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    {t("profile.earningsByChannelSubtitle")}
+                  </p>
+                </div>
+                <div className="px-5 py-5 space-y-4 pb-8">
+                  {earningsQuery.isLoading ? (
+                    <LoadingSkeleton items={2} />
+                  ) : earningsItems.length ? (
                     <div className="space-y-3">
-                      {channelPayouts.map((item) => {
-                        const channelName = item.channel.username
-                          ? `@${item.channel.username}`
-                          : item.channel.name;
-                        const hasBalance = BigInt(item.availableNano) > 0n;
-                        const isWithdrawing = withdrawingChannelIds.includes(item.channel.id);
+                      {earningsItems.map((item) => {
+                        const channelTitle =
+                          item.channelTitle ||
+                          item.channelUsername?.replace(/^@/, "") ||
+                          "Unknown";
+                        const channelUsername = item.channelUsername
+                          ? `@${item.channelUsername.replace(/^@/, "")}`
+                          : t("profile.usernameFallback");
                         return (
                           <div
-                            key={item.channel.id}
+                            key={item.channelId}
                             className="glass p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
                           >
-                            <div>
-                              <p className="text-sm font-semibold text-foreground">
-                                {item.channel.name}
+                            <div className="min-w-0">
+                              <p className="text-sm font-semibold text-foreground truncate">
+                                {channelTitle}
                               </p>
-                              <p className="text-xs text-muted-foreground">{channelName}</p>
-                            </div>
-                            <div className="text-left sm:text-right">
-                              <p className="text-sm font-semibold price-text">
-                                {formatTon(item.availableNano, language)} {t("common.ton")}
-                              </p>
-                              <p className="text-[11px] text-muted-foreground">
-                                {t("profile.availableBalance")}
+                              <p className="text-xs text-muted-foreground truncate">
+                                {channelUsername}
                               </p>
                             </div>
-                            <button
-                              type="button"
-                              onClick={() => handleWithdraw(item.channel.id, item.availableNano)}
-                              disabled={isWithdrawing}
-                              className="inline-flex items-center gap-1.5 bg-primary/20 hover:bg-primary/30 text-primary px-3 py-1.5 rounded-full text-xs font-medium transition-colors"
-                            >
-                              {isWithdrawing
-                                ? t("common.loading")
-                                : t("profile.withdrawAction")}
-                            </button>
-                            {hasBalance ? (
-                              <button
-                                type="button"
-                                onClick={() => handleWithdraw(item.channel.id, item.availableNano)}
-                                disabled={isWithdrawing}
-                                className="inline-flex items-center justify-center rounded-lg border border-border/60 bg-card/80 px-4 py-2 text-xs font-semibold text-foreground transition hover:bg-card disabled:cursor-not-allowed disabled:opacity-60"
-                              >
-                                {isWithdrawing
-                                  ? t("common.loading")
-                                  : t("profile.withdrawAction")}
-                              </button>
-                            ) : null}
+                            <div className="grid gap-1 text-left sm:text-right text-[11px] text-muted-foreground">
+                              <span>
+                                {t("profile.earned")}: {""}
+                                <span className="font-semibold text-foreground">
+                                  {formatTon(item.earnedNano, language)} {t("common.ton")}
+                                </span>
+                              </span>
+                              <span>
+                                {t("profile.pendingBalance")}: {""}
+                                <span className="font-semibold text-foreground">
+                                  {formatTon(item.pendingNano, language)} {t("common.ton")}
+                                </span>
+                              </span>
+                              <span>
+                                {t("profile.paidOut")}: {""}
+                                <span className="font-semibold text-foreground">
+                                  {formatTon(item.paidOutNano, language)} {t("common.ton")}
+                                </span>
+                              </span>
+                            </div>
                           </div>
                         );
                       })}
                     </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      {t("profile.earningsEmpty")}
+                    </p>
                   )}
+                  {earningsQuery.data?.hasNext ? (
+                    <button
+                      type="button"
+                      onClick={() => setEarningsPage((prev) => prev + 1)}
+                      className="inline-flex items-center gap-2 rounded-lg border border-border/60 bg-card/80 px-4 py-2 text-xs font-semibold text-foreground transition hover:bg-card"
+                    >
+                      {t("common.loadMore")}
+                    </button>
+                  ) : null}
                 </div>
               </div>
 
@@ -394,31 +603,42 @@ export default function Profile() {
                           formatLabel(item.typeLabel) ?? t(`transactions.type.${item.type}`);
                         const statusLabel =
                           formatLabel(item.statusLabel) ?? t(`transactions.status.${item.status}`);
+                        const directionLabel =
+                          formatLabel(item.directionLabel) ??
+                          t(`transactions.direction.${item.direction}`);
                         const descriptionLabel =
                           formatLabel(item.descriptionLabel) ??
                           item.description ??
                           t("profile.transactionNoDescription");
+                        const txHash = shortHash(item.externalTxHash);
                         return (
                           <div
                             key={item.id}
                             className="glass p-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
                           >
                             <div>
-                              <p className="text-sm font-semibold text-foreground">
-                                {typeLabel}
-                              </p>
-                              <p className="text-xs text-muted-foreground">
-                                {descriptionLabel}
-                              </p>
+                              <p className="text-sm font-semibold text-foreground">{typeLabel}</p>
+                              <p className="text-xs text-muted-foreground">{descriptionLabel}</p>
+                              {txHash ? (
+                                <p className="text-[11px] text-muted-foreground">
+                                  {t("profile.externalHash")}: {txHash}
+                                </p>
+                              ) : null}
                             </div>
-                            <div className="text-right">
+                            <div className="text-right space-y-1">
                               <p className="text-sm font-semibold price-text">
                                 {amountLabel} {item.currency ?? t("common.ton")}
                               </p>
                               <p className="text-[11px] text-muted-foreground">
-                                {statusLabel} •{" "}
-                                {formatDateTime(item.createdAt, language)}
+                                {statusLabel} • {formatDateTime(item.createdAt, language)}
                               </p>
+                              <span
+                                className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${directionBadgeStyle(
+                                  item.direction
+                                )}`}
+                              >
+                                {directionLabel}
+                              </span>
                             </div>
                           </div>
                         );
@@ -428,11 +648,13 @@ export default function Profile() {
                   {transactionHasNext ? (
                     <button
                       type="button"
-                      onClick={handleLoadMoreTransactions}
-                      disabled={transactionsQuery.isFetching}
+                      onClick={() => transactionsQuery.fetchNextPage()}
+                      disabled={transactionsQuery.isFetchingNextPage}
                       className="inline-flex items-center gap-2 rounded-lg border border-border/60 bg-card/80 px-4 py-2 text-xs font-semibold text-foreground transition hover:bg-card"
                     >
-                      {transactionsQuery.isFetching ? t("common.loading") : t("common.loadMore")}
+                      {transactionsQuery.isFetchingNextPage
+                        ? t("common.loading")
+                        : t("common.loadMore")}
                     </button>
                   ) : null}
                 </div>
@@ -441,6 +663,59 @@ export default function Profile() {
           </div>
         </div>
       </PageContainer>
+      <BottomSheet
+        open={withdrawSheetOpen}
+        onOpenChange={setWithdrawSheetOpen}
+        title={t("profile.withdrawSheetTitle")}
+      >
+        <div className="space-y-4">
+          <div className="space-y-1">
+            <p className="text-xs text-muted-foreground">{t("profile.availableBalance")}</p>
+            <p className="text-sm font-semibold text-foreground">
+              {formatTon(availableNano, language)} {t("common.ton")}
+            </p>
+          </div>
+          <div className="space-y-2">
+            <label className="text-xs font-semibold text-foreground">
+              {t("profile.withdrawAmountLabel")}
+            </label>
+            <Input
+              value={withdrawAmount}
+              onChange={(event) => {
+                setWithdrawAmount(event.target.value);
+                setWithdrawAll(false);
+              }}
+              placeholder={t("profile.withdrawAmountPlaceholder")}
+              className="h-10 rounded-md bg-background/70"
+            />
+            <button
+              type="button"
+              onClick={() => {
+                setWithdrawAll(true);
+                setWithdrawAmount(formatTonFromNano(availableNano));
+              }}
+              className="text-xs font-semibold text-primary"
+            >
+              {t("profile.withdrawAll")}
+            </button>
+          </div>
+          <p className="text-[11px] text-muted-foreground">{t("profile.withdrawWarning")}</p>
+          <button
+            type="button"
+            onClick={handleWithdrawSubmit}
+            disabled={
+              requestPayoutMutation.isPending ||
+              requestPayoutAllMutation.isPending ||
+              !hasAvailableBalance
+            }
+            className="inline-flex w-full items-center justify-center rounded-lg border border-border/60 bg-card/80 px-4 py-2 text-xs font-semibold text-foreground transition hover:bg-card disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {requestPayoutMutation.isPending || requestPayoutAllMutation.isPending
+              ? t("common.loading")
+              : t("profile.withdrawAction")}
+          </button>
+        </div>
+      </BottomSheet>
     </div>
   );
 }

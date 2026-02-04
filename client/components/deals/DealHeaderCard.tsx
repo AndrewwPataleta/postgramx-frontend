@@ -15,6 +15,10 @@ export default function DealHeaderCard({ deal }: DealHeaderCardProps) {
   const [expanded, setExpanded] = useState(false);
   const [idleCountdown, setIdleCountdown] = useState<string | null>(null);
   const priceLabel = `${formatTon(deal.listingSnapshot.priceNano, language)} ${t("common.ton")}`;
+  const channelTitle = deal.channel?.title ?? deal.channel?.username ?? "Unknown";
+  const channelUsername = deal.channel?.username
+    ? `@${deal.channel.username.replace(/^@/, "")}`
+    : "Unknown";
   const listingFormat = getListingFormatLabel(t, deal.listingSnapshot.format);
   const tags = deal.listingSnapshot.tags ?? [];
   const pinDurationHours = deal.listingSnapshot.pinDurationHours;
@@ -80,13 +84,13 @@ export default function DealHeaderCard({ deal }: DealHeaderCardProps) {
       ) : null}
       <div className="flex items-center gap-3">
         <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-secondary/60 text-lg font-semibold text-muted-foreground">
-          {deal.channel.title.slice(0, 1)}
+          {channelTitle.slice(0, 1) || "U"}
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-            <span className="truncate">{deal.channel.title}</span>
+            <span className="truncate">{channelTitle}</span>
           </div>
-          <p className="text-xs text-muted-foreground">@{deal.channel.username}</p>
+          <p className="text-xs text-muted-foreground">{channelUsername}</p>
         </div>
         <div className="text-right">
           <p className="text-sm font-semibold price-text">{priceLabel}</p>
