@@ -148,7 +148,7 @@ export default function CreateListing() {
 
   return (
     <div className="w-full max-w-2xl mx-auto">
-      <PageContainer className="py-6 space-y-6">
+      <PageContainer className="px-3 pt-4 pb-20 space-y-6">
         <section className="space-y-3">
           <div>
             <h2 className="text-sm font-semibold text-foreground">{t("listings.adFormatTitle")}</h2>

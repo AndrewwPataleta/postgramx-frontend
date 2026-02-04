@@ -44,7 +44,7 @@ const AddChannelLayout = () => {
             </button>
           </div>
         </header>
-        <PageContainer className="mx-auto flex w-full max-w-2xl flex-1 flex-col pt-4">
+        <PageContainer className="mx-auto flex w-full max-w-2xl flex-1 flex-col pt-4 pb-12">
           <Outlet />
         </PageContainer>
       </SafeAreaLayout>
