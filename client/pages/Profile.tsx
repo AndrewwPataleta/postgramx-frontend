@@ -15,7 +15,7 @@ import { useAuth } from "@/components/auth/AuthProvider";
 import { useWalletContext } from "@/contexts/WalletContext";
 import { useTheme } from "@/theme/ThemeProvider";
 import BottomSheet from "@/components/BottomSheet";
-import { formatTonFromNano, isPositiveNano, parseTonToNano } from "@/lib/ton";
+import { formatTonFromNano, parseTonToNano } from "@/lib/ton";
 import { useBalanceOverview } from "@/hooks/useBalanceOverview";
 import { useUserWallet } from "@/hooks/useUserWallet";
 import { useEarningsByChannel } from "@/hooks/useEarningsByChannel";
@@ -92,7 +92,13 @@ export default function Profile() {
   const pendingNano = balanceOverview?.pendingNano ?? "0";
   const lifetimeEarnedNano = balanceOverview?.lifetimeEarnedNano ?? "0";
   const lifetimePaidOutNano = balanceOverview?.lifetimePaidOutNano ?? "0";
-  const hasAvailableBalance = isPositiveNano(availableNano);
+  const availableNanoValue = useMemo(() => {
+    if (/^\d+$/.test(availableNano)) {
+      return BigInt(availableNano);
+    }
+    return parseTonToNano(availableNano) ?? 0n;
+  }, [availableNano]);
+  const hasAvailableBalance = availableNanoValue > 0n;
 
   const formatLabel = (value?: string | null) => {
     if (!value) return null;
@@ -213,7 +219,7 @@ export default function Profile() {
       return;
     }
     setWithdrawAll(true);
-    setWithdrawAmount(formatTonFromNano(availableNano));
+    setWithdrawAmount(formatTonFromNano(availableNanoValue.toString()));
     setWithdrawSheetOpen(true);
   };
 
@@ -236,8 +242,7 @@ export default function Profile() {
       toast.error(t("profile.toastSelectValidWithdraw"));
       return;
     }
-    const available = BigInt(availableNano);
-    if (parsed > available) {
+    if (parsed > availableNanoValue) {
       toast.error(t("profile.toastInsufficientBalance"));
       return;
     }
@@ -336,7 +341,8 @@ export default function Profile() {
                               {t("profile.availableBalance")}
                             </p>
                             <p className="text-lg font-semibold price-text">
-                              {formatTon(availableNano, language)} {t("common.ton")}
+                              {formatTon(availableNanoValue.toString(), language)}{" "}
+                              {t("common.ton")}
                             </p>
                           </div>
                           <div className="glass p-4">
@@ -702,7 +708,7 @@ export default function Profile() {
           <div className="space-y-1">
             <p className="text-xs text-muted-foreground">{t("profile.availableBalance")}</p>
             <p className="text-sm font-semibold text-foreground">
-              {formatTon(availableNano, language)} {t("common.ton")}
+              {formatTon(availableNanoValue.toString(), language)} {t("common.ton")}
             </p>
           </div>
           <div className="space-y-2">
@@ -722,7 +728,7 @@ export default function Profile() {
               type="button"
               onClick={() => {
                 setWithdrawAll(true);
-                setWithdrawAmount(formatTonFromNano(availableNano));
+                setWithdrawAmount(formatTonFromNano(availableNanoValue.toString()));
               }}
               className="text-xs font-semibold text-primary"
             >
