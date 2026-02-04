@@ -1,12 +1,25 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import type { TransactionsListFilters } from "@/api/types/payments";
-import { listTransactionsForUser } from "@/api/features/paymentsApi";
+import { listTransactions } from "@/api/paymentsTransactionsApi";
+
+const buildFiltersHash = (filters: TransactionsListFilters) => {
+  const { page, ...rest } = filters;
+  return JSON.stringify(
+    Object.keys(rest)
+      .sort()
+      .reduce<Record<string, unknown>>((acc, key) => {
+        acc[key] = rest[key as keyof typeof rest] ?? null;
+        return acc;
+      }, {})
+  );
+};
 
 export function useTransactions(filters: TransactionsListFilters) {
+  const filtersHash = buildFiltersHash(filters);
   return useInfiniteQuery({
-    queryKey: ["payments", "transactions", filters],
+    queryKey: ["transactions", filtersHash],
     queryFn: ({ pageParam }) =>
-      listTransactionsForUser({ ...filters, page: pageParam }),
+      listTransactions({ ...filters, page: pageParam }),
     initialPageParam: filters.page ?? 1,
     getNextPageParam: (lastPage) =>
       lastPage.hasNext ? lastPage.page + 1 : undefined,

@@ -23,3 +23,36 @@ export const formatTonString = (value: string): string => {
   const formattedWhole = formatIntegerString(whole ?? "0");
   return fraction ? `${formattedWhole}.${fraction}` : formattedWhole;
 };
+
+export const formatTonFromNano = (nano: string): string => {
+  try {
+    return formatTonString(nanoToTonString(nano));
+  } catch {
+    return nano;
+  }
+};
+
+export const isPositiveNano = (nano: string): boolean => {
+  try {
+    return BigInt(nano) > 0n;
+  } catch {
+    return false;
+  }
+};
+
+export const parseTonToNano = (value: string): bigint | null => {
+  const normalized = value.trim().replace(/,/g, "");
+  if (!normalized) {
+    return null;
+  }
+  if (!/^\d+(\.\d{0,9})?$/.test(normalized)) {
+    return null;
+  }
+  const [whole = "0", fraction = ""] = normalized.split(".");
+  const paddedFraction = `${fraction}000000000`.slice(0, 9);
+  try {
+    return BigInt(whole) * NANO_FACTOR + BigInt(paddedFraction);
+  } catch {
+    return null;
+  }
+};
