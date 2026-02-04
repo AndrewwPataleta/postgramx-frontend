@@ -15,5 +15,5 @@ export const getUserWallet = async (): Promise<UserWalletResponse> => {
 export const setUserWallet = async (
   data: UserWalletSetRequest
 ): Promise<UserWalletResponse> => {
-  return apiPost<UserWalletResponse, UserWalletSetRequest>("/users/wallet/set", data);
+  return apiPost<UserWalletResponse, UserWalletSetRequest>("/users/wallet", data);
 };
