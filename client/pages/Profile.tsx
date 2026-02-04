@@ -1,6 +1,6 @@
 import { ShieldCheck } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { TonConnectButton } from "@tonconnect/ui-react";
 import { toast } from "sonner";
 import LoadingSkeleton from "@/components/feedback/LoadingSkeleton";
@@ -17,12 +17,8 @@ import { useTheme } from "@/theme/ThemeProvider";
 import BottomSheet from "@/components/BottomSheet";
 import { formatTonFromNano, parseTonToNano } from "@/lib/ton";
 import { useBalanceOverview } from "@/hooks/useBalanceOverview";
-import { useUserWallet } from "@/hooks/useUserWallet";
-import { useEarningsByChannel } from "@/hooks/useEarningsByChannel";
 import { useTransactions } from "@/hooks/useTransactions";
 import { requestPayout, requestPayoutAll } from "@/api/paymentsBalanceApi";
-import { setUserWallet } from "@/api/walletApi";
-import type { EarningsByChannelItem } from "@/api/paymentsEarningsApi";
 
 type ProfileUser = {
   firstName?: string | null;
@@ -47,12 +43,9 @@ export default function Profile() {
     page: 1,
     limit: 10,
   });
-  const [earningsPage, setEarningsPage] = useState(1);
-  const [earningsItems, setEarningsItems] = useState<EarningsByChannelItem[]>([]);
   const [withdrawSheetOpen, setWithdrawSheetOpen] = useState(false);
   const [withdrawAll, setWithdrawAll] = useState(true);
   const [withdrawAmount, setWithdrawAmount] = useState("");
-  const lastSyncedWallet = useRef<string | null>(null);
   const profileUser = user as ProfileUser | null;
   const firstName = profileUser?.firstName ?? profileUser?.first_name ?? "";
   const lastName = profileUser?.lastName ?? profileUser?.last_name ?? "";
@@ -75,8 +68,6 @@ export default function Profile() {
   ];
 
   const balanceOverviewQuery = useBalanceOverview();
-  const walletQuery = useUserWallet();
-  const earningsQuery = useEarningsByChannel({ page: earningsPage, limit: 5 });
   const transactionsQuery = useTransactions(transactionFilters);
 
   const transactions = useMemo(
@@ -85,8 +76,7 @@ export default function Profile() {
   );
   const lastTransactionsPage = transactionsQuery.data?.pages.at(-1);
   const transactionHasNext = lastTransactionsPage?.hasNext ?? false;
-  const savedWalletAddress = walletQuery.data?.tonAddress;
-  const connectedWalletAddress = walletAddress ?? savedWalletAddress;
+  const connectedWalletAddress = walletAddress ?? null;
   const balanceOverview = balanceOverviewQuery.data;
   const availableNano = balanceOverview?.availableNano ?? "0";
   const pendingNano = balanceOverview?.pendingNano ?? "0";
@@ -120,84 +110,15 @@ export default function Profile() {
   }, [balanceOverviewQuery.error]);
 
   useEffect(() => {
-    if (walletQuery.error instanceof Error) {
-      toast.error(walletQuery.error.message);
-    }
-  }, [walletQuery.error]);
-
-  useEffect(() => {
-    if (earningsQuery.error instanceof Error) {
-      toast.error(earningsQuery.error.message);
-    }
-  }, [earningsQuery.error]);
-
-  useEffect(() => {
-    if (!earningsQuery.data?.items) {
-      return;
-    }
-    setEarningsItems((prev) => {
-      if (earningsPage === 1) {
-        return earningsQuery.data?.items ?? [];
-      }
-      const existingIds = new Set(prev.map((item) => item.channelId));
-      const nextItems = earningsQuery.data?.items.filter(
-        (item) => !existingIds.has(item.channelId)
-      );
-      return [...prev, ...nextItems];
-    });
-  }, [earningsPage, earningsQuery.data?.items]);
-
-  const setWalletMutation = useMutation({
-    mutationFn: setUserWallet,
-    onSuccess: (data) => {
-      lastSyncedWallet.current = data.tonAddress;
-      queryClient.invalidateQueries({ queryKey: ["wallet"] });
-    },
-    onError: (error) => {
-      toast.error(error instanceof Error ? error.message : t("profile.walletSyncFailed"));
-    },
-  });
-
-  useEffect(() => {
-    if (!isConnected || !walletAddress) {
-      return;
-    }
-    if (walletQuery.isLoading) {
-      return;
-    }
-    if (savedWalletAddress === walletAddress) {
-      return;
-    }
-    if (lastSyncedWallet.current === walletAddress || setWalletMutation.isPending) {
-      return;
-    }
-    lastSyncedWallet.current = walletAddress;
-    setWalletMutation.mutate({ tonAddress: walletAddress });
-  }, [
-    isConnected,
-    walletAddress,
-    savedWalletAddress,
-    walletQuery.isLoading,
-    setWalletMutation,
-  ]);
-
-  useEffect(() => {
     console.debug("[Profile] wallet status", {
       isConnected,
       walletAddress,
-      savedWalletAddress,
       connectedWalletAddress,
-      walletQueryLoading: walletQuery.isLoading,
-      walletQueryError: walletQuery.error,
-      lastSyncedWallet: lastSyncedWallet.current,
     });
   }, [
     isConnected,
     walletAddress,
-    savedWalletAddress,
     connectedWalletAddress,
-    walletQuery.isLoading,
-    walletQuery.error,
   ]);
 
   useEffect(() => {
@@ -477,81 +398,6 @@ export default function Profile() {
                   </div>
                 </div>
 
-                <div className="rounded-[28px] border border-border/40 bg-background/70 shadow-xl overflow-hidden">
-                  <div className="px-5 py-4 border-b border-border/40 space-y-1">
-                    <h3 className="text-lg font-semibold text-foreground">
-                      {t("profile.earningsByChannelTitle")}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      {t("profile.earningsByChannelSubtitle")}
-                    </p>
-                  </div>
-                  <div className="px-5 py-5 space-y-4 pb-8">
-                    {earningsQuery.isLoading ? (
-                      <LoadingSkeleton items={2} />
-                    ) : earningsItems.length ? (
-                      <div className="space-y-3">
-                        {earningsItems.map((item) => {
-                          const channelTitle =
-                            item.channelTitle ||
-                            item.channelUsername?.replace(/^@/, "") ||
-                            "Unknown";
-                          const channelUsername = item.channelUsername
-                            ? `@${item.channelUsername.replace(/^@/, "")}`
-                            : t("profile.usernameFallback");
-                          return (
-                            <div
-                              key={item.channelId}
-                              className="glass p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
-                            >
-                              <div className="min-w-0">
-                                <p className="text-sm font-semibold text-foreground truncate">
-                                  {channelTitle}
-                                </p>
-                                <p className="text-xs text-muted-foreground truncate">
-                                  {channelUsername}
-                                </p>
-                              </div>
-                              <div className="grid gap-1 text-left sm:text-right text-[11px] text-muted-foreground">
-                                <span>
-                                  {t("profile.earned")}: {""}
-                                  <span className="font-semibold text-foreground">
-                                    {formatTon(item.earnedNano, language)} {t("common.ton")}
-                                  </span>
-                                </span>
-                                <span>
-                                  {t("profile.pendingBalance")}: {""}
-                                  <span className="font-semibold text-foreground">
-                                    {formatTon(item.pendingNano, language)} {t("common.ton")}
-                                  </span>
-                                </span>
-                                <span>
-                                  {t("profile.paidOut")}: {""}
-                                  <span className="font-semibold text-foreground">
-                                    {formatTon(item.paidOutNano, language)} {t("common.ton")}
-                                  </span>
-                                </span>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    ) : (
-                      <p className="text-sm text-muted-foreground">
-                        {t("profile.earningsEmpty")}
-                      </p>
-                    )}
-                    {earningsQuery.data?.hasNext ? (
-                      <button
-                        type="button"
-                        onClick={() => setEarningsPage((prev) => prev + 1)}
-                        className="inline-flex items-center gap-2 rounded-lg border border-border/60 bg-card/80 px-4 py-2 text-xs font-semibold text-foreground transition hover:bg-card"
-                      >
-                        {t("common.loadMore")}
-                      </button>
-                    ) : null}
-                  </div>
-                </div>
               </>
             ) : null}
 
