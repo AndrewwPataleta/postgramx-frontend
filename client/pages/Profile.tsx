@@ -271,7 +271,7 @@ export default function Profile() {
   };
 
   const handleWithdrawSubmit = () => {
-    console.debug("[Profile] withdraw submit start", {
+    console.log("[Profile] withdraw submit start", {
       connectedWalletAddress,
       withdrawAll,
       withdrawAmount,
@@ -287,13 +287,13 @@ export default function Profile() {
       return;
     }
     if (withdrawAll) {
-      console.debug("[Profile] withdraw submit: requesting full payout");
+      console.log("[Profile] withdraw submit: requesting full payout");
       requestPayoutAllMutation.mutate();
       setWithdrawSheetOpen(false);
       return;
     }
     const parsed = parseTonToNano(withdrawAmount);
-    console.debug("[Profile] withdraw submit: parsed amount", {
+    console.log("[Profile] withdraw submit: parsed amount", {
       withdrawAmount,
       parsed: parsed ? parsed.toString() : null,
     });
