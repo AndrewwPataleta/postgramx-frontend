@@ -111,14 +111,16 @@ const ListingsList = () => {
         </div>
       )}
 
-      <Link
-        to={ROUTES.CHANNEL_MANAGE_LISTINGS_CREATE(channelId)}
-        state={rootBackTo ? { rootBackTo } : undefined}
-        className="fixed bottom-[calc(var(--tg-content-safe-area-inset-bottom)+120px)] right-4 z-40 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/30 transition hover:bg-primary/90"
-        aria-label={t("listings.createAction")}
-      >
-        <Plus size={18} />
-      </Link>
+      {hasListings ? (
+        <Link
+          to={ROUTES.CHANNEL_MANAGE_LISTINGS_CREATE(channelId)}
+          state={rootBackTo ? { rootBackTo } : undefined}
+          className="fixed bottom-[calc(var(--tg-content-safe-area-inset-bottom)+120px)] right-4 z-40 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/30 transition hover:bg-primary/90"
+          aria-label={t("listings.createAction")}
+        >
+          <Plus size={18} />
+        </Link>
+      ) : null}
     </>
   );
 };
