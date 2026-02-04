@@ -170,6 +170,20 @@ export default function Deals() {
   const hasMore = currentGroup.items.length < currentGroup.total;
   const showEmptyState =
     !isLoading && !error && buyerDeals.length === 0 && sellerDeals.length === 0 && !isFetching;
+  const emptyStateCopy = {
+    pending: {
+      title: t("deals.empty.pending.title"),
+      subtitle: t("deals.empty.pending.subtitle"),
+    },
+    active: {
+      title: t("deals.empty.active.title"),
+      subtitle: t("deals.empty.active.subtitle"),
+    },
+    completed: {
+      title: t("deals.empty.completed.title"),
+      subtitle: t("deals.empty.completed.subtitle"),
+    },
+  } satisfies Record<DealSectionKey, { title: string; subtitle: string }>;
 
   return (
     <div className="w-full max-w-3xl mx-auto">
@@ -211,9 +225,11 @@ export default function Deals() {
         ) : showEmptyState ? (
           <div className="rounded-2xl border border-border/60 bg-card/80 p-8 text-center">
             <h2 className="text-base font-semibold text-foreground">
-              {t("deals.emptyTitle")}
+              {emptyStateCopy[activeTab].title}
             </h2>
-            <p className="mt-2 text-sm text-muted-foreground">{t("deals.emptySubtitle")}</p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {emptyStateCopy[activeTab].subtitle}
+            </p>
           </div>
         ) : (
           <div className="space-y-5">
