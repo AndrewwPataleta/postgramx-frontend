@@ -181,6 +181,47 @@ export default function Profile() {
     setWalletMutation,
   ]);
 
+  useEffect(() => {
+    console.debug("[Profile] wallet status", {
+      isConnected,
+      walletAddress,
+      savedWalletAddress,
+      connectedWalletAddress,
+      walletQueryLoading: walletQuery.isLoading,
+      walletQueryError: walletQuery.error,
+      lastSyncedWallet: lastSyncedWallet.current,
+    });
+  }, [
+    isConnected,
+    walletAddress,
+    savedWalletAddress,
+    connectedWalletAddress,
+    walletQuery.isLoading,
+    walletQuery.error,
+  ]);
+
+  useEffect(() => {
+    console.debug("[Profile] balance overview", {
+      availableNano,
+      pendingNano,
+      lifetimeEarnedNano,
+      lifetimePaidOutNano,
+      availableNanoValue: availableNanoValue.toString(),
+      hasAvailableBalance,
+      balanceOverviewLoading: balanceOverviewQuery.isLoading,
+      balanceOverviewError: balanceOverviewQuery.error,
+    });
+  }, [
+    availableNano,
+    pendingNano,
+    lifetimeEarnedNano,
+    lifetimePaidOutNano,
+    availableNanoValue,
+    hasAvailableBalance,
+    balanceOverviewQuery.isLoading,
+    balanceOverviewQuery.error,
+  ]);
+
   const requestPayoutMutation = useMutation({
     mutationFn: requestPayout,
     onSuccess: () => {
@@ -214,6 +255,12 @@ export default function Profile() {
   };
 
   const handleWithdrawOpen = () => {
+    console.debug("[Profile] withdraw open", {
+      connectedWalletAddress,
+      availableNano,
+      availableNanoValue: availableNanoValue.toString(),
+      hasAvailableBalance,
+    });
     if (!connectedWalletAddress) {
       toast.error(t("profile.toastConnectWallet"));
       return;
@@ -224,6 +271,13 @@ export default function Profile() {
   };
 
   const handleWithdrawSubmit = () => {
+    console.debug("[Profile] withdraw submit start", {
+      connectedWalletAddress,
+      withdrawAll,
+      withdrawAmount,
+      availableNanoValue: availableNanoValue.toString(),
+      hasAvailableBalance,
+    });
     if (!connectedWalletAddress) {
       toast.error(t("profile.toastConnectWallet"));
       return;
@@ -233,11 +287,16 @@ export default function Profile() {
       return;
     }
     if (withdrawAll) {
+      console.debug("[Profile] withdraw submit: requesting full payout");
       requestPayoutAllMutation.mutate();
       setWithdrawSheetOpen(false);
       return;
     }
     const parsed = parseTonToNano(withdrawAmount);
+    console.debug("[Profile] withdraw submit: parsed amount", {
+      withdrawAmount,
+      parsed: parsed ? parsed.toString() : null,
+    });
     if (!parsed || parsed <= 0n) {
       toast.error(t("profile.toastSelectValidWithdraw"));
       return;
