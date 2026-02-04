@@ -1,15 +1,15 @@
 import { apiPost } from "@/api/core/http";
 
 type SetWalletPayload = {
-  walletAddress: string;
+  tonAddress: string;
 };
 
 type SetWalletResponse = {
   success: boolean;
 };
 
-export const setWallet = async (walletAddress: string): Promise<SetWalletResponse> =>
-  apiPost<SetWalletResponse, SetWalletPayload>("/wallet/set", { walletAddress });
+export const setWallet = async (tonAddress: string): Promise<SetWalletResponse> =>
+  apiPost<SetWalletResponse, SetWalletPayload>("/users/wallet", { tonAddress });
 
 export const walletApi = {
   setWallet,
