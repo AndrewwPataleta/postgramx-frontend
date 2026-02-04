@@ -82,7 +82,8 @@ export default function Profile() {
   );
   const lastTransactionsPage = transactionsQuery.data?.pages.at(-1);
   const transactionHasNext = lastTransactionsPage?.hasNext ?? false;
-  const walletAddressDisplay = walletQuery.data?.tonAddress;
+  const savedWalletAddress = walletQuery.data?.tonAddress;
+  const connectedWalletAddress = walletAddress ?? savedWalletAddress;
   const balanceOverview = balanceOverviewQuery.data;
   const availableNano = balanceOverview?.availableNano ?? "0";
   const pendingNano = balanceOverview?.pendingNano ?? "0";
@@ -155,7 +156,7 @@ export default function Profile() {
     if (walletQuery.isLoading) {
       return;
     }
-    if (walletAddressDisplay === walletAddress) {
+    if (savedWalletAddress === walletAddress) {
       return;
     }
     if (lastSyncedWallet.current === walletAddress || setWalletMutation.isPending) {
@@ -166,7 +167,7 @@ export default function Profile() {
   }, [
     isConnected,
     walletAddress,
-    walletAddressDisplay,
+    savedWalletAddress,
     walletQuery.isLoading,
     setWalletMutation,
   ]);
@@ -204,7 +205,7 @@ export default function Profile() {
   };
 
   const handleWithdrawOpen = () => {
-    if (!walletAddressDisplay) {
+    if (!connectedWalletAddress) {
       toast.error(t("profile.toastConnectWallet"));
       return;
     }
@@ -214,7 +215,7 @@ export default function Profile() {
   };
 
   const handleWithdrawSubmit = () => {
-    if (!walletAddressDisplay) {
+    if (!connectedWalletAddress) {
       toast.error(t("profile.toastConnectWallet"));
       return;
     }
@@ -406,7 +407,7 @@ export default function Profile() {
                           {t("profile.lastUpdated")} {""}
                           {formatDateTime(balanceOverview?.lastUpdatedAt, language)}
                         </p>
-                        {walletAddressDisplay ? (
+                        {connectedWalletAddress ? (
                           <button
                             type="button"
                             onClick={handleWithdrawOpen}
@@ -439,10 +440,10 @@ export default function Profile() {
                   <div className="glass p-4 space-y-2">
                     <p className="text-xs text-muted-foreground">{t("profile.payoutWallet")}</p>
                     <p className="text-sm font-semibold text-foreground">
-                      {shortAddress(walletAddressDisplay)}
+                      {shortAddress(connectedWalletAddress)}
                     </p>
                     <p className="text-[11px] text-muted-foreground">
-                      {walletAddressDisplay
+                      {connectedWalletAddress
                         ? t("profile.walletConnectedHint")
                         : t("profile.walletNotConnectedHint")}
                     </p>
