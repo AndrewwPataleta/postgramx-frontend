@@ -40,6 +40,9 @@ export default function Profile() {
   const queryClient = useQueryClient();
   const { walletAddress, isConnected } = useWalletContext();
   const { mode, setMode } = useTheme();
+  const [activeSection, setActiveSection] = useState<"balance" | "transactions" | "settings">(
+    "balance"
+  );
   const [transactionFilters, setTransactionFilters] = useState<TransactionsListFilters>({
     page: 1,
     limit: 10,
@@ -293,241 +296,201 @@ export default function Profile() {
             </div>
           </div>
 
-          <div className="grid gap-4 lg:grid-cols-[340px_1fr] ">
-            <div className="space-y-6 lg:sticky lg:top-20 lg:self-start ">
-              <div className="glass p-4 space-y-4">
-                <div>
-                  <p className="text-sm font-semibold text-foreground">{t("profile.language")}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {t("profile.languageDescription")}
-                  </p>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {[
-                    {
-                      value: "en",
-                      label: t("profile.languageOptionEnglish"),
-                    },
-                    {
-                      value: "ru",
-                      label: t("profile.languageOptionRussian"),
-                    },
-                  ].map((option) => (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => setLanguage(option.value as "en" | "ru")}
-                      className={`rounded-md border px-3 py-1 text-xs transition ${
-                        language === option.value
-                          ? "border-primary/60 bg-primary/20 text-primary"
-                          : "border-border/40 text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
+          <div className="mt-6 flex gap-6 border-b border-border/60">
+            {(["balance", "transactions", "settings"] as const).map((tab) => (
+              <button
+                key={tab}
+                type="button"
+                onClick={() => setActiveSection(tab)}
+                className={`pb-3 text-sm font-semibold transition-colors ${
+                  activeSection === tab
+                    ? "border-b-2 border-primary text-primary"
+                    : "text-muted-foreground"
+                }`}
+              >
+                {t(`profile.tabs.${tab}`)}
+              </button>
+            ))}
+          </div>
 
-              <div className="glass p-4 space-y-4">
-                <div>
-                  <p className="text-sm font-semibold text-foreground">{t("profile.themeTitle")}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {t("profile.themeDescription")}
-                  </p>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {themeOptions.map((option) => (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => setMode(option.value)}
-                      className={`rounded-md border px-3 py-1 text-xs transition ${
-                        mode === option.value
-                          ? "border-primary/60 bg-primary/20 text-primary"
-                          : "border-border/40 text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-6">
-              <div className="rounded-[28px] border border-border/40 bg-background/70 shadow-xl overflow-hidden">
-                <div className="px-5 py-4 border-b border-border/40 space-y-1">
-                  <h3 className="text-lg font-semibold text-foreground">
-                    {t("profile.balanceOverviewTitle")}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    {t("profile.balanceOverviewSubtitle")}
-                  </p>
-                </div>
-                <div className="px-5 py-5 space-y-4 pb-8">
-                  {balanceOverviewQuery.isLoading ? (
-                    <LoadingSkeleton items={2} />
-                  ) : (
-                    <div className="space-y-4">
-                      <div className="grid gap-3 sm:grid-cols-2">
-                        <div className="glass p-4">
-                          <p className="text-xs text-muted-foreground">
-                            {t("profile.availableBalance")}
-                          </p>
-                          <p className="text-lg font-semibold price-text">
-                            {formatTon(availableNano, language)} {t("common.ton")}
-                          </p>
-                        </div>
-                        <div className="glass p-4">
-                          <p className="text-xs text-muted-foreground">
-                            {t("profile.pendingBalance")}
-                          </p>
-                          <p className="text-lg font-semibold price-text">
-                            {formatTon(pendingNano, language)} {t("common.ton")}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="grid gap-3 sm:grid-cols-2">
-                        <div className="rounded-2xl border border-border/40 bg-background/60 p-4 text-xs text-muted-foreground">
-                          <p>{t("profile.lifetimeEarned")}</p>
-                          <p className="text-sm font-semibold text-foreground">
-                            {formatTon(lifetimeEarnedNano, language)} {t("common.ton")}
-                          </p>
-                        </div>
-                        <div className="rounded-2xl border border-border/40 bg-background/60 p-4 text-xs text-muted-foreground">
-                          <p>{t("profile.lifetimePaidOut")}</p>
-                          <p className="text-sm font-semibold text-foreground">
-                            {formatTon(lifetimePaidOutNano, language)} {t("common.ton")}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                        <p className="text-xs text-muted-foreground">
-                          {t("profile.lastUpdated")} {""}
-                          {formatDateTime(balanceOverview?.lastUpdatedAt, language)}
-                        </p>
-                        {connectedWalletAddress ? (
-                          <button
-                            type="button"
-                            onClick={handleWithdrawOpen}
-                            disabled={!hasAvailableBalance}
-                            className="inline-flex items-center justify-center rounded-lg border border-border/60 bg-card/80 px-4 py-2 text-xs font-semibold text-foreground transition hover:bg-card disabled:cursor-not-allowed disabled:opacity-60"
-                          >
-                            {t("profile.withdrawAction")}
-                          </button>
-                        ) : (
-                          <span className="text-xs text-primary">
-                            {t("profile.connectWalletCta")}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="rounded-[28px] border border-border/40 bg-background/70 shadow-xl overflow-hidden">
-                <div className="px-5 py-4 border-b border-border/40 space-y-1">
-                  <h3 className="text-lg font-semibold text-foreground">
-                    {t("profile.walletSectionTitle")}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    {t("profile.walletSectionSubtitle")}
-                  </p>
-                </div>
-                <div className="px-5 py-5 space-y-4 pb-8">
-                  <div className="glass p-4 space-y-2">
-                    <p className="text-xs text-muted-foreground">{t("profile.payoutWallet")}</p>
-                    <p className="text-sm font-semibold text-foreground">
-                      {shortAddress(connectedWalletAddress)}
-                    </p>
-                    <p className="text-[11px] text-muted-foreground">
-                      {connectedWalletAddress
-                        ? t("profile.walletConnectedHint")
-                        : t("profile.walletNotConnectedHint")}
+          <div className="mt-6 space-y-6">
+            {activeSection === "balance" ? (
+              <>
+                <div className="rounded-[28px] border border-border/40 bg-background/70 shadow-xl overflow-hidden">
+                  <div className="px-5 py-4 border-b border-border/40 space-y-1">
+                    <h3 className="text-lg font-semibold text-foreground">
+                      {t("profile.balanceOverviewTitle")}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      {t("profile.balanceOverviewSubtitle")}
                     </p>
                   </div>
-                  <TonConnectButton className="w-full" />
-                </div>
-              </div>
-
-              <div className="rounded-[28px] border border-border/40 bg-background/70 shadow-xl overflow-hidden">
-                <div className="px-5 py-4 border-b border-border/40 space-y-1">
-                  <h3 className="text-lg font-semibold text-foreground">
-                    {t("profile.earningsByChannelTitle")}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    {t("profile.earningsByChannelSubtitle")}
-                  </p>
-                </div>
-                <div className="px-5 py-5 space-y-4 pb-8">
-                  {earningsQuery.isLoading ? (
-                    <LoadingSkeleton items={2} />
-                  ) : earningsItems.length ? (
-                    <div className="space-y-3">
-                      {earningsItems.map((item) => {
-                        const channelTitle =
-                          item.channelTitle ||
-                          item.channelUsername?.replace(/^@/, "") ||
-                          "Unknown";
-                        const channelUsername = item.channelUsername
-                          ? `@${item.channelUsername.replace(/^@/, "")}`
-                          : t("profile.usernameFallback");
-                        return (
-                          <div
-                            key={item.channelId}
-                            className="glass p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
-                          >
-                            <div className="min-w-0">
-                              <p className="text-sm font-semibold text-foreground truncate">
-                                {channelTitle}
-                              </p>
-                              <p className="text-xs text-muted-foreground truncate">
-                                {channelUsername}
-                              </p>
-                            </div>
-                            <div className="grid gap-1 text-left sm:text-right text-[11px] text-muted-foreground">
-                              <span>
-                                {t("profile.earned")}: {""}
-                                <span className="font-semibold text-foreground">
-                                  {formatTon(item.earnedNano, language)} {t("common.ton")}
-                                </span>
-                              </span>
-                              <span>
-                                {t("profile.pendingBalance")}: {""}
-                                <span className="font-semibold text-foreground">
-                                  {formatTon(item.pendingNano, language)} {t("common.ton")}
-                                </span>
-                              </span>
-                              <span>
-                                {t("profile.paidOut")}: {""}
-                                <span className="font-semibold text-foreground">
-                                  {formatTon(item.paidOutNano, language)} {t("common.ton")}
-                                </span>
-                              </span>
-                            </div>
+                  <div className="px-5 py-5 space-y-4 pb-8">
+                    {balanceOverviewQuery.isLoading ? (
+                      <LoadingSkeleton items={2} />
+                    ) : (
+                      <div className="space-y-4">
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          <div className="glass p-4">
+                            <p className="text-xs text-muted-foreground">
+                              {t("profile.availableBalance")}
+                            </p>
+                            <p className="text-lg font-semibold price-text">
+                              {formatTon(availableNano, language)} {t("common.ton")}
+                            </p>
                           </div>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <p className="text-sm text-muted-foreground">
-                      {t("profile.earningsEmpty")}
-                    </p>
-                  )}
-                  {earningsQuery.data?.hasNext ? (
-                    <button
-                      type="button"
-                      onClick={() => setEarningsPage((prev) => prev + 1)}
-                      className="inline-flex items-center gap-2 rounded-lg border border-border/60 bg-card/80 px-4 py-2 text-xs font-semibold text-foreground transition hover:bg-card"
-                    >
-                      {t("common.loadMore")}
-                    </button>
-                  ) : null}
+                          <div className="glass p-4">
+                            <p className="text-xs text-muted-foreground">
+                              {t("profile.pendingBalance")}
+                            </p>
+                            <p className="text-lg font-semibold price-text">
+                              {formatTon(pendingNano, language)} {t("common.ton")}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          <div className="rounded-2xl border border-border/40 bg-background/60 p-4 text-xs text-muted-foreground">
+                            <p>{t("profile.lifetimeEarned")}</p>
+                            <p className="text-sm font-semibold text-foreground">
+                              {formatTon(lifetimeEarnedNano, language)} {t("common.ton")}
+                            </p>
+                          </div>
+                          <div className="rounded-2xl border border-border/40 bg-background/60 p-4 text-xs text-muted-foreground">
+                            <p>{t("profile.lifetimePaidOut")}</p>
+                            <p className="text-sm font-semibold text-foreground">
+                              {formatTon(lifetimePaidOutNano, language)} {t("common.ton")}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                          <p className="text-xs text-muted-foreground">
+                            {t("profile.lastUpdated")} {""}
+                            {formatDateTime(balanceOverview?.lastUpdatedAt, language)}
+                          </p>
+                          {connectedWalletAddress ? (
+                            <button
+                              type="button"
+                              onClick={handleWithdrawOpen}
+                              disabled={!hasAvailableBalance}
+                              className="inline-flex items-center justify-center rounded-lg border border-border/60 bg-card/80 px-4 py-2 text-xs font-semibold text-foreground transition hover:bg-card disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                              {t("profile.withdrawAction")}
+                            </button>
+                          ) : (
+                            <span className="text-xs text-primary">
+                              {t("profile.connectWalletCta")}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
 
+                <div className="rounded-[28px] border border-border/40 bg-background/70 shadow-xl overflow-hidden">
+                  <div className="px-5 py-4 border-b border-border/40 space-y-1">
+                    <h3 className="text-lg font-semibold text-foreground">
+                      {t("profile.walletSectionTitle")}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      {t("profile.walletSectionSubtitle")}
+                    </p>
+                  </div>
+                  <div className="px-5 py-5 space-y-4 pb-8">
+                    <div className="glass p-4 space-y-2">
+                      <p className="text-xs text-muted-foreground">{t("profile.payoutWallet")}</p>
+                      <p className="text-sm font-semibold text-foreground">
+                        {shortAddress(connectedWalletAddress)}
+                      </p>
+                      <p className="text-[11px] text-muted-foreground">
+                        {connectedWalletAddress
+                          ? t("profile.walletConnectedHint")
+                          : t("profile.walletNotConnectedHint")}
+                      </p>
+                    </div>
+                    <TonConnectButton className="w-full" />
+                  </div>
+                </div>
+
+                <div className="rounded-[28px] border border-border/40 bg-background/70 shadow-xl overflow-hidden">
+                  <div className="px-5 py-4 border-b border-border/40 space-y-1">
+                    <h3 className="text-lg font-semibold text-foreground">
+                      {t("profile.earningsByChannelTitle")}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      {t("profile.earningsByChannelSubtitle")}
+                    </p>
+                  </div>
+                  <div className="px-5 py-5 space-y-4 pb-8">
+                    {earningsQuery.isLoading ? (
+                      <LoadingSkeleton items={2} />
+                    ) : earningsItems.length ? (
+                      <div className="space-y-3">
+                        {earningsItems.map((item) => {
+                          const channelTitle =
+                            item.channelTitle ||
+                            item.channelUsername?.replace(/^@/, "") ||
+                            "Unknown";
+                          const channelUsername = item.channelUsername
+                            ? `@${item.channelUsername.replace(/^@/, "")}`
+                            : t("profile.usernameFallback");
+                          return (
+                            <div
+                              key={item.channelId}
+                              className="glass p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+                            >
+                              <div className="min-w-0">
+                                <p className="text-sm font-semibold text-foreground truncate">
+                                  {channelTitle}
+                                </p>
+                                <p className="text-xs text-muted-foreground truncate">
+                                  {channelUsername}
+                                </p>
+                              </div>
+                              <div className="grid gap-1 text-left sm:text-right text-[11px] text-muted-foreground">
+                                <span>
+                                  {t("profile.earned")}: {""}
+                                  <span className="font-semibold text-foreground">
+                                    {formatTon(item.earnedNano, language)} {t("common.ton")}
+                                  </span>
+                                </span>
+                                <span>
+                                  {t("profile.pendingBalance")}: {""}
+                                  <span className="font-semibold text-foreground">
+                                    {formatTon(item.pendingNano, language)} {t("common.ton")}
+                                  </span>
+                                </span>
+                                <span>
+                                  {t("profile.paidOut")}: {""}
+                                  <span className="font-semibold text-foreground">
+                                    {formatTon(item.paidOutNano, language)} {t("common.ton")}
+                                  </span>
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">
+                        {t("profile.earningsEmpty")}
+                      </p>
+                    )}
+                    {earningsQuery.data?.hasNext ? (
+                      <button
+                        type="button"
+                        onClick={() => setEarningsPage((prev) => prev + 1)}
+                        className="inline-flex items-center gap-2 rounded-lg border border-border/60 bg-card/80 px-4 py-2 text-xs font-semibold text-foreground transition hover:bg-card"
+                      >
+                        {t("common.loadMore")}
+                      </button>
+                    ) : null}
+                  </div>
+                </div>
+              </>
+            ) : null}
+
+            {activeSection === "transactions" ? (
               <div className="rounded-[28px] border border-border/40 bg-background/70 shadow-xl overflow-hidden">
                 <div className="px-5 py-4 border-b border-border/40 space-y-3">
                   <div className="grid gap-2 sm:grid-cols-2">
@@ -603,7 +566,8 @@ export default function Profile() {
                         const typeLabel =
                           formatLabel(item.typeLabel) ?? t(`transactions.type.${item.type}`);
                         const statusLabel =
-                          formatLabel(item.statusLabel) ?? t(`transactions.status.${item.status}`);
+                          formatLabel(item.statusLabel) ??
+                          t(`transactions.status.${item.status}`);
                         const directionLabel =
                           formatLabel(item.directionLabel) ??
                           t(`transactions.direction.${item.direction}`);
@@ -660,7 +624,72 @@ export default function Profile() {
                   ) : null}
                 </div>
               </div>
-            </div>
+            ) : null}
+
+            {activeSection === "settings" ? (
+              <div className="grid gap-4 lg:grid-cols-2">
+                <div className="glass p-4 space-y-4">
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">{t("profile.language")}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {t("profile.languageDescription")}
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      {
+                        value: "en",
+                        label: t("profile.languageOptionEnglish"),
+                      },
+                      {
+                        value: "ru",
+                        label: t("profile.languageOptionRussian"),
+                      },
+                    ].map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => setLanguage(option.value as "en" | "ru")}
+                        className={`rounded-md border px-3 py-1 text-xs transition ${
+                          language === option.value
+                            ? "border-primary/60 bg-primary/20 text-primary"
+                            : "border-border/40 text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="glass p-4 space-y-4">
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">
+                      {t("profile.themeTitle")}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {t("profile.themeDescription")}
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {themeOptions.map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => setMode(option.value)}
+                        className={`rounded-md border px-3 py-1 text-xs transition ${
+                          mode === option.value
+                            ? "border-primary/60 bg-primary/20 text-primary"
+                            : "border-border/40 text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : null}
           </div>
         </div>
       </PageContainer>
