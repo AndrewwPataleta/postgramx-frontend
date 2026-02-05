@@ -12,6 +12,7 @@ import { PageContainer } from "@/components/layout/PageContainer";
 import { unlinkChannel } from "@/api/features/channelsApi";
 import { getErrorMessage } from "@/lib/api/errors";
 import { useLanguage } from "@/i18n/LanguageProvider";
+import { useAuth } from "@/components/auth/AuthProvider";
 import { ROUTES } from "@/constants/routes";
 import type {
   ChannelEntity,
@@ -22,13 +23,6 @@ import { filterListingTags } from "@/features/listings/tagOptions";
 
 const DEFAULT_SORT = "recent";
 const DEFAULT_ORDER = "desc";
-
-const pendingStatuses: ChannelStatus[] = [
-  ChannelStatus.Draft,
-  ChannelStatus.PendingVerify,
-  ChannelStatus.Failed,
-  ChannelStatus.Revoked,
-];
 
 const ChannelCardSkeleton = () => (
   <div className="rounded-2xl border border-border/50 bg-card/80 p-4">
@@ -107,7 +101,7 @@ const buildRulesSummary = (
 
 export default function Channels() {
   const { t } = useLanguage();
-  const [activeTab, setActiveTab] = useState<"pending" | "verified">("verified");
+  const [activeTab, setActiveTab] = useState<"owner" | "moderator">("owner");
   const [unlinkTarget, setUnlinkTarget] = useState<ChannelEntity | null>(null);
   const [isUnlinking, setIsUnlinking] = useState(false);
   const [removedChannelIds, setRemovedChannelIds] = useState<Set<string>>(() => new Set());
@@ -117,6 +111,7 @@ export default function Channels() {
   const [listingSummaries, setListingSummaries] = useState<
     Record<string, { placementsCount: number; minPriceNano: string | null }>
   >({});
+  const { user } = useAuth();
   const navigate = useNavigate();
   const filters = useMemo(
     () => ({
@@ -152,20 +147,26 @@ export default function Channels() {
     }
   }, [error, t]);
 
-  const verifiedChannels = useMemo(
-    () => visibleItems.filter((channel) => channel.status === ChannelStatus.Verified),
-    [visibleItems],
-  );
-  const pendingChannels = useMemo(
+  const currentUserId = (user as { id?: string } | null)?.id ?? null;
+  const ownerChannels = useMemo(
     () =>
-      visibleItems.filter((channel) => pendingStatuses.includes(channel.status)),
-    [visibleItems],
+      visibleItems.filter((channel) =>
+        !currentUserId || channel.createdByUserId === currentUserId
+      ),
+    [visibleItems, currentUserId],
   );
-  const tabbedChannels = activeTab === "verified" ? verifiedChannels : pendingChannels;
+  const moderatorChannels = useMemo(
+    () =>
+      visibleItems.filter((channel) =>
+        currentUserId ? channel.createdByUserId !== currentUserId : false
+      ),
+    [visibleItems, currentUserId],
+  );
+  const tabbedChannels = activeTab === "owner" ? ownerChannels : moderatorChannels;
   const emptyCopy =
-    activeTab === "pending"
-      ? t("channels.emptyPending")
-      : t("channels.emptyVerified");
+    activeTab === "moderator"
+      ? t("channels.emptyModerator")
+      : t("channels.emptyOwner");
 
   const handleChannelClick = (channel: (typeof items)[number]) => {
     if (channel.status === ChannelStatus.PendingVerify) {
@@ -251,22 +252,20 @@ export default function Channels() {
           </div>
         ) : (
           <div className="space-y-6">
-            <div className="border-t border-border/50">
-              <div className="flex gap-6 bg-background/90 backdrop-blur-glass">
-                {(["verified", "pending"] as const).map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={`py-3 text-sm font-medium border-b-2 transition-colors ${
-                      activeTab === tab
-                        ? "text-primary border-b-primary"
-                        : "text-muted-foreground border-b-transparent"
-                    }`}
-                  >
-                    {tab === "verified" ? t("channels.tabs.verified") : t("channels.tabs.pending")}
-                  </button>
-                ))}
-              </div>
+            <div className="flex gap-6 border-b border-border/60">
+              {(["owner", "moderator"] as const).map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`pb-3 text-sm font-semibold transition-colors ${
+                    activeTab === tab
+                      ? "border-b-2 border-primary text-primary"
+                      : "text-muted-foreground"
+                  }`}
+                >
+                  {tab === "owner" ? t("channels.tabs.owner") : t("channels.tabs.moderator")}
+                </button>
+              ))}
             </div>
             {tabbedChannels.length > 0 ? (
               <div className="space-y-3">
@@ -291,7 +290,7 @@ export default function Channels() {
                       rules={rules}
                       onClick={() => handleChannelClick(channel)}
                       onUnlink={
-                        activeTab === "pending"
+                        activeTab === "moderator"
                           ? () => {
                               setUnlinkTarget(channel);
                             }

@@ -4,7 +4,6 @@ import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { linkChannel, verifyChannel } from "@/api/features/channelsApi";
@@ -113,10 +112,7 @@ const AddChannelStep2 = () => {
   };
 
   const isLoading = linkMutation.isPending || verifyMutation.isPending;
-  const isLinked = Boolean(state.linkedChannelId);
-  const primaryLabel = isLinked
-    ? t("channels.add.step2.verifyAction")
-    : t("channels.add.step2.connectAction");
+  const primaryLabel = t("channels.add.step2.verifyAction");
 
   const memberCount = formatMetric(preview?.memberCount, language);
 
@@ -143,9 +139,6 @@ const AddChannelStep2 = () => {
               </p>
               <p className="text-xs text-muted-foreground">{displayUsername}</p>
             </div>
-            <Badge variant="secondary" className="text-[10px]">
-              {isLinked ? t("channels.add.step2.linkedStatus") : t("channels.add.step2.notLinked")}
-            </Badge>
           </div>
           {memberCount ? (
             <div className="flex items-center gap-3 text-xs text-muted-foreground">
@@ -193,7 +186,7 @@ const AddChannelStep2 = () => {
           {isLoading ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />
-              {isLinked ? t("channels.add.step2.verifying") : t("channels.add.step2.connecting")}
+              {t("channels.add.step2.verifying")}
             </>
           ) : (
             primaryLabel
