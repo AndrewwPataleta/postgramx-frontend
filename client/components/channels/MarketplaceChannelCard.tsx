@@ -2,11 +2,10 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ChannelCard, { type ChannelCardModel } from "@/components/channels/ChannelCard";
 import ChannelListingsPreview from "@/features/channels/components/ChannelListingsPreview";
-import { openTelegramLink } from "@/lib/telegramLinks";
-import { getAllowEditsLabel, getAllowLinkTrackingLabel } from "@/i18n/labels";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import type { ListingEntity, MarketplaceChannelSummary } from "@/models/entities";
 import { ROUTES } from "@/constants/routes";
+import { filterListingTags } from "@/features/listings/tagOptions";
 
 interface MarketplaceChannelCardProps {
   channel: MarketplaceChannelSummary;
@@ -20,19 +19,13 @@ const collectRules = (
   const prohibited = new Set<string>();
 
   listings.forEach((listing) => {
-    if (listing.allowEdits) {
-      allowed.add(getAllowEditsLabel(t, true));
-    }
-    if (listing.allowLinkTracking) {
-      allowed.add(getAllowLinkTrackingLabel(t, true));
-    }
     if (listing.allowPinnedPlacement) {
       allowed.add(t("listings.allowPinned.allowed"));
     }
     if (listing.requiresApproval) {
       allowed.add(t("listings.requiresApproval"));
     }
-    listing.tags.forEach((tag) => prohibited.add(tag));
+    filterListingTags(listing.tags).forEach((tag) => prohibited.add(tag));
     listing.contentRulesText
       .split(/\n|•|,/)
       .map((rule) => rule.trim())
@@ -95,7 +88,9 @@ export default function MarketplaceChannelCard({ channel }: MarketplaceChannelCa
       placementsCount: channel.placementsCount ?? (hasListings ? listings.length : null),
       minPriceNano: channel.minPriceNano ?? minListingPrice,
       currency: channel.currency ?? "TON",
-      tags: channel.tags ?? Array.from(new Set(listings.flatMap((listing) => listing.tags))),
+      tags:
+        channel.tags ??
+        Array.from(new Set(listings.flatMap((listing) => filterListingTags(listing.tags)))),
       listingsPreview: hasListings ? listings : null,
       rules,
     }),

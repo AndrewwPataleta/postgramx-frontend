@@ -1,15 +1,13 @@
 import { formatTonValue } from "@/i18n/formatters";
-import { formatDuration, getAllowEditsLabel, getAllowLinkTrackingLabel, getListingFormatLabel } from "@/i18n/labels";
+import { formatDuration, getListingFormatLabel } from "@/i18n/labels";
 import { useLanguage } from "@/i18n/LanguageProvider";
-import { getListingTagLabel } from "@/features/listings/tagOptions";
+import { filterListingTags, getListingTagLabel } from "@/features/listings/tagOptions";
 
 interface ListingPreviewDetailsProps {
   priceTon: number;
   format?: "POST";
   pinDurationHours: number | null;
   visibilityDurationHours: number;
-  allowEdits: boolean;
-  allowLinkTracking: boolean;
   allowPinnedPlacement?: boolean;
   tags: string[];
   requiresApproval?: boolean;
@@ -40,8 +38,6 @@ export function ListingPreviewDetails({
   format = "POST",
   pinDurationHours,
   visibilityDurationHours,
-  allowEdits,
-  allowLinkTracking,
   allowPinnedPlacement,
   tags,
   requiresApproval,
@@ -52,10 +48,11 @@ export function ListingPreviewDetails({
   const pinnedLabel = pinDurationHours ? formatDuration(pinDurationHours, t) : t("common.none");
   const visibilityLabel = formatDuration(visibilityDurationHours, t);
   const pinnedAvailable = pinDurationHours !== null || Boolean(allowPinnedPlacement);
+  const filteredTags = filterListingTags(tags);
   const orderedTags = [
     ...new Set([
-      ...tags.filter((tag) => tag === "Must be pre-approved"),
-      ...tags.filter((tag) => tag !== "Must be pre-approved"),
+      ...filteredTags.filter((tag) => tag === "Must be pre-approved"),
+      ...filteredTags.filter((tag) => tag !== "Must be pre-approved"),
     ]),
   ];
   const priceLabel = formatTonValue(priceTon, language);
@@ -109,12 +106,6 @@ export function ListingPreviewDetails({
           <p className="text-xs text-muted-foreground">{t("listings.preview.allowedSubtitle")}</p>
         </div>
         <div className="flex flex-wrap gap-2 text-[11px]">
-          <span className="rounded-full bg-secondary/60 px-3 py-1 text-foreground">
-            {getAllowEditsLabel(t, allowEdits)}
-          </span>
-          <span className="rounded-full bg-secondary/60 px-3 py-1 text-foreground">
-            {getAllowLinkTrackingLabel(t, allowLinkTracking)}
-          </span>
           <span className="rounded-full bg-secondary/60 px-3 py-1 text-foreground">
             {pinnedAvailable
               ? t("listings.pinnedPlacementAvailable")

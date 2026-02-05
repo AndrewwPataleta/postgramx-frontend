@@ -18,6 +18,7 @@ import type {
   ListingEntity,
 } from "@/models/entities";
 import { ChannelStatus } from "@/models/enums";
+import { filterListingTags } from "@/features/listings/tagOptions";
 
 const DEFAULT_SORT = "recent";
 const DEFAULT_ORDER = "desc";
@@ -70,7 +71,7 @@ const getAggregatedTags = (listings?: ListingEntity[]) => {
   if (!listings?.length) {
     return [];
   }
-  const tags = listings.flatMap((listing) => listing.tags ?? []);
+  const tags = listings.flatMap((listing) => filterListingTags(listing.tags ?? []));
   return Array.from(new Set(tags.map((tag) => tag.trim()).filter(Boolean)));
 };
 
@@ -84,19 +85,13 @@ const buildRulesSummary = (
   const allowed = new Set<string>();
   const prohibited = new Set<string>();
   listings.forEach((listing) => {
-    if (listing.allowEdits) {
-      allowed.add(t("listings.allowEdits.allowed"));
-    }
-    if (listing.allowLinkTracking) {
-      allowed.add(t("listings.allowLinkTracking.allowed"));
-    }
     if (listing.allowPinnedPlacement) {
       allowed.add(t("listings.allowPinned.allowed"));
     }
     if (listing.requiresApproval) {
       allowed.add(t("listings.requiresApproval"));
     }
-    listing.tags.forEach((tag) => prohibited.add(tag));
+    filterListingTags(listing.tags).forEach((tag) => prohibited.add(tag));
     listing.contentRulesText
       ?.split(/\n|•|,/)
       .map((rule) => rule.trim())
