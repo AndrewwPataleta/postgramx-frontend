@@ -2,14 +2,9 @@ import { useMemo, useState, type ReactNode } from "react";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatNumber, formatTon } from "@/i18n/formatters";
-import {
-  formatDuration,
-  getAllowEditsLabel,
-  getAllowLinkTrackingLabel,
-  getListingFormatLabel,
-} from "@/i18n/labels";
+import { formatDuration, getListingFormatLabel } from "@/i18n/labels";
 import { useLanguage } from "@/i18n/LanguageProvider";
-import { getListingTagLabel } from "@/features/listings/tagOptions";
+import { filterListingTags, getListingTagLabel } from "@/features/listings/tagOptions";
 import type { ListingEntity } from "@/models/entities";
 
 export type ChannelCardModel = {
@@ -70,10 +65,8 @@ const ListingPreview = ({ listings }: { listings: ListingEntity[] }) => {
   return (
     <div className="space-y-3">
       {listings.map((listing) => {
-        const tags = buildTags(listing.tags ?? []);
+        const tags = buildTags(filterListingTags(listing.tags ?? []));
         const rules = [
-          listing.allowEdits ? getAllowEditsLabel(t, true) : null,
-          listing.allowLinkTracking ? getAllowLinkTrackingLabel(t, true) : null,
           listing.allowPinnedPlacement ? t("listings.allowPinned.allowed") : null,
           listing.requiresApproval ? t("listings.requiresApproval") : null,
         ].filter(Boolean);
@@ -158,7 +151,7 @@ export default function ChannelCard({
     () => (channel.minPriceNano ? formatTon(channel.minPriceNano, language) : null),
     [channel.minPriceNano, language]
   );
-  const tags = buildTags(channel.tags ?? []);
+  const tags = buildTags(filterListingTags(channel.tags ?? []));
   const allowedRules = channel.rules?.allowed ?? [];
   const prohibitedRules = channel.rules?.prohibited ?? [];
   const username = channel.username ? `@${channel.username.replace(/^@/, "")}` : null;

@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
 import type { ListingEntity } from "@/models/entities";
 import { formatTon } from "@/i18n/formatters";
-import { formatDuration, getAllowEditsLabel, getAllowLinkTrackingLabel } from "@/i18n/labels";
+import { formatDuration } from "@/i18n/labels";
 import { useLanguage } from "@/i18n/LanguageProvider";
-import { getListingTagLabel } from "@/features/listings/tagOptions";
+import { filterListingTags, getListingTagLabel } from "@/features/listings/tagOptions";
 
 type ListingCardVariant = "compact" | "full";
 
@@ -15,7 +15,7 @@ interface ListingCardProps {
 
 export function ListingCard({ listing, variant = "full", actionSlot }: ListingCardProps) {
   const { t, language } = useLanguage();
-  const tags = listing.tags ?? [];
+  const tags = filterListingTags(listing.tags ?? []);
   const normalizedTags = [
     ...new Set([
       ...tags.filter((tag) => tag === "Must be pre-approved"),
@@ -71,17 +71,6 @@ export function ListingCard({ listing, variant = "full", actionSlot }: ListingCa
           {t("listings.visibleLabel")}: {visibleDurationLabel}
         </span>
       </div>
-      <div className="flex flex-wrap gap-2 text-[11px]">
-        <span className="rounded-full bg-secondary/60 px-2.5 py-1 text-foreground">
-          {getAllowEditsLabel(t, listing.allowEdits)}
-        </span>
-        <span className="rounded-full bg-secondary/60 px-2.5 py-1 text-foreground">
-          {getAllowLinkTrackingLabel(t, listing.allowLinkTracking)}
-        </span>
-      </div>
-
-
-
       {normalizedTags.length > 0 ? (
         <div className="flex flex-wrap gap-2 text-[11px] text-foreground">
           {visibleTags.map((tag) => {

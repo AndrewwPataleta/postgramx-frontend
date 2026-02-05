@@ -10,6 +10,15 @@ export interface TagCategory {
   tags: TagOption[];
 }
 
+const hiddenTagValues = new Set(["Can edit after posting", "No edits after posting"]);
+
+const tagLabelOverrides: Record<string, TranslationKey> = {
+  "Must be pre-approved": "listings.tags.mustBeApproved",
+};
+
+export const filterListingTags = (tags: string[]) =>
+  tags.filter((tag) => !hiddenTagValues.has(tag));
+
 export const listingTagCategories: TagCategory[] = [
   {
     titleKey: "listings.tags.categories.prohibited",
@@ -35,14 +44,6 @@ export const listingTagCategories: TagCategory[] = [
       { value: "Russian allowed", labelKey: "listings.tags.russianAllowed" },
     ],
   },
-  {
-    titleKey: "listings.tags.categories.control",
-    tags: [
-      { value: "Can edit after posting", labelKey: "listings.tags.canEditAfter" },
-      { value: "No edits after posting", labelKey: "listings.tags.noEditsAfter" },
-      { value: "Must be pre-approved", labelKey: "listings.tags.mustBeApproved" },
-    ],
-  },
 ];
 
 export const flattenTagOptions = (
@@ -57,6 +58,10 @@ export const flattenTagOptions = (
   );
 
 export const getListingTagLabel = (value: string, t: (key: TranslationKey) => string) => {
+  const override = tagLabelOverrides[value];
+  if (override) {
+    return t(override);
+  }
   for (const category of listingTagCategories) {
     const match = category.tags.find((tag) => tag.value === value);
     if (match) {

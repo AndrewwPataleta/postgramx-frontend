@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { DealEntity } from "@/models/entities";
 import { cn } from "@/lib/utils";
 import { formatTon } from "@/i18n/formatters";
-import { formatDuration, getAllowEditsLabel, getAllowLinkTrackingLabel, getListingFormatLabel } from "@/i18n/labels";
+import { formatDuration, getListingFormatLabel } from "@/i18n/labels";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { ChevronDown } from "lucide-react";
 
@@ -34,22 +34,8 @@ export default function DealHeaderCard({ deal }: DealHeaderCardProps) {
         label: t("listings.lifetimeDuration"),
         value: lifetimeHours ? formatDuration(lifetimeHours, t) : t("common.emptyValue"),
       },
-      {
-        label: t("listings.allowEdits.label"),
-        value:
-          deal.listingSnapshot.allowEdits === undefined
-            ? t("common.emptyValue")
-            : getAllowEditsLabel(t, deal.listingSnapshot.allowEdits),
-      },
-      {
-        label: t("listings.allowLinkTracking.label"),
-        value:
-          deal.listingSnapshot.allowLinkTracking === undefined
-            ? t("common.emptyValue")
-            : getAllowLinkTrackingLabel(t, deal.listingSnapshot.allowLinkTracking),
-      },
     ],
-    [deal.listingSnapshot.allowEdits, deal.listingSnapshot.allowLinkTracking, pinDurationHours, lifetimeHours, t]
+    [pinDurationHours, lifetimeHours, t]
   );
 
   useEffect(() => {
