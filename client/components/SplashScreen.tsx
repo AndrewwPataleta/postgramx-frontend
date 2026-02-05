@@ -61,7 +61,7 @@ const SplashScreen = ({ onComplete }: SplashScreenProps) => {
           </div>
           <div className="relative z-10 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-primary via-accent to-primary p-0.5 shadow-[0_0_30px_hsl(var(--primary)/0.5)]">
             <img
-              src="/logo.png"
+              src="/logo.jpeg"
               alt="PostgramX logo"
               className="h-full w-full rounded-full bg-background object-cover"
             />
