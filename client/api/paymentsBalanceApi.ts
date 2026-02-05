@@ -60,10 +60,3 @@ export const requestPayout = async (
     data
   );
 };
-
-export const requestPayoutAll = async (): Promise<RequestPayoutResponse> => {
-  return apiPostWithOptionalFanout<RequestPayoutResponse, Record<string, never>>(
-    "/payments/payouts/request-all",
-    {}
-  );
-};
