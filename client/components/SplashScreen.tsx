@@ -59,8 +59,12 @@ const SplashScreen = ({ onComplete }: SplashScreenProps) => {
           <div className="absolute inset-0 animate-[spin_12s_linear_infinite_reverse]">
             <div className="absolute right-0 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full bg-accent/70 shadow-[0_0_10px_hsl(var(--accent)/0.6)]" />
           </div>
-          <div className="relative z-10 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-primary via-accent to-primary shadow-[0_0_30px_hsl(var(--primary)/0.5)]">
-            <span className="text-xl font-semibold tracking-[0.2em] text-primary-foreground">X</span>
+          <div className="relative z-10 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-primary via-accent to-primary p-0.5 shadow-[0_0_30px_hsl(var(--primary)/0.5)]">
+            <img
+              src="/logo.png"
+              alt="PostgramX logo"
+              className="h-full w-full rounded-full bg-background object-cover"
+            />
           </div>
         </div>
 
