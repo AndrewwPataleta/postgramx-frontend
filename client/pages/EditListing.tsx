@@ -17,7 +17,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { getListingTagLabel, listingTagCategories } from "@/features/listings/tagOptions";
+import { filterListingTags, getListingTagLabel, listingTagCategories } from "@/features/listings/tagOptions";
 import { getErrorMessage } from "@/lib/api/errors";
 import { nanoToTonString } from "@/lib/ton";
 import type { ListingEntity } from "@/models/entities";
@@ -152,7 +152,7 @@ export default function EditListing() {
     setAllowEdits(listing.allowEdits);
     setAllowLinkTracking(listing.allowLinkTracking);
     setContentRulesText(listing.contentRulesText ?? "");
-    const initialTags = listing.tags?.length ? listing.tags : ["Must be pre-approved"];
+    const initialTags = listing.tags?.length ? filterListingTags(listing.tags) : ["Must be pre-approved"];
     setSelectedTags(
       initialTags.includes("Must be pre-approved")
         ? initialTags
@@ -205,7 +205,7 @@ export default function EditListing() {
         allowEdits,
         allowLinkTracking,
         contentRulesText,
-        tags: ensuredTags,
+        tags: filterListingTags(ensuredTags),
         allowPinnedPlacement: pinDurationHours !== null,
         requiresApproval: listing.requiresApproval,
         isActive: listing.isActive,
@@ -574,8 +574,6 @@ export default function EditListing() {
             format="POST"
             pinDurationHours={pinDurationHours}
             visibilityDurationHours={visibilityDurationHours}
-            allowEdits={allowEdits}
-            allowLinkTracking={allowLinkTracking}
             allowPinnedPlacement={pinDurationHours !== null}
             tags={selectedTags}
             requiresApproval

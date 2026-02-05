@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import { formatTon } from "@/i18n/formatters";
 import { getPinnedDurationLabel, getVisibilityDurationLabel } from "@/i18n/labels";
 import { useLanguage } from "@/i18n/LanguageProvider";
-import { getListingTagLabel } from "@/features/listings/tagOptions";
+import { filterListingTags, getListingTagLabel } from "@/features/listings/tagOptions";
 import { useCreateDealMutation } from "@/hooks/use-deals";
 import type { ListingEntity, Paged } from "@/models/entities";
 import { ROUTES } from "@/constants/routes";
@@ -52,7 +52,7 @@ const ListingPreviewRow = memo(
       ? getPinnedDurationLabel(t, listing.pinDurationHours)
       : t("listings.meta.notPinned");
     const visibilityLabel = getVisibilityDurationLabel(t, listing.visibilityDurationHours);
-    const tags = buildTags(listing.tags ?? []);
+    const tags = buildTags(filterListingTags(listing.tags ?? []));
     const isInactive = listing.isActive === false;
 
     return (

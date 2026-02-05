@@ -58,8 +58,6 @@ export default function ListingPreview() {
             format="POST"
             pinDurationHours={listingsQuery.data.items[0].pinDurationHours}
             visibilityDurationHours={listingsQuery.data.items[0].visibilityDurationHours}
-            allowEdits={listingsQuery.data.items[0].allowEdits}
-            allowLinkTracking={listingsQuery.data.items[0].allowLinkTracking}
             allowPinnedPlacement={listingsQuery.data.items[0].allowPinnedPlacement}
             tags={listingsQuery.data.items[0].tags}
             requiresApproval={listingsQuery.data.items[0].requiresApproval}

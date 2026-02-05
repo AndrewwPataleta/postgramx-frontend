@@ -9,8 +9,9 @@ import { PageContainer } from "@/components/layout/PageContainer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCreateDealMutation } from "@/hooks/use-deals";
 import { formatNumber, formatTon } from "@/i18n/formatters";
-import { getAllowEditsLabel, getAllowLinkTrackingLabel, getPinnedDurationLabel, getVisibilityDurationLabel } from "@/i18n/labels";
+import { getPinnedDurationLabel, getVisibilityDurationLabel } from "@/i18n/labels";
 import { useLanguage } from "@/i18n/LanguageProvider";
+import { filterListingTags } from "@/features/listings/tagOptions";
 import type { ChannelEntity, ListingEntity, Paged } from "@/models/entities";
 
 export default function ChannelDetailsView() {
@@ -86,7 +87,7 @@ export default function ChannelDetailsView() {
         ...listing,
         priceTon: `${formatTon(listing.priceNano, language)} ${t("common.ton")}`,
         tags: Array.from(
-          new Set(listing.tags.map((tag) => tag.trim()).filter(Boolean))
+          new Set(filterListingTags(listing.tags).map((tag) => tag.trim()).filter(Boolean))
         ),
       })),
     [activeListings, language, t]
@@ -100,7 +101,7 @@ export default function ChannelDetailsView() {
         : t("common.emptyValue");
 
   const buildTagList = (tags: string[]) => {
-    const cleaned = tags.map((tag) => tag.trim()).filter(Boolean);
+    const cleaned = filterListingTags(tags).map((tag) => tag.trim()).filter(Boolean);
     const unique = Array.from(new Set(cleaned));
     return {
       visible: unique.slice(0, 3),
@@ -109,7 +110,7 @@ export default function ChannelDetailsView() {
   };
 
   const buildListingTagList = (tags: string[]) => {
-    const cleaned = tags.map((tag) => tag.trim()).filter(Boolean);
+    const cleaned = filterListingTags(tags).map((tag) => tag.trim()).filter(Boolean);
     const unique = Array.from(new Set(cleaned));
     return {
       visible: unique.slice(0, 2),
@@ -277,19 +278,9 @@ export default function ChannelDetailsView() {
                         ) : null}
                         {isExpanded ? (
                           <div className="space-y-2 text-[11px] text-muted-foreground">
-                            <div className="flex flex-wrap gap-2">
-                              <span className="rounded-full border border-border/60 bg-muted/40 px-2 py-0.5">
-                                {t("listings.allowEdits.label")}:{" "}
-                                {getAllowEditsLabel(t, listing.allowEdits)}
-                              </span>
-                              <span className="rounded-full border border-border/60 bg-muted/40 px-2 py-0.5">
-                                {t("listings.allowLinkTracking.label")}:{" "}
-                                {getAllowLinkTrackingLabel(t, listing.allowLinkTracking)}
-                              </span>
-                            </div>
-                            {listing.tags.length > 0 ? (
+                            {filterListingTags(listing.tags).length > 0 ? (
                               <div className="flex flex-wrap gap-2 text-[11px] text-foreground">
-                                {listing.tags.map((tag) => (
+                                {filterListingTags(listing.tags).map((tag) => (
                                   <span
                                     key={`${listing.id}-expanded-${tag}`}
                                     className="rounded-full border border-border/60 bg-card px-2 py-0.5"

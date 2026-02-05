@@ -2,7 +2,7 @@ import type { ManagedChannel } from "@/features/channels/managedChannels";
 import { formatTonValue } from "@/i18n/formatters";
 import { formatDuration } from "@/i18n/labels";
 import { useLanguage } from "@/i18n/LanguageProvider";
-import { getListingTagLabel } from "@/features/listings/tagOptions";
+import { filterListingTags, getListingTagLabel } from "@/features/listings/tagOptions";
 
 interface ListingSummaryCardProps {
   channel: ManagedChannel;
@@ -25,6 +25,7 @@ export function ListingSummaryCard({
     : t("listings.meta.notPinned");
   const visibleLabel = formatDuration(visibilityDurationHours, t);
   const priceLabel = formatTonValue(priceTon, language);
+  const filteredTags = filterListingTags(tags);
 
   return (
     <div className="rounded-2xl border border-border/60 bg-card/80 p-4 shadow-sm">
@@ -38,9 +39,6 @@ export function ListingSummaryCard({
           </div>
           <p className="text-xs text-muted-foreground">{channel.username}</p>
           <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-muted-foreground">
-            <span className="rounded-full bg-secondary/60 px-2 py-1">
-              {t("listings.summary.editable")}
-            </span>
             <span className="rounded-full bg-secondary/60 px-2 py-1">
               {t("listings.summary.autoPost")}
             </span>
@@ -69,11 +67,11 @@ export function ListingSummaryCard({
           <span className="text-foreground">{visibleLabel}</span>
         </div>
       </div>
-      {tags.length > 0 ? (
+      {filteredTags.length > 0 ? (
         <div className="mt-3 space-y-2">
           <p className="text-xs text-muted-foreground">{t("listings.tagsLabel")}</p>
           <div className="flex flex-wrap gap-2 text-[11px] text-foreground">
-            {tags.map((tag) => (
+            {filteredTags.map((tag) => (
               <span key={tag} className="rounded-full border border-border/60 bg-card px-2.5 py-1">
                 {getListingTagLabel(tag, t)}
               </span>

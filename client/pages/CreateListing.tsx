@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/api/errors";
 import { ListingPreviewDetails } from "@/components/listings/ListingPreviewDetails";
 import { PageContainer } from "@/components/layout/PageContainer";
-import { listingTagCategories } from "@/features/listings/tagOptions";
+import { filterListingTags, listingTagCategories } from "@/features/listings/tagOptions";
 import { createListing } from "@/api/features/listingsApi";
 import type { ChannelManageContext } from "@/pages/channel-manage/ChannelManageLayout";
 import { useLanguage } from "@/i18n/LanguageProvider";
@@ -53,8 +53,6 @@ export default function CreateListing() {
   const [pinCustomHours, setPinCustomHours] = useState("");
   const [visibilityDurationChoice, setVisibilityDurationChoice] = useState("24");
   const [visibilityCustomHours, setVisibilityCustomHours] = useState("");
-  const [allowEdits, setAllowEdits] = useState(true);
-  const [allowLinkTracking, setAllowLinkTracking] = useState(true);
   const [contentRulesText, setContentRulesText] = useState("");
   const [tagQuery, setTagQuery] = useState("");
   const [customTag, setCustomTag] = useState("");
@@ -116,12 +114,12 @@ export default function CreateListing() {
       currency: CurrencyCode.Ton,
       pinDurationHours,
       visibilityDurationHours,
-      allowEdits,
+      allowEdits: true,
       requiresApproval: true,
       contentRulesText,
-      tags: ensuredTags,
+      tags: filterListingTags(ensuredTags),
       isActive: true,
-      allowLinkTracking,
+      allowLinkTracking: true,
       allowPinnedPlacement: pinDurationHours !== null,
     };
 
@@ -336,24 +334,6 @@ export default function CreateListing() {
             </p>
           </div>
           <div className="space-y-2">
-            <label className="flex items-center justify-between rounded-xl border border-border/60 bg-card px-3 py-3 text-sm">
-              <span className="text-foreground">{t("listings.allowEditsPrompt")}</span>
-              <input
-                type="checkbox"
-                checked={allowEdits}
-                onChange={(event) => setAllowEdits(event.target.checked)}
-                className="h-4 w-4"
-              />
-            </label>
-            <label className="flex items-center justify-between rounded-xl border border-border/60 bg-card px-3 py-3 text-sm">
-              <span className="text-foreground">{t("listings.allowLinkTrackingPrompt")}</span>
-              <input
-                type="checkbox"
-                checked={allowLinkTracking}
-                onChange={(event) => setAllowLinkTracking(event.target.checked)}
-                className="h-4 w-4"
-              />
-            </label>
             <label className="flex items-center justify-between rounded-xl border border-border/40 bg-card/60 px-3 py-3 text-sm opacity-80">
               <span className="text-foreground">
                 {t("listings.preApprovalLocked")}
@@ -520,8 +500,6 @@ export default function CreateListing() {
             format="POST"
             pinDurationHours={pinDurationHours}
             visibilityDurationHours={visibilityDurationHours}
-            allowEdits={allowEdits}
-            allowLinkTracking={allowLinkTracking}
             allowPinnedPlacement={pinDurationHours !== null}
             tags={selectedTags}
             requiresApproval
