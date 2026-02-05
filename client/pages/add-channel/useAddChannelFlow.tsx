@@ -8,7 +8,6 @@ export type AddChannelFlowState = {
   normalizedUsername: string;
   preview: ChannelPreview | null;
   linkedChannelId: string | null;
-  linkStatus: AddChannelFlowStatus;
   verifyStatus: AddChannelFlowStatus;
   lastError: string | null;
 };
@@ -18,7 +17,6 @@ type AddChannelFlowContextValue = {
   setUsernameOrLink: (value: string) => void;
   setPreview: (value: ChannelPreview | null) => void;
   setLinkedChannelId: (value: string | null) => void;
-  setLinkStatus: (value: AddChannelFlowStatus) => void;
   setVerifyStatus: (value: AddChannelFlowStatus) => void;
   setLastError: (value: string | null) => void;
   resetFlow: () => void;
@@ -33,7 +31,6 @@ const DEFAULT_STATE: AddChannelFlowState = {
   normalizedUsername: "",
   preview: null,
   linkedChannelId: null,
-  linkStatus: "idle",
   verifyStatus: "idle",
   lastError: null,
 };
@@ -137,7 +134,6 @@ export const AddChannelFlowProvider = ({ children }: { children: ReactNode }) =>
           normalizedUsername: value?.normalizedUsername ?? value?.username ?? "",
         })),
       setLinkedChannelId: (value) => setState((prev) => ({ ...prev, linkedChannelId: value })),
-      setLinkStatus: (value) => setState((prev) => ({ ...prev, linkStatus: value })),
       setVerifyStatus: (value) => setState((prev) => ({ ...prev, verifyStatus: value })),
       setLastError: (value) => setState((prev) => ({ ...prev, lastError: value })),
       resetFlow: () => setState(DEFAULT_STATE),

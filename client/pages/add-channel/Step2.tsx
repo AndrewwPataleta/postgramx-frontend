@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { linkChannel, verifyChannel } from "@/api/features/channelsApi";
+import { verifyChannel } from "@/api/features/channelsApi";
 import { getChannelErrorMessage } from "@/pages/add-channel/errorMapping";
 import { useAddChannelFlow } from "@/pages/add-channel/useAddChannelFlow";
 import { formatNumber } from "@/i18n/formatters";
@@ -28,7 +28,6 @@ const AddChannelStep2 = () => {
   const {
     state,
     setLinkedChannelId,
-    setLinkStatus,
     setVerifyStatus,
     setLastError,
   } = useAddChannelFlow();
@@ -48,35 +47,14 @@ const AddChannelStep2 = () => {
     return preview.username.startsWith("@") ? preview.username : `@${preview.username}`;
   }, [preview?.username, t]);
 
-  const linkMutation = useMutation({
-    mutationFn: (username: string) => linkChannel({ username }),
-    onMutate: () => {
-      setLinkStatus("loading");
-      setLastError(null);
-    },
-    onSuccess: (response) => {
-      const linkedChannelId = response.id;
-      setLinkStatus("success");
-      setLinkedChannelId(linkedChannelId);
-      setVerifyStatus("idle");
-      toast.success(t("channels.add.step2.linkedToast"));
-      verifyMutation.mutate(linkedChannelId);
-    },
-    onError: (error) => {
-      const message = getChannelErrorMessage(error);
-      setLinkStatus("error");
-      setLastError(message);
-      toast.error(message);
-    },
-  });
-
   const verifyMutation = useMutation({
-    mutationFn: (id: string) => verifyChannel({ id }),
+    mutationFn: (username: string) => verifyChannel({ username }),
     onMutate: () => {
       setVerifyStatus("loading");
       setLastError(null);
     },
     onSuccess: (response) => {
+      setLinkedChannelId(response.id);
       if (response.status === ChannelStatus.Verified) {
         setVerifyStatus("success");
         setLastError(null);
@@ -100,18 +78,14 @@ const AddChannelStep2 = () => {
       return;
     }
     const username = (preview.normalizedUsername || preview.username || "").replace(/^@/, "");
-    if (!state.linkedChannelId) {
-      if (!username) {
-        toast.error(t("channels.add.step2.missingUsername"));
-        return;
-      }
-      linkMutation.mutate(username);
+    if (!username) {
+      toast.error(t("channels.add.step2.missingUsername"));
       return;
     }
-    verifyMutation.mutate(state.linkedChannelId);
+    verifyMutation.mutate(username);
   };
 
-  const isLoading = linkMutation.isPending || verifyMutation.isPending;
+  const isLoading = verifyMutation.isPending;
   const primaryLabel = t("channels.add.step2.verifyAction");
 
   const memberCount = formatMetric(preview?.memberCount, language);

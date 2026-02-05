@@ -54,10 +54,7 @@ export const listMarketplaceChannels = async (data: {
 export const previewChannel = async (data: { usernameOrLink: string }): Promise<ChannelPreview> =>
   apiPost<ChannelPreview, typeof data>("/channels/preview", data);
 
-export const linkChannel = async (data: { username: string }): Promise<ChannelEntity> =>
-  apiPost<ChannelEntity, typeof data>("/channels/link", data);
-
-export const verifyChannel = async (data: { id: string }): Promise<ChannelEntity> =>
+export const verifyChannel = async (data: { id?: string; username?: string }): Promise<ChannelEntity> =>
   apiPost<ChannelEntity, typeof data>("/channels/verify", data);
 
 export const channelDetail = async (data: { id: string }): Promise<ChannelEntity & { listings: ListingEntity[] }> =>
