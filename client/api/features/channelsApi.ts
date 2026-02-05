@@ -23,7 +23,11 @@ export const listMyChannels = async (data: {
   sort?: string;
   order?: string;
 }): Promise<Paged<ChannelEntity>> =>
-  apiPost<Paged<ChannelEntity>, typeof data>("/channels/list", data);
+  apiPost<Paged<ChannelEntity>, typeof data>("/channels/list", {
+    ...data,
+    page: data.page ?? 1,
+    limit: data.limit ?? 20,
+  });
 
 export const listMarketplaceChannels = async (data: {
   q?: string;
@@ -40,7 +44,11 @@ export const listMarketplaceChannels = async (data: {
 }): Promise<Paged<MarketplaceChannelSummary>> =>
   apiPost<Paged<MarketplaceChannelSummary>, typeof data>(
     "/marketplace/channels/list",
-    data
+    {
+      ...data,
+      page: data.page ?? 1,
+      limit: data.limit ?? 20,
+    }
   );
 
 export const previewChannel = async (data: { usernameOrLink: string }): Promise<ChannelPreview> =>
