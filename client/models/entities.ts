@@ -141,6 +141,29 @@ export type ChannelEntity = {
   listings?: ListingEntity[];
 };
 
+export type ChannelModeratorItemDto = {
+  userId: string;
+  role: string;
+  isActive: boolean;
+  isManuallyDisabled: boolean;
+  canReviewDeals: boolean;
+  telegramAdminStatus?: string | null;
+  displayName: string;
+  username?: string | null;
+  avatar?: string | null;
+  lastRecheckAt?: string | null;
+};
+
+export type ChannelModeratorsListResponse = {
+  channel: {
+    id: string;
+    username: string;
+    title: string;
+    ownerUserId: string;
+  };
+  items: ChannelModeratorItemDto[];
+};
+
 export type DealEntity = {
   id: string;
   advertiserUserId: string;
