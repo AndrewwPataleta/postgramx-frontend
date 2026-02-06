@@ -256,12 +256,6 @@ export default function Profile() {
     return `${value.slice(0, 4)}…${value.slice(-4)}`;
   };
 
-  const shortHash = (value: string | null | undefined) => {
-    if (!value) return null;
-    if (value.length <= 12) return value;
-    return `${value.slice(0, 6)}…${value.slice(-4)}`;
-  };
-
   const directionBadgeStyle = (direction?: string) => {
     switch (direction) {
       case "IN":
@@ -540,7 +534,6 @@ export default function Profile() {
                           formatLabel(item.descriptionLabel) ??
                           item.description ??
                           t("profile.transactionNoDescription");
-                        const txHash = shortHash(item.externalTxHash);
                         return (
                           <div
                             key={item.id}
@@ -549,26 +542,24 @@ export default function Profile() {
                             <div>
                               <p className="text-sm font-semibold text-foreground">{typeLabel}</p>
                               <p className="text-xs text-muted-foreground">{descriptionLabel}</p>
-                              {txHash ? (
-                                <p className="text-[11px] text-muted-foreground">
-                                  {t("profile.externalHash")}: {txHash}
-                                </p>
-                              ) : null}
+                              <p className="text-[11px] text-muted-foreground">{statusLabel}</p>
                             </div>
-                            <div className="text-right space-y-1">
-                              <p className="text-sm font-semibold price-text">
-                                {amountLabel} {item.currency ?? t("common.ton")}
-                              </p>
+                            <div className="text-right flex flex-col items-end gap-1">
+                              <div className="flex items-center gap-2">
+                                <p className="text-sm font-semibold price-text">
+                                  {amountLabel} {item.currency ?? t("common.ton")}
+                                </p>
+                                <span
+                                  className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${directionBadgeStyle(
+                                    item.direction
+                                  )}`}
+                                >
+                                  {directionLabel}
+                                </span>
+                              </div>
                               <p className="text-[11px] text-muted-foreground">
-                                {statusLabel} • {formatDateTime(item.createdAt, language)}
+                                {formatDateTime(item.createdAt, language)}
                               </p>
-                              <span
-                                className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${directionBadgeStyle(
-                                  item.direction
-                                )}`}
-                              >
-                                {directionLabel}
-                              </span>
                             </div>
                           </div>
                         );
