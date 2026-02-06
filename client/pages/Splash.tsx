@@ -3,7 +3,10 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { listMarketplaceChannels } from "@/api/features/channelsApi";
+import { listMarketplaceChannels, listMyChannels } from "@/api/features/channelsApi";
+import { listDeals } from "@/api/features/dealsApi";
+import { getBalanceOverview } from "@/api/paymentsBalanceApi";
+import { listTransactions } from "@/api/paymentsTransactionsApi";
 import { TELEGRAM_MOCK } from "@/config/env";
 import { ROUTES } from "@/constants/routes";
 import {
@@ -12,6 +15,7 @@ import {
   defaultMarketplaceFilters,
   marketplaceKeys,
 } from "@/features/marketplace/viewmodels/marketplaceQuery";
+import { buildTransactionsFiltersHash } from "@/hooks/useTransactions";
 
 const Splash = () => {
   const navigate = useNavigate();
@@ -56,8 +60,21 @@ const Splash = () => {
           order,
         });
 
-        try {
-          await queryClient.prefetchQuery({
+        const channelsFilters = { sort: "recent", order: "desc" };
+        const dealsParams = {
+          role: "all" as const,
+          pendingPage: 1,
+          pendingLimit: 5,
+          activePage: 1,
+          activeLimit: 5,
+          completedPage: 1,
+          completedLimit: 5,
+        };
+        const transactionsFilters = { page: 1, limit: 10 };
+        const transactionsFiltersHash = buildTransactionsFiltersHash(transactionsFilters);
+
+        await Promise.allSettled([
+          queryClient.prefetchQuery({
             queryKey: marketplaceKeys.channels(
               filtersKey,
               page,
@@ -66,10 +83,37 @@ const Splash = () => {
               order
             ),
             queryFn: () => listMarketplaceChannels(queryFilters),
-          });
-        } catch {
-          // ignore preload errors and continue to marketplace
-        }
+          }),
+          queryClient.prefetchQuery({
+            queryKey: ["channelsList", channelsFilters],
+            queryFn: () =>
+              listMyChannels({
+                ...channelsFilters,
+                page: 1,
+                limit: 10,
+              }),
+          }),
+          queryClient.prefetchQuery({
+            queryKey: [
+              "deals",
+              dealsParams.role,
+              dealsParams.pendingPage,
+              dealsParams.activePage,
+              dealsParams.completedPage,
+            ],
+            queryFn: () => listDeals(dealsParams),
+          }),
+          queryClient.prefetchQuery({
+            queryKey: ["balanceOverview"],
+            queryFn: () => getBalanceOverview(),
+          }),
+          queryClient.prefetchInfiniteQuery({
+            queryKey: ["transactions", transactionsFiltersHash],
+            queryFn: ({ pageParam = 1 }) =>
+              listTransactions({ ...transactionsFilters, page: pageParam }),
+            initialPageParam: 1,
+          }),
+        ]);
       }
 
       if (!isActive) {

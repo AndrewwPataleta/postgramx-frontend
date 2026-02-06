@@ -3,7 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { TonConnectButton } from "@tonconnect/ui-react";
 import { toast } from "sonner";
-import LoadingSkeleton from "@/components/feedback/LoadingSkeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { Input } from "@/components/ui/input";
 import { PageContainer } from "@/components/layout/PageContainer";
@@ -71,6 +71,11 @@ export default function Profile() {
 
   const balanceOverviewQuery = useBalanceOverview();
   const transactionsQuery = useTransactions(transactionFilters);
+  const isProfileLoading =
+    balanceOverviewQuery.isLoading &&
+    transactionsQuery.isLoading &&
+    !balanceOverviewQuery.data &&
+    !transactionsQuery.data;
 
   const transactions = useMemo(
     () => transactionsQuery.data?.pages.flatMap((page) => page.items) ?? [],
@@ -268,9 +273,49 @@ export default function Profile() {
     }
   };
 
+  const ProfileSkeleton = () => (
+    <div className="space-y-6">
+      <div className="glass p-5">
+        <div className="flex items-center gap-4">
+          <Skeleton className="h-14 w-14 rounded-full" />
+          <div className="flex-1 space-y-2">
+            <Skeleton className="h-4 w-40" />
+            <Skeleton className="h-3 w-28" />
+            <Skeleton className="h-6 w-36 rounded-full" />
+          </div>
+        </div>
+      </div>
+      <div className="flex gap-6 border-b border-border/60 pb-3">
+        <Skeleton className="h-4 w-20" />
+        <Skeleton className="h-4 w-28" />
+        <Skeleton className="h-4 w-24" />
+      </div>
+      <div className="rounded-[28px] border border-border/40 bg-background/70 shadow-xl overflow-hidden">
+        <div className="px-5 py-4 border-b border-border/40 space-y-2">
+          <Skeleton className="h-4 w-40" />
+          <Skeleton className="h-3 w-52" />
+        </div>
+        <div className="px-5 py-5 space-y-4 pb-8">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Skeleton className="h-20 w-full rounded-2xl" />
+            <Skeleton className="h-20 w-full rounded-2xl" />
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Skeleton className="h-16 w-full rounded-2xl" />
+            <Skeleton className="h-16 w-full rounded-2xl" />
+          </div>
+          <Skeleton className="h-8 w-40 rounded-lg" />
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="w-full max-w-6xl mx-auto">
       <PageContainer className="py-6 space-y-6">
+        {isProfileLoading ? (
+          <ProfileSkeleton />
+        ) : (
         <div>
           <div className="glass p-5">
             <div className="flex items-center gap-4">
@@ -326,65 +371,61 @@ export default function Profile() {
                     </p>
                   </div>
                   <div className="px-5 py-5 space-y-4 pb-8">
-                    {balanceOverviewQuery.isLoading ? (
-                      <LoadingSkeleton items={2} />
-                    ) : (
-                      <div className="space-y-4">
-                        <div className="grid gap-3 sm:grid-cols-2">
-                          <div className="glass p-4">
-                            <p className="text-xs text-muted-foreground">
-                              {t("profile.availableBalance")}
-                            </p>
-                            <p className="text-lg font-semibold price-text">
-                              {formatTon(availableNanoValue.toString(), language)}{" "}
-                              {t("common.ton")}
-                            </p>
-                          </div>
-                          <div className="glass p-4">
-                            <p className="text-xs text-muted-foreground">
-                              {t("profile.pendingBalance")}
-                            </p>
-                            <p className="text-lg font-semibold price-text">
-                              {formatTon(pendingNano, language)} {t("common.ton")}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="grid gap-3 sm:grid-cols-2">
-                          <div className="rounded-2xl border border-border/40 bg-background/60 p-4 text-xs text-muted-foreground">
-                            <p>{t("profile.lifetimeEarned")}</p>
-                            <p className="text-sm font-semibold text-foreground">
-                              {formatTon(lifetimeEarnedNano, language)} {t("common.ton")}
-                            </p>
-                          </div>
-                          <div className="rounded-2xl border border-border/40 bg-background/60 p-4 text-xs text-muted-foreground">
-                            <p>{t("profile.lifetimePaidOut")}</p>
-                            <p className="text-sm font-semibold text-foreground">
-                              {formatTon(lifetimePaidOutNano, language)} {t("common.ton")}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="space-y-4">
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <div className="glass p-4">
                           <p className="text-xs text-muted-foreground">
-                            {t("profile.lastUpdated")} {""}
-                            {formatDateTime(balanceOverview?.lastUpdatedAt, language)}
+                            {t("profile.availableBalance")}
                           </p>
-                          {connectedWalletAddress ? (
-                            <button
-                              type="button"
-                              onClick={handleWithdrawOpen}
-                              disabled={!hasAvailableBalance}
-                              className="inline-flex items-center justify-center rounded-lg border border-border/60 bg-card/80 px-4 py-2 text-xs font-semibold text-foreground transition hover:bg-card disabled:cursor-not-allowed disabled:opacity-60"
-                            >
-                              {t("profile.withdrawAction")}
-                            </button>
-                          ) : (
-                            <span className="text-xs text-primary">
-                              {t("profile.connectWalletCta")}
-                            </span>
-                          )}
+                          <p className="text-lg font-semibold price-text">
+                            {formatTon(availableNanoValue.toString(), language)}{" "}
+                            {t("common.ton")}
+                          </p>
+                        </div>
+                        <div className="glass p-4">
+                          <p className="text-xs text-muted-foreground">
+                            {t("profile.pendingBalance")}
+                          </p>
+                          <p className="text-lg font-semibold price-text">
+                            {formatTon(pendingNano, language)} {t("common.ton")}
+                          </p>
                         </div>
                       </div>
-                    )}
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <div className="rounded-2xl border border-border/40 bg-background/60 p-4 text-xs text-muted-foreground">
+                          <p>{t("profile.lifetimeEarned")}</p>
+                          <p className="text-sm font-semibold text-foreground">
+                            {formatTon(lifetimeEarnedNano, language)} {t("common.ton")}
+                          </p>
+                        </div>
+                        <div className="rounded-2xl border border-border/40 bg-background/60 p-4 text-xs text-muted-foreground">
+                          <p>{t("profile.lifetimePaidOut")}</p>
+                          <p className="text-sm font-semibold text-foreground">
+                            {formatTon(lifetimePaidOutNano, language)} {t("common.ton")}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                        <p className="text-xs text-muted-foreground">
+                          {t("profile.lastUpdated")} {""}
+                          {formatDateTime(balanceOverview?.lastUpdatedAt, language)}
+                        </p>
+                        {connectedWalletAddress ? (
+                          <button
+                            type="button"
+                            onClick={handleWithdrawOpen}
+                            disabled={!hasAvailableBalance}
+                            className="inline-flex items-center justify-center rounded-lg border border-border/60 bg-card/80 px-4 py-2 text-xs font-semibold text-foreground transition hover:bg-card disabled:cursor-not-allowed disabled:opacity-60"
+                          >
+                            {t("profile.withdrawAction")}
+                          </button>
+                        ) : (
+                          <span className="text-xs text-primary">
+                            {t("profile.connectWalletCta")}
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -479,9 +520,7 @@ export default function Profile() {
                   </div>
                 </div>
                 <div className="px-5 py-5 space-y-4 pb-8">
-                  {transactionsQuery.isLoading ? (
-                    <LoadingSkeleton items={3} />
-                  ) : transactions.length === 0 ? (
+                  {transactions.length === 0 ? (
                     <p className="text-sm text-muted-foreground">
                       {t("profile.transactionsEmpty")}
                     </p>
@@ -618,6 +657,7 @@ export default function Profile() {
             ) : null}
           </div>
         </div>
+        )}
       </PageContainer>
       <BottomSheet
         open={withdrawSheetOpen}

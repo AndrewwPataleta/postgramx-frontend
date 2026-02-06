@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Megaphone, ShoppingCart } from "lucide-react";
 import DealListCard from "@/components/deals/DealListCard";
 import ErrorState from "@/components/feedback/ErrorState";
-import LoadingSkeleton from "@/components/feedback/LoadingSkeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { getErrorMessage } from "@/lib/api/errors";
 import { getTelegramWebApp } from "@/lib/telegram";
@@ -185,6 +185,32 @@ export default function Deals() {
     },
   } satisfies Record<DealSectionKey, { title: string; subtitle: string }>;
 
+  const DealListSkeleton = ({ items = 3 }: { items?: number }) => (
+    <div className="space-y-3">
+      {Array.from({ length: items }).map((_, index) => (
+        <div
+          key={`deal-skeleton-${index}`}
+          className="rounded-2xl border border-border/60 bg-card/80 p-4 shadow-sm"
+        >
+          <div className="flex items-start gap-3">
+            <Skeleton className="h-10 w-10 rounded-full" />
+            <div className="flex-1 space-y-2">
+              <Skeleton className="h-4 w-40" />
+              <Skeleton className="h-3 w-28" />
+            </div>
+            <Skeleton className="h-6 w-16 rounded-full" />
+          </div>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Skeleton className="h-5 w-20 rounded-full" />
+            <Skeleton className="h-5 w-24 rounded-full" />
+            <Skeleton className="h-5 w-16 rounded-full" />
+          </div>
+          <Skeleton className="mt-4 h-3 w-48" />
+        </div>
+      ))}
+    </div>
+  );
+
   return (
     <div className="w-full max-w-3xl mx-auto">
       <PageContainer className="pt-6 space-y-4">
@@ -211,10 +237,7 @@ export default function Deals() {
         {isLoading && currentGroup.items.length === 0 ? (
           <div className="space-y-6">
             <div className="border-t border-border/60" />
-            <div className="space-y-3">
-
-              <LoadingSkeleton items={2} />
-            </div>
+            <DealListSkeleton items={3} />
           </div>
         ) : error ? (
           <ErrorState
