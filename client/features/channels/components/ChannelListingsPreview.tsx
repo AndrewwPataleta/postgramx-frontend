@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2, PencilLine, RefreshCcw } from "lucide-react";
 import { listListingsByChannel } from "@/api/features/listingsApi";
-import { Skeleton } from "@/components/ui/skeleton";
+import CircleLoader from "@/components/feedback/CircleLoader";
 import { getErrorMessage } from "@/lib/api/errors";
 import { cn } from "@/lib/utils";
 import { formatTon } from "@/i18n/formatters";
@@ -189,18 +189,7 @@ const ChannelListingsPreview = memo(
     return (
       <div className="space-y-3">
         {query.isLoading ? (
-          <div className="space-y-2">
-            {Array.from({ length: 2 }).map((_, index) => (
-              <div
-                key={`listing-skeleton-${index}`}
-                className="rounded-xl border border-border/50 bg-background/60 px-3 py-3"
-              >
-                <Skeleton className="h-4 w-24" />
-                <Skeleton className="mt-2 h-3 w-40" />
-                <Skeleton className="mt-2 h-3 w-28" />
-              </div>
-            ))}
-          </div>
+          <CircleLoader items={2} className="py-3" />
         ) : query.isError ? (
           <div className="rounded-xl border border-destructive/40 bg-destructive/5 px-4 py-3 text-xs text-destructive">
             <p>{getErrorMessage(query.error, t("marketplace.listingsLoadFailed"), t)}</p>

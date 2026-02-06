@@ -2,7 +2,7 @@ import { Search, SlidersHorizontal } from "lucide-react";
 import MarketplaceChannelCard from "@/components/channels/MarketplaceChannelCard";
 import { ActiveFiltersChips } from "@/components/ActiveFiltersChips";
 import { FilterModal } from "@/components/FilterModal";
-import { Skeleton } from "@/components/ui/skeleton";
+import CircleLoader from "@/components/feedback/CircleLoader";
 import ErrorState from "@/components/feedback/ErrorState";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { useMarketplaceViewModel } from "@/features/marketplace/viewmodels/useMarketplaceViewModel";
@@ -40,22 +40,9 @@ export default function MarketplaceView() {
 
         <div className="space-y-3">
           {state.isLoading
-            ? Array.from({ length: 5 }).map((_, index) => (
-                <div
-                  key={`marketplace-skeleton-${index}`}
-                  className="rounded-2xl border border-border/50 bg-card/80 p-4"
-                >
-                  <div className="flex items-start gap-3">
-                    <Skeleton className="h-12 w-12 rounded-full" />
-                    <div className="flex-1 space-y-2">
-                      <Skeleton className="h-4 w-40" />
-                      <Skeleton className="h-3 w-24" />
-                      <Skeleton className="h-3 w-32" />
-                    </div>
-                    <Skeleton className="h-4 w-16" />
-                  </div>
-                </div>
-              ))
+            ? (
+              <CircleLoader items={5} className="py-4" />
+            )
             : computed.channels.map((channel) => (
                 <MarketplaceChannelCard key={channel.id} channel={channel} />
               ))}

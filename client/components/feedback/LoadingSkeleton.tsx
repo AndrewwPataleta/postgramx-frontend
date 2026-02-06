@@ -1,5 +1,5 @@
-import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import CircleLoader from "@/components/feedback/CircleLoader";
 
 interface LoadingSkeletonProps {
   items?: number;
@@ -13,16 +13,11 @@ const LoadingSkeleton = ({
   itemClassName,
 }: LoadingSkeletonProps) => {
   return (
-    <div className={cn("space-y-3", className)}>
-      {Array.from({ length: items }).map((_, index) => (
-        <div
-          key={`loading-skeleton-${index}`}
-          className={cn("rounded-2xl border border-border/50 bg-card/80 p-4", itemClassName)}
-        >
-          <Skeleton className="h-24 rounded-xl" />
-        </div>
-      ))}
-    </div>
+    <CircleLoader
+      items={items}
+      className={cn("py-2", className)}
+      itemClassName={itemClassName}
+    />
   );
 };
 
