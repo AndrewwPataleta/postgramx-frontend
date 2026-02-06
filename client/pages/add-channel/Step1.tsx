@@ -15,7 +15,7 @@ import { ROUTES } from "@/constants/routes";
 const AddChannelStep1 = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
-  const { state, setUsernameOrLink, setPreview, setLinkedChannelId, setLinkStatus, setVerifyStatus, setLastError } =
+  const { state, setUsernameOrLink, setPreview, setLinkedChannelId, setVerifyStatus, setLastError } =
     useAddChannelFlow();
   const [usernameInput, setUsernameInput] = useState(state.usernameOrLink);
   const [inlineError, setInlineError] = useState<string | null>(null);
@@ -30,7 +30,6 @@ const AddChannelStep1 = () => {
       setPreview(response);
       setUsernameOrLink(variables);
       setLinkedChannelId(null);
-      setLinkStatus("idle");
       setVerifyStatus("idle");
       setLastError(null);
       setInlineError(null);
