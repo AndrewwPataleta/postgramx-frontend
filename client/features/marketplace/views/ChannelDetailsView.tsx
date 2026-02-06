@@ -6,7 +6,7 @@ import { channelDetail } from "@/api/features/channelsApi";
 import { listListingsByChannel } from "@/api/features/listingsApi";
 import ErrorState from "@/components/feedback/ErrorState";
 import { PageContainer } from "@/components/layout/PageContainer";
-import { Skeleton } from "@/components/ui/skeleton";
+import CircleLoader from "@/components/feedback/CircleLoader";
 import { useCreateDealMutation } from "@/hooks/use-deals";
 import { formatNumber, formatTon } from "@/i18n/formatters";
 import { getPinnedDurationLabel, getVisibilityDurationLabel } from "@/i18n/labels";
@@ -188,21 +188,7 @@ export default function ChannelDetailsView() {
               </div>
 
               {listingsQuery.isLoading && shouldFetchListings ? (
-                <div className="space-y-3">
-                  {Array.from({ length: 2 }).map((_, index) => (
-                    <div
-                      key={`listing-skeleton-${index}`}
-                      className="rounded-xl border border-border/60 bg-card/70 p-3 space-y-3"
-                    >
-                      <Skeleton className="h-4 w-32" />
-                      <div className="grid gap-3 sm:grid-cols-3">
-                        <Skeleton className="h-14 rounded-lg" />
-                        <Skeleton className="h-14 rounded-lg" />
-                        <Skeleton className="h-14 rounded-lg" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <CircleLoader items={2} className="py-3" />
               ) : listingsQuery.isError ? (
                 <div className="rounded-xl border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">
                   {t("marketplace.listingsLoadFailed")}

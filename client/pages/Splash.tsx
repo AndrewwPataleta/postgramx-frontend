@@ -127,13 +127,13 @@ const Splash = () => {
           </span>
         ) : null}
 
-        <div className="relative flex h-24 w-24 items-center justify-center">
+        <div className="relative flex h-60 w-60 items-center justify-center">
           <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/70 via-accent/70 to-primary/60 blur-2xl opacity-80" />
-          <div className="relative z-10 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-primary via-accent to-primary p-0.5 shadow-[0_0_25px_hsl(var(--primary)/0.45)]">
+          <div className="relative z-10 flex h-40 w-40 items-center justify-center rounded-full shadow-[0_0_25px_hsl(var(--primary)/0.45)]">
             <img
               src="/logo.jpeg"
               alt="PostgramX logo"
-              className="h-full w-full rounded-full bg-background object-cover"
+              className="h-full w-full rounded-full object-cover"
             />
           </div>
         </div>

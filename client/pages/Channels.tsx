@@ -7,7 +7,7 @@ import ChannelListingsPreview from "@/features/channels/components/ChannelListin
 import { useChannelsList } from "@/features/channels/hooks/useChannelsList";
 import ErrorState from "@/components/feedback/ErrorState";
 import BottomSheet from "@/components/BottomSheet";
-import { Skeleton } from "@/components/ui/skeleton";
+import CircleLoader from "@/components/feedback/CircleLoader";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { unlinkChannel } from "@/api/features/channelsApi";
 import { getErrorMessage } from "@/lib/api/errors";
@@ -26,16 +26,7 @@ const DEFAULT_ORDER = "desc";
 
 const ChannelCardSkeleton = () => (
   <div className="rounded-2xl border border-border/50 bg-card/80 p-4">
-    <div className="flex items-start justify-between gap-3">
-      <div className="space-y-2">
-        <Skeleton className="h-4 w-32" />
-        <Skeleton className="h-3 w-20" />
-      </div>
-      <Skeleton className="h-5 w-24 rounded-full" />
-    </div>
-    <div className="mt-4">
-      <Skeleton className="h-16 rounded-xl" />
-    </div>
+    <CircleLoader items={1} size={36} />
   </div>
 );
 
