@@ -22,6 +22,9 @@ const formatMetric = (value: number | null | undefined, language: Language) => {
   return formatNumber(value, language as never, { notation: "compact" });
 };
 
+const shouldLogChannelErrors =
+  Boolean(import.meta.env.DEV) && import.meta.env.VITE_API_LOG === "true";
+
 const AddChannelStep2 = () => {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
@@ -60,6 +63,10 @@ const AddChannelStep2 = () => {
         setLastError(null);
         navigate(ROUTES.ADD_CHANNEL_STEP("step-3"));
         return;
+      }
+      if (shouldLogChannelErrors) {
+        // eslint-disable-next-line no-console
+        console.warn("[channels] verify response not verified", response);
       }
       setVerifyStatus("error");
       setLastError(t("channels.add.step2.verifyError"));
