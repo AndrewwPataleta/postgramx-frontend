@@ -16,8 +16,8 @@ const tagLabelOverrides: Record<string, TranslationKey> = {
   "Must be pre-approved": "listings.tags.mustBeApproved",
 };
 
-export const filterListingTags = (tags: string[]) =>
-  tags.filter((tag) => !hiddenTagValues.has(tag));
+export const filterListingTags = (tags?: string[] | null) =>
+  (tags ?? []).filter((tag) => !hiddenTagValues.has(tag));
 
 export const listingTagCategories: TagCategory[] = [
   {
