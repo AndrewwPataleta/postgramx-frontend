@@ -84,14 +84,17 @@ const Splash = () => {
             ),
             queryFn: () => listMarketplaceChannels(queryFilters),
           }),
-          queryClient.prefetchQuery({
+          queryClient.prefetchInfiniteQuery({
             queryKey: ["channelsList", channelsFilters],
-            queryFn: () =>
+            queryFn: ({ pageParam = 1 }) =>
               listMyChannels({
                 ...channelsFilters,
-                page: 1,
+                page: Number(pageParam),
                 limit: 10,
               }),
+            getNextPageParam: (lastPage) =>
+              lastPage.hasNext ? lastPage.page + 1 : undefined,
+            initialPageParam: 1,
           }),
           queryClient.prefetchQuery({
             queryKey: [
