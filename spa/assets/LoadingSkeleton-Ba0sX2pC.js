@@ -1,0 +1,1 @@
+import{j as a,k as e}from"./index-zSmvA2yz.js";import{C as t}from"./CircleLoader-Df4Yi5ZN.js";const i=({items:o=3,className:r,itemClassName:s})=>a.jsx(t,{items:o,className:e("py-2",r),itemClassName:s});export{i as L};
