@@ -22,12 +22,24 @@ export const listMyChannels = async (data: {
   limit?: number;
   sort?: string;
   order?: string;
-}): Promise<Paged<ChannelEntity>> =>
-  apiPost<Paged<ChannelEntity>, typeof data>("/channels/list", {
+}): Promise<Paged<ChannelEntity>> => {
+  const response = await apiPost<Paged<ChannelEntity>, typeof data>("/channels/list", {
     ...data,
     page: data.page ?? 1,
     limit: data.limit ?? 20,
   });
+
+  return {
+    ...response,
+    items: Array.isArray(response.items) ? response.items : [],
+    page: Number.isFinite(response.page) ? response.page : data.page ?? 1,
+    limit: Number.isFinite(response.limit) ? response.limit : data.limit ?? 20,
+    total: Number.isFinite(response.total) ? response.total : 0,
+    totalPages: Number.isFinite(response.totalPages) ? response.totalPages : 0,
+    hasNext: Boolean(response.hasNext),
+    hasPrev: Boolean(response.hasPrev),
+  };
+};
 
 export const listMarketplaceChannels = async (data: {
   q?: string;
