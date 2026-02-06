@@ -1,0 +1,1 @@
+import{a1 as i}from"./index-C2Ju0_Lv.js";const o=n=>n in i.en,e=(n,t,s)=>s&&o(n)?s(n):n||t,u=(n,t,s)=>typeof n=="string"?e(n,t,s):n&&typeof n=="object"&&"message"in n?e(String(n.message||""),t,s):t;export{u as g};
