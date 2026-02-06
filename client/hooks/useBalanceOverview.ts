@@ -5,7 +5,7 @@ export const useBalanceOverview = () => {
   return useQuery({
     queryKey: ["balanceOverview"],
     queryFn: () => getBalanceOverview(),
-    refetchInterval: 15_000,
+    refetchInterval: 10_000,
     refetchOnWindowFocus: false,
   });
 };

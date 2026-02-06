@@ -7,7 +7,7 @@ import ChannelListingsPreview from "@/features/channels/components/ChannelListin
 import { useChannelsList } from "@/features/channels/hooks/useChannelsList";
 import ErrorState from "@/components/feedback/ErrorState";
 import BottomSheet from "@/components/BottomSheet";
-import CircleLoader from "@/components/feedback/CircleLoader";
+import { Skeleton } from "@/components/ui/skeleton";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { unlinkChannel } from "@/api/features/channelsApi";
 import { getErrorMessage } from "@/lib/api/errors";
@@ -25,8 +25,25 @@ const DEFAULT_SORT = "recent";
 const DEFAULT_ORDER = "desc";
 
 const ChannelCardSkeleton = () => (
-  <div className="rounded-2xl border border-border/50 bg-card/80 p-4">
-    <CircleLoader items={1} size={36} />
+  <div className="rounded-2xl border border-border/50 bg-card/80 p-4 shadow-sm">
+    <div className="flex items-start gap-3">
+      <Skeleton className="h-12 w-12 rounded-full" />
+      <div className="flex-1 space-y-2">
+        <Skeleton className="h-4 w-36" />
+        <Skeleton className="h-3 w-24" />
+      </div>
+      <Skeleton className="h-8 w-16 rounded-lg" />
+    </div>
+    <div className="mt-4 grid gap-2 sm:grid-cols-3">
+      <Skeleton className="h-10 w-full rounded-xl" />
+      <Skeleton className="h-10 w-full rounded-xl" />
+      <Skeleton className="h-10 w-full rounded-xl" />
+    </div>
+    <div className="mt-4 flex flex-wrap gap-2">
+      <Skeleton className="h-5 w-20 rounded-full" />
+      <Skeleton className="h-5 w-24 rounded-full" />
+      <Skeleton className="h-5 w-16 rounded-full" />
+    </div>
   </div>
 );
 

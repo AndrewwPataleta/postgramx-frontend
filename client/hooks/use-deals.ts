@@ -28,6 +28,7 @@ export const useDealsListQuery = (params: {
     queryFn: () => listDeals(params),
     staleTime: 20_000,
     refetchOnWindowFocus: false,
+    refetchInterval: 10_000,
   });
 
 export const useCreateDealMutation = () => {

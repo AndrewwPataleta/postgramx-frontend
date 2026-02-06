@@ -29,4 +29,6 @@ export const useChannelsList = (
     getNextPageParam: (lastPage) =>
       lastPage.hasNext ? lastPage.page + 1 : undefined,
     initialPageParam: 1,
+    refetchInterval: 10_000,
+    refetchOnWindowFocus: false,
   });
