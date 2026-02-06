@@ -1,1 +1,0 @@
-import{j as a,s as e}from"./index-CLuTbU0T.js";import{C as t}from"./CircleLoader-CnLrR_P1.js";const i=({items:s=3,className:o,itemClassName:r})=>a.jsx(t,{items:s,className:e("py-2",o),itemClassName:r});export{i as L};
