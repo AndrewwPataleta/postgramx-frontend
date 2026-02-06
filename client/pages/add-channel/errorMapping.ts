@@ -9,6 +9,16 @@ const CHANNEL_ERROR_MESSAGES: Record<string, string> = {
   BOT_MISSING_RIGHTS: "Bot needs permission to post messages",
 };
 
+const shouldLogChannelErrors =
+  Boolean(import.meta.env.DEV) && import.meta.env.VITE_API_LOG === "true";
+
+const readString = (value: unknown): string | undefined => {
+  if (typeof value === "string" && value.trim().length > 0) {
+    return value;
+  }
+  return undefined;
+};
+
 const extractErrorDetails = (error: unknown) => {
   if (!error || typeof error !== "object") {
     return {};
@@ -26,14 +36,34 @@ export const getChannelErrorMessage = (
   const { apiError, details } = extractErrorDetails(error);
   const detailsRecord = details as Record<string, unknown>;
   const nestedError = (detailsRecord?.error ?? {}) as Record<string, unknown>;
+  const nestedDetails = (nestedError?.details ?? {}) as Record<string, unknown>;
+  const nestedData = (nestedError?.data ?? {}) as Record<string, unknown>;
+  const topDetails = (detailsRecord?.details ?? {}) as Record<string, unknown>;
 
   const code =
-    (detailsRecord?.code as string | undefined) ||
-    (nestedError?.code as string | undefined);
+    readString(detailsRecord?.code) ||
+    readString(topDetails?.code) ||
+    readString(nestedError?.code) ||
+    readString(nestedDetails?.code) ||
+    readString(nestedData?.code);
   const message =
-    (apiError?.message as string | undefined) ||
-    (detailsRecord?.message as string | undefined) ||
-    (nestedError?.message as string | undefined);
+    readString(apiError?.message) ||
+    readString(detailsRecord?.message) ||
+    readString(topDetails?.message) ||
+    readString(nestedError?.message) ||
+    readString(nestedDetails?.message) ||
+    readString(nestedData?.message);
+
+  if (shouldLogChannelErrors) {
+    // eslint-disable-next-line no-console
+    console.warn("[channels] verify error payload", {
+      error,
+      apiError,
+      details,
+      code,
+      message,
+    });
+  }
 
   if (code && code in CHANNEL_ERROR_MESSAGES) {
     return CHANNEL_ERROR_MESSAGES[code];
