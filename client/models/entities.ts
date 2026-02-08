@@ -139,6 +139,11 @@ export type ChannelEntity = {
   createdAt: string;
   updatedAt: string;
   listings?: ListingEntity[];
+  membership?: {
+    role?: string | null;
+    telegramAdminStatus?: string | null;
+    lastRecheckAt?: string | null;
+  } | null;
 };
 
 export type ChannelModeratorItemDto = {
