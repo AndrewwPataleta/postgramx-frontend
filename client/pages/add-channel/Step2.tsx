@@ -57,7 +57,12 @@ const AddChannelStep2 = () => {
       setLastError(null);
     },
     onSuccess: (response) => {
-      setLinkedChannelId(response.id);
+      const resolvedChannelId =
+        response.id ??
+        (response as { channelId?: string }).channelId ??
+        (response as { _id?: string })._id ??
+        null;
+      setLinkedChannelId(resolvedChannelId ? String(resolvedChannelId) : null);
       if (response.status === ChannelStatus.Verified) {
         setVerifyStatus("success");
         setLastError(null);
