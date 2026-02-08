@@ -7,7 +7,10 @@ import {
   getVerifyResponseErrorMessage,
   useVerifyChannel,
 } from "@/features/channels/hooks/useVerifyChannel";
-import { mapApiErrorToUiAction } from "@/api/errors/mapApiErrorToUiAction";
+import {
+  mapApiErrorToUiAction,
+  type BottomSheetPayload,
+} from "@/api/errors/mapApiErrorToUiAction";
 import ChannelOwnerLinkSheet from "@/components/channels/ChannelOwnerLinkSheet";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { ROUTES } from "@/constants/routes";
@@ -38,6 +41,8 @@ const ChannelPendingVerification = () => {
   const location = useLocation();
   const [inlineError, setInlineError] = useState<string | null>(null);
   const [ownerLinkSheetOpen, setOwnerLinkSheetOpen] = useState(false);
+  const [ownerLinkSheetPayload, setOwnerLinkSheetPayload] =
+    useState<BottomSheetPayload | null>(null);
   const { mutateAsync, isPending } = useVerifyChannel();
 
   const channel = useMemo(() => {
@@ -75,6 +80,7 @@ const ChannelPendingVerification = () => {
     } catch (error) {
       const uiAction = mapApiErrorToUiAction(error);
       if (uiAction.handled && uiAction.action.type === "bottomSheet") {
+        setOwnerLinkSheetPayload(uiAction.action.payload);
         setOwnerLinkSheetOpen(true);
         return;
       }
@@ -195,7 +201,15 @@ const ChannelPendingVerification = () => {
 
       <ChannelOwnerLinkSheet
         open={ownerLinkSheetOpen}
-        onOpenChange={setOwnerLinkSheetOpen}
+        onOpenChange={(open) => {
+          setOwnerLinkSheetOpen(open);
+          if (!open) {
+            setOwnerLinkSheetPayload(null);
+          }
+        }}
+        titleKey={ownerLinkSheetPayload?.titleKey}
+        bodyKey={ownerLinkSheetPayload?.bodyKey}
+        primaryActionKey={ownerLinkSheetPayload?.primaryActionKey}
       />
     </div>
   );
