@@ -33,6 +33,7 @@ const ChannelManageLayout = lazy(
 );
 const ListingsList = lazy(() => import("./pages/channel-manage/ListingsList"));
 const ChannelSettings = lazy(() => import("./pages/channel-manage/ChannelSettings"));
+const ChannelModerators = lazy(() => import("./pages/channel-manage/ChannelModerators"));
 const Splash = lazy(() => import("./pages/Splash"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
@@ -93,6 +94,7 @@ export const AppRoutes = () => {
             <Route path="listings/success" element={<ListingSuccess />} />
             <Route path="listings/:listingId/edit" element={<EditListing />} />
             <Route path="settings" element={<ChannelSettings />} />
+            <Route path="moderators" element={<ChannelModerators />} />
           </Route>
 
           <Route path="*" element={<NotFound />} />

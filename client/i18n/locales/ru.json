@@ -109,6 +109,8 @@
   "channelDetails.moderators.updateSuccess": "Права модератора обновлены.",
   "channelDetails.tabs.listings": "Размещения",
   "channelDetails.tabs.moderators": "Модераторы",
+  "channelModerators.accessDeniedSubtitle": "Управлять модераторами может только владелец канала.",
+  "channelModerators.accessDeniedTitle": "Доступ запрещен",
   "common.add": "Добавить",
   "common.any": "Любой",
   "common.appName": "PostGramX",

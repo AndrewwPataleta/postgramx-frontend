@@ -1,15 +1,18 @@
 import { useState } from "react";
-import { useOutletContext } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import { toast } from "sonner";
 import { updateChannelDisabledStatus } from "@/api/features/channelsApi";
 import type { ChannelManageContext } from "@/pages/channel-manage/ChannelManageLayout";
 import { useLanguage } from "@/i18n/LanguageProvider";
+import { ROUTES } from "@/constants/routes";
 
 const ChannelSettings = () => {
   const { channel } = useOutletContext<ChannelManageContext>();
   const { t } = useLanguage();
+  const navigate = useNavigate();
   const [isDisabled, setIsDisabled] = useState(channel.isDisabled);
   const [isUpdating, setIsUpdating] = useState(false);
+  const isOwner = channel.membership?.role === "OWNER";
 
   const handleToggleDisabled = async () => {
     const nextValue = !isDisabled;
@@ -27,10 +30,16 @@ const ChannelSettings = () => {
 
   return (
     <div className="space-y-2">
-      <button className="w-full glass p-4 rounded-lg flex items-center justify-between hover:bg-card/60 transition-colors text-left">
-        <span className="text-foreground font-medium">{t("channels.settings.manageManagers")}</span>
-        <span className="text-muted-foreground">{t("common.arrowSymbol")}</span>
-      </button>
+      {isOwner ? (
+        <button
+          type="button"
+          onClick={() => navigate(ROUTES.CHANNEL_MANAGE_MODERATORS(channel.id))}
+          className="w-full glass p-4 rounded-lg flex items-center justify-between hover:bg-card/60 transition-colors text-left"
+        >
+          <span className="text-foreground font-medium">{t("channels.settings.manageManagers")}</span>
+          <span className="text-muted-foreground">{t("common.arrowSymbol")}</span>
+        </button>
+      ) : null}
       <div className="glass rounded-lg p-4 space-y-2">
         <button
           type="button"

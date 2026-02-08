@@ -1,9 +1,5 @@
 import { SkeletonCircle, SkeletonLine, SkeletonList, SkeletonRect } from "./Shimmer";
 
-interface ChannelDetailsSkeletonProps {
-  activeTab?: "listings" | "moderators";
-}
-
 const ListingRowSkeleton = () => (
   <div className="rounded-xl border border-border/60 bg-card/70 p-3 space-y-2">
     <div className="flex items-start justify-between gap-3">
@@ -45,7 +41,7 @@ const ChannelDetailsModeratorsSkeleton = ({ count = 6 }: { count?: number }) => 
   <SkeletonList count={count} renderItem={() => <ModeratorRowSkeleton />} />
 );
 
-const ChannelDetailsSkeleton = ({ activeTab = "listings" }: ChannelDetailsSkeletonProps) => (
+const ChannelDetailsSkeleton = () => (
   <div className="space-y-4">
     <div className="rounded-2xl border border-border/60 bg-card/80 p-4">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
@@ -59,25 +55,12 @@ const ChannelDetailsSkeleton = ({ activeTab = "listings" }: ChannelDetailsSkelet
       </div>
     </div>
 
-    <div className="space-y-4">
-      <div className="w-full rounded-2xl bg-card/70 px-2 py-3">
-        <div className="flex gap-4">
-          <SkeletonLine className="h-3 w-20" />
-          <SkeletonLine className="h-3 w-24" />
-        </div>
+    <div className="rounded-2xl border border-border/60 bg-card/80 p-4 space-y-3">
+      <div className="flex items-center justify-between">
+        <SkeletonLine className="h-4 w-40" />
       </div>
 
-      <div className="rounded-2xl border border-border/60 bg-card/80 p-4 space-y-3">
-        <div className="flex items-center justify-between">
-          <SkeletonLine className="h-4 w-40" />
-        </div>
-
-        {activeTab === "moderators" ? (
-          <ChannelDetailsModeratorsSkeleton />
-        ) : (
-          <ChannelDetailsListingsSkeleton />
-        )}
-      </div>
+      <ChannelDetailsListingsSkeleton />
     </div>
   </div>
 );

@@ -25,4 +25,5 @@ export const ROUTES = {
   CHANNEL_MANAGE_LISTINGS_EDIT: (id: string, listingId: string) =>
     `/channel-manage/${id}/listings/${listingId}/edit`,
   CHANNEL_MANAGE_SETTINGS: (id: string) => `/channel-manage/${id}/settings`,
+  CHANNEL_MANAGE_MODERATORS: (id: string) => `/channel-manage/${id}/moderators`,
 } as const;
