@@ -1,6 +1,6 @@
 import { ApiError } from "@/api/core/apiErrors";
 
-type BottomSheetPayload = {
+export type BottomSheetPayload = {
   titleKey: string;
   bodyKey: string;
   primaryActionKey: string;
@@ -14,6 +14,7 @@ export type ApiErrorUiActionResult =
   | { handled: false };
 
 const BOT_FORBIDDEN_MESSAGE_KEY = "channels.errors.bot_forbidden";
+const USER_NOT_CREATOR_MESSAGE_KEY = "channels.errors.user_not_creator";
 
 const readString = (value: unknown): string | undefined => {
   if (typeof value === "string" && value.trim().length > 0) {
@@ -94,6 +95,20 @@ export const mapApiErrorToUiAction = (error: unknown): ApiErrorUiActionResult =>
           titleKey: "channels.ownerLinkSheet.title",
           bodyKey: "channels.ownerLinkSheet.body",
           primaryActionKey: "channels.ownerLinkSheet.primaryAction",
+        },
+      },
+    };
+  }
+
+  if (code === "USER_NOT_CREATOR" || message === USER_NOT_CREATOR_MESSAGE_KEY) {
+    return {
+      handled: true,
+      action: {
+        type: "bottomSheet",
+        payload: {
+          titleKey: "channels.ownerAddSheet.title",
+          bodyKey: "channels.ownerAddSheet.body",
+          primaryActionKey: "channels.ownerAddSheet.primaryAction",
         },
       },
     };

@@ -7,7 +7,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { verifyChannel } from "@/api/features/channelsApi";
-import { mapApiErrorToUiAction } from "@/api/errors/mapApiErrorToUiAction";
+import {
+  mapApiErrorToUiAction,
+  type BottomSheetPayload,
+} from "@/api/errors/mapApiErrorToUiAction";
 import ChannelOwnerLinkSheet from "@/components/channels/ChannelOwnerLinkSheet";
 import { getChannelErrorMessage } from "@/pages/add-channel/errorMapping";
 import { useAddChannelFlow } from "@/pages/add-channel/useAddChannelFlow";
@@ -37,6 +40,8 @@ const AddChannelStep2 = () => {
     setLastError,
   } = useAddChannelFlow();
   const [ownerLinkSheetOpen, setOwnerLinkSheetOpen] = useState(false);
+  const [ownerLinkSheetPayload, setOwnerLinkSheetPayload] =
+    useState<BottomSheetPayload | null>(null);
 
   const preview = state.preview;
 
@@ -83,6 +88,7 @@ const AddChannelStep2 = () => {
     onError: (error) => {
       const uiAction = mapApiErrorToUiAction(error);
       if (uiAction.handled && uiAction.action.type === "bottomSheet") {
+        setOwnerLinkSheetPayload(uiAction.action.payload);
         setOwnerLinkSheetOpen(true);
         return;
       }
@@ -198,7 +204,15 @@ const AddChannelStep2 = () => {
 
       <ChannelOwnerLinkSheet
         open={ownerLinkSheetOpen}
-        onOpenChange={setOwnerLinkSheetOpen}
+        onOpenChange={(open) => {
+          setOwnerLinkSheetOpen(open);
+          if (!open) {
+            setOwnerLinkSheetPayload(null);
+          }
+        }}
+        titleKey={ownerLinkSheetPayload?.titleKey}
+        bodyKey={ownerLinkSheetPayload?.bodyKey}
+        primaryActionKey={ownerLinkSheetPayload?.primaryActionKey}
       />
     </div>
   );

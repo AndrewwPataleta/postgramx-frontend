@@ -8,7 +8,10 @@ import {
   getVerifyResponseErrorMessage,
   useVerifyChannel,
 } from "@/features/channels/hooks/useVerifyChannel";
-import { mapApiErrorToUiAction } from "@/api/errors/mapApiErrorToUiAction";
+import {
+  mapApiErrorToUiAction,
+  type BottomSheetPayload,
+} from "@/api/errors/mapApiErrorToUiAction";
 import { channelDetail } from "@/api/features/channelsApi";
 import ChannelOwnerLinkSheet from "@/components/channels/ChannelOwnerLinkSheet";
 import { PageContainer } from "@/components/layout/PageContainer";
@@ -30,6 +33,8 @@ const ChannelManageLayout = () => {
   const { mutateAsync, isPending } = useVerifyChannel();
   const [inlineError, setInlineError] = useState<string | null>(null);
   const [ownerLinkSheetOpen, setOwnerLinkSheetOpen] = useState(false);
+  const [ownerLinkSheetPayload, setOwnerLinkSheetPayload] =
+    useState<BottomSheetPayload | null>(null);
   const fallbackListItem = useMemo(() => {
     const state = location.state as { channel?: ChannelEntity } | null;
     return state?.channel ?? null;
@@ -114,6 +119,7 @@ const ChannelManageLayout = () => {
     } catch (error) {
       const uiAction = mapApiErrorToUiAction(error);
       if (uiAction.handled && uiAction.action.type === "bottomSheet") {
+        setOwnerLinkSheetPayload(uiAction.action.payload);
         setOwnerLinkSheetOpen(true);
         return;
       }
@@ -215,7 +221,15 @@ const ChannelManageLayout = () => {
 
       <ChannelOwnerLinkSheet
         open={ownerLinkSheetOpen}
-        onOpenChange={setOwnerLinkSheetOpen}
+        onOpenChange={(open) => {
+          setOwnerLinkSheetOpen(open);
+          if (!open) {
+            setOwnerLinkSheetPayload(null);
+          }
+        }}
+        titleKey={ownerLinkSheetPayload?.titleKey}
+        bodyKey={ownerLinkSheetPayload?.bodyKey}
+        primaryActionKey={ownerLinkSheetPayload?.primaryActionKey}
       />
     </div>
   );
