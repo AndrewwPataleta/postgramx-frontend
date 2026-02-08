@@ -58,6 +58,9 @@ export default function CreateListing() {
   const [customTag, setCustomTag] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>(["Must be pre-approved"]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const parsedPrice = Number(priceTon);
+  const isPriceValid = Number.isFinite(parsedPrice) && parsedPrice >= 1;
+  const showPriceError = priceTon.trim() !== "" && !isPriceValid;
   const pinDurationOptions = useMemo(
     () => [
       { label: t("listings.pinDuration.none"), value: "none" },
@@ -100,6 +103,10 @@ export default function CreateListing() {
 
   const handlePublish = async () => {
     if (isSubmitting) {
+      return;
+    }
+    if (!isPriceValid) {
+      toast.error(t("listings.priceMinError"));
       return;
     }
 
@@ -193,6 +200,9 @@ export default function CreateListing() {
               </div>
             </div>
           </div>
+          {showPriceError && (
+            <p className="text-xs text-destructive">{t("listings.priceMinError")}</p>
+          )}
           <div className="flex flex-wrap gap-2">
             {[10, 25, 50].map((value) => (
               <button
@@ -511,7 +521,7 @@ export default function CreateListing() {
           <button
             type="button"
             onClick={handlePublish}
-            disabled={isSubmitting}
+            disabled={isSubmitting || !isPriceValid}
             className="w-full button-primary py-3 text-base font-semibold disabled:opacity-70"
           >
             {isSubmitting ? t("listings.publishing") : t("listings.publishAction")}

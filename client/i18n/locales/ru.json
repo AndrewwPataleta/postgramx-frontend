@@ -439,6 +439,7 @@
   "listings.pricePerPostSubtitle": "Укажите цену за пост в TON.",
   "listings.pricePerPostTitle": "Цена за пост",
   "listings.pricePlaceholder": "Введите цену",
+  "listings.priceMinError": "Минимальная цена — 1 TON.",
   "listings.publishAction": "Опубликовать",
   "listings.publishError": "Не удалось опубликовать размещение.",
   "listings.publishedTitle": "Размещение опубликовано",
