@@ -16,7 +16,6 @@ import { getTelegramWebApp } from "@/lib/telegram";
 import { createQueryClient } from "@/lib/reactQuery/queryClient";
 import { AppRoutes } from "@/routes";
 import { ThemeProvider } from "@/theme/ThemeProvider";
-import { MotionProvider } from "@/motion/MotionProvider";
 
 const NavigationHaptics = () => {
   const location = useLocation();
@@ -47,26 +46,24 @@ const AppRoot = () => {
   return (
     <BrowserRouter>
       <ThemeProvider>
-        <MotionProvider>
-          <TonConnectUIProvider manifestUrl={manifestUrl}>
-            <WalletProvider>
-              <TelegramProvider>
-                <AuthProvider>
-                  <QueryClientProvider client={queryClient}>
-                    <LanguageProvider>
-                      <TooltipProvider>
-                        <Toaster />
-                        <Sonner />
-                        <NavigationHaptics />
-                        <AppRoutes />
-                      </TooltipProvider>
-                    </LanguageProvider>
-                  </QueryClientProvider>
-                </AuthProvider>
-              </TelegramProvider>
-            </WalletProvider>
-          </TonConnectUIProvider>
-        </MotionProvider>
+        <TonConnectUIProvider manifestUrl={manifestUrl}>
+          <WalletProvider>
+            <TelegramProvider>
+              <AuthProvider>
+                <QueryClientProvider client={queryClient}>
+                  <LanguageProvider>
+                    <TooltipProvider>
+                      <Toaster />
+                      <Sonner />
+                      <NavigationHaptics />
+                      <AppRoutes />
+                    </TooltipProvider>
+                  </LanguageProvider>
+                </QueryClientProvider>
+              </AuthProvider>
+            </TelegramProvider>
+          </WalletProvider>
+        </TonConnectUIProvider>
       </ThemeProvider>
     </BrowserRouter>
   );

@@ -5,7 +5,6 @@ import PageLoader from "@/components/PageLoader";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import AppShell from "@/layout/AppShell";
 import { ROUTES } from "@/constants/routes";
-import { PageTransition } from "@/motion/PageTransition";
 
 const Marketplace = lazy(() => import("./pages/Marketplace"));
 const ChannelDetails = lazy(() => import("./pages/ChannelDetails"));
@@ -43,11 +42,7 @@ export const AppRoutes = () => {
       <Routes>
         <Route
           path={ROUTES.SPLASH}
-          element={
-            <PageTransition>
-              <Splash />
-            </PageTransition>
-          }
+          element={<Splash />}
         />
         <Route
           element={

@@ -1,5 +1,4 @@
 import { useMemo, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, Loader2 } from "lucide-react";
 import { useLocation, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -28,8 +27,6 @@ import { getErrorMessage } from "@/lib/api/errors";
 import { toast } from "sonner";
 import { filterListingTags } from "@/features/listings/tagOptions";
 import { AnimatedList, AnimatedListItem } from "@/motion/AnimatedList";
-import { fadeIn, slideInRight } from "@/motion/presets";
-import { useMotionEnabled } from "@/motion/MotionProvider";
 import type {
   ChannelEntity,
   ChannelModeratorItemDto,
@@ -39,7 +36,6 @@ import type {
 } from "@/models/entities";
 
 export default function ChannelDetailsView() {
-  const motionEnabled = useMotionEnabled();
   const { t, language } = useLanguage();
   const { channelId } = useParams<{ channelId: string }>();
   const location = useLocation();
@@ -297,19 +293,12 @@ export default function ChannelDetailsView() {
                 <TabsTrigger value="moderators">{t("channelDetails.tabs.moderators")}</TabsTrigger>
               </TabsList>
 
-              <AnimatePresence mode="wait" initial={false}>
-                {activeTab === "listings" ? (
-                  <TabsContent key="listings" value="listings" forceMount asChild>
-                    <motion.div
-                      variants={motionEnabled ? slideInRight : fadeIn}
-                      initial="hidden"
-                      animate="show"
-                      exit="exit"
-                    >
-                      <div
-                        ref={listingsSectionRef}
-                        className="rounded-2xl border border-border/60 bg-card/80 p-4 space-y-3"
-                      >
+              {activeTab === "listings" ? (
+                <TabsContent key="listings" value="listings">
+                  <div
+                    ref={listingsSectionRef}
+                    className="rounded-2xl border border-border/60 bg-card/80 p-4 space-y-3"
+                  >
                         <div className="flex items-center justify-between">
                           <div>
                             <p className="text-sm font-semibold text-foreground">
@@ -439,20 +428,13 @@ export default function ChannelDetailsView() {
                             </p>
                           </div>
                         )}
-                      </div>
-                    </motion.div>
-                  </TabsContent>
-                ) : null}
+                  </div>
+                </TabsContent>
+              ) : null}
 
-                {activeTab === "moderators" ? (
-                  <TabsContent key="moderators" value="moderators" forceMount asChild>
-                    <motion.div
-                      variants={motionEnabled ? slideInRight : fadeIn}
-                      initial="hidden"
-                      animate="show"
-                      exit="exit"
-                    >
-                      <div className="rounded-2xl border border-border/60 bg-card/80 p-4 space-y-4">
+              {activeTab === "moderators" ? (
+                <TabsContent key="moderators" value="moderators">
+                  <div className="rounded-2xl border border-border/60 bg-card/80 p-4 space-y-4">
                         <p className="text-xs text-muted-foreground">
                           {t("channelDetails.moderators.description")}
                         </p>
@@ -561,11 +543,9 @@ export default function ChannelDetailsView() {
                             </p>
                           </div>
                         )}
-                      </div>
-                    </motion.div>
-                  </TabsContent>
-                ) : null}
-              </AnimatePresence>
+                  </div>
+                </TabsContent>
+              ) : null}
             </Tabs>
           </>
         )}
