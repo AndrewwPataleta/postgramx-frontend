@@ -21,6 +21,9 @@ export interface TelegramWebApp {
     user?: TelegramUser;
   };
   colorScheme?: "light" | "dark";
+  platform?: string;
+  version?: string;
+  isVersionAtLeast?: (version: string) => boolean;
   themeParams?: {
     bg_color?: string;
     text_color?: string;
@@ -160,10 +163,28 @@ export const getTelegramUser = (webApp: TelegramWebApp | null): TelegramUser | n
   return webApp.initDataUnsafe?.user ?? parseUserFromInitData(webApp.initData);
 };
 
+export const isTelegramWebAppConnected = (webApp: TelegramWebApp | null): boolean => {
+  if (!webApp || typeof window === "undefined") {
+    return false;
+  }
+
+  if (window.Telegram?.WebApp !== webApp) {
+    return false;
+  }
+
+  if (typeof webApp.initData === "string" && webApp.initData.length > 0) {
+    return true;
+  }
+
+  return Boolean(webApp.initDataUnsafe && Object.keys(webApp.initDataUnsafe).length > 0);
+};
+
 export const ensureWebAppReady = (webApp: TelegramWebApp) => {
   webApp.ready?.();
   webApp.expand?.();
-  webApp.requestFullscreen?.();
+  if (isTelegramWebAppConnected(webApp)) {
+    webApp.requestFullscreen?.();
+  }
 };
 
 export const setInsetCssVars = (
