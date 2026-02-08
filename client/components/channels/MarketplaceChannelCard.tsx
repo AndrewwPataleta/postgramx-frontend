@@ -92,6 +92,7 @@ export default function MarketplaceChannelCard({ channel }: MarketplaceChannelCa
         channel.tags ??
         Array.from(new Set(listings.flatMap((listing) => filterListingTags(listing.tags)))),
       listingsPreview: hasListings ? listings : null,
+      preview: channel.preview,
       rules,
     }),
     [channel, hasListings, listings, minListingPrice, rules, t]

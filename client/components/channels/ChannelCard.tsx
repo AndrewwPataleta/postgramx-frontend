@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatNumber, formatTon } from "@/i18n/formatters";
@@ -19,6 +19,11 @@ export type ChannelCardModel = {
   currency?: "TON";
   tags?: string[];
   listingsPreview?: ListingEntity[] | null;
+  preview?: {
+    listingCount: number;
+    subsCount: number | null;
+    listingFrom: string | null;
+  };
   isMine?: boolean;
   rules?: {
     allowed: string[];
@@ -147,22 +152,23 @@ export default function ChannelCard({
   const [avatarError, setAvatarError] = useState(false);
   const resolvedExpanded = isExpanded ?? internalExpanded;
   const canExpand = Boolean(onToggleExpand || expandedContent || channel.listingsPreview);
-  const formattedPrice = useMemo(
-    () => (channel.minPriceNano ? formatTon(channel.minPriceNano, language) : null),
-    [channel.minPriceNano, language]
-  );
   const tags = buildTags(filterListingTags(channel.tags ?? []));
   const allowedRules = channel.rules?.allowed ?? [];
   const prohibitedRules = channel.rules?.prohibited ?? [];
   const username = channel.username ? `@${channel.username.replace(/^@/, "")}` : null;
   const avatarFallback = channel.name?.[0]?.toUpperCase() ?? t("common.avatarFallback");
   const avatarSrc = !avatarError && channel.avatarUrl ? channel.avatarUrl : null;
-  const placementsLabel =
-    channel.placementsCount != null ? channel.placementsCount.toString() : t("common.emptyValue");
-  const subscribersLabel =
-    typeof channel.subscribers === "number"
-      ? formatNumber(channel.subscribers, language)
+  const listingsCountLabel =
+    typeof channel.preview?.listingCount === "number"
+      ? formatNumber(channel.preview.listingCount, language)
       : t("common.emptyValue");
+  const subscribersLabel =
+    channel.preview?.subsCount == null
+      ? t("common.emptyValue")
+      : formatNumber(channel.preview.subsCount, language);
+  const listingFromLabel = channel.preview?.listingFrom
+    ? `${channel.preview.listingFrom} ${t("common.ton")}`
+    : t("common.emptyValue");
 
   const handleToggle = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
@@ -210,6 +216,19 @@ export default function ChannelCard({
             <div>
               <h3 className="text-sm font-semibold text-foreground">{channel.name}</h3>
               {username ? <span className="text-xs text-muted-foreground">{username}</span> : null}
+              <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                <span>
+                  {t("channels.preview.listings")}: {listingsCountLabel}
+                </span>
+                <span>·</span>
+                <span>
+                  {t("channels.preview.subscribers")}: {subscribersLabel}
+                </span>
+                <span>·</span>
+                <span>
+                  {t("channels.preview.from")} {listingFromLabel}
+                </span>
+              </div>
             </div>
             <div className="flex items-center gap-2">
               {actions}
@@ -230,23 +249,6 @@ export default function ChannelCard({
                 </button>
               ) : null}
             </div>
-          </div>
-          <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-            <span>
-              {placementsLabel} {t("marketplace.placements")}
-            </span>
-            <span>·</span>
-            <span>
-              {subscribersLabel} {t("marketplace.subscribers")}
-            </span>
-          </div>
-          <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-            <span>
-              {t("common.from")}{" "}
-              <span className="font-semibold price-text">
-                {formattedPrice ?? t("common.emptyValue")} {t("common.ton")}
-              </span>
-            </span>
           </div>
           {tags.visible.length > 0 ? (
             <div className="flex flex-wrap gap-2 text-[11px] text-muted-foreground">
