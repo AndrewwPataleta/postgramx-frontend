@@ -64,6 +64,7 @@ export interface TelegramWebApp {
   ) => void;
   ready?: () => void;
   expand?: () => void;
+  requestFullscreen?: () => void;
   disableVerticalSwipes?: () => void;
   enableVerticalSwipes?: () => void;
 }
@@ -162,6 +163,7 @@ export const getTelegramUser = (webApp: TelegramWebApp | null): TelegramUser | n
 export const ensureWebAppReady = (webApp: TelegramWebApp) => {
   webApp.ready?.();
   webApp.expand?.();
+  webApp.requestFullscreen?.();
 };
 
 export const setInsetCssVars = (
