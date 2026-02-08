@@ -1,4 +1,5 @@
 import { ApiError } from "@/api/core/apiErrors";
+import { translations, type TranslationKey } from "@/i18n/translations";
 
 const CHANNEL_ERROR_MESSAGES: Record<string, string> = {
   CHANNEL_NOT_FOUND: "Channel not found",
@@ -7,6 +8,8 @@ const CHANNEL_ERROR_MESSAGES: Record<string, string> = {
   USER_NOT_ADMIN: "You must be an admin of this channel",
   BOT_NOT_ADMIN: "Please add the bot as an admin",
   BOT_MISSING_RIGHTS: "Bot needs permission to post messages",
+  CHANNEL_ALREADY_LINKED: "channels.errors.channel_already_linked",
+  "channels.errors.channel_already_linked": "channels.errors.channel_already_linked",
 };
 
 const shouldLogChannelErrors =
@@ -17,6 +20,20 @@ const readString = (value: unknown): string | undefined => {
     return value;
   }
   return undefined;
+};
+
+const isTranslationKey = (value: string): value is TranslationKey => value in translations.en;
+
+const resolveMessage = (
+  message: string,
+  fallback: string,
+  translate?: (key: TranslationKey) => string
+) => {
+  if (translate && isTranslationKey(message)) {
+    return translate(message);
+  }
+
+  return message || fallback;
 };
 
 const extractErrorDetails = (error: unknown) => {
@@ -31,7 +48,8 @@ const extractErrorDetails = (error: unknown) => {
 
 export const getChannelErrorMessage = (
   error: unknown,
-  fallback = "Something went wrong. Try again."
+  fallback = "Something went wrong. Try again.",
+  translate?: (key: TranslationKey) => string
 ) => {
   const { apiError, details } = extractErrorDetails(error);
   const detailsRecord = details as Record<string, unknown>;
@@ -66,12 +84,16 @@ export const getChannelErrorMessage = (
   }
 
   if (code && code in CHANNEL_ERROR_MESSAGES) {
-    return CHANNEL_ERROR_MESSAGES[code];
+    return resolveMessage(CHANNEL_ERROR_MESSAGES[code], fallback, translate);
   }
 
   if (message && message in CHANNEL_ERROR_MESSAGES) {
-    return CHANNEL_ERROR_MESSAGES[message];
+    return resolveMessage(CHANNEL_ERROR_MESSAGES[message], fallback, translate);
   }
 
-  return message || fallback;
+  if (message) {
+    return resolveMessage(message, fallback, translate);
+  }
+
+  return fallback;
 };
