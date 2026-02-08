@@ -34,7 +34,8 @@ export type ChannelCardModel = {
 type ChannelCardProps = {
   channel: ChannelCardModel;
   onClick?: () => void;
-  actions?: ReactNode;
+  headerActions?: ReactNode;
+  primaryAction?: ReactNode;
   isExpanded?: boolean;
   onToggleExpand?: () => void;
   expandedContent?: ReactNode;
@@ -142,7 +143,8 @@ const ListingPreview = ({ listings }: { listings: ListingEntity[] }) => {
 export default function ChannelCard({
   channel,
   onClick,
-  actions,
+  headerActions,
+  primaryAction,
   isExpanded,
   onToggleExpand,
   expandedContent,
@@ -169,6 +171,7 @@ export default function ChannelCard({
   const listingFromLabel = channel.preview?.listingFrom
     ? `${channel.preview.listingFrom} ${t("common.ton")}`
     : t("common.emptyValue");
+  const priceLabel = `${t("channels.preview.from")} ${listingFromLabel}`;
 
   const handleToggle = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
@@ -211,45 +214,49 @@ export default function ChannelCard({
             {avatarFallback}
           </div>
         )}
-        <div className="flex-1 space-y-2">
+        <div className="min-w-0 flex-1 space-y-2">
           <div className="flex items-start justify-between gap-3">
-            <div>
-              <h3 className="text-sm font-semibold text-foreground">{channel.name}</h3>
-              {username ? <span className="text-xs text-muted-foreground">{username}</span> : null}
-              <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                <span>
-                  {t("channels.preview.listings")}: {listingsCountLabel}
-                </span>
-                <span>·</span>
-                <span>
-                  {t("channels.preview.subscribers")}: {subscribersLabel}
-                </span>
-                <span>·</span>
-                <span>
-                  {t("channels.preview.from")} {listingFromLabel}
-                </span>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              {actions}
-              {canExpand ? (
-                <button
-                  type="button"
-                  onClick={handleToggle}
-                  aria-expanded={resolvedExpanded}
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border/60 bg-secondary/40 text-muted-foreground transition hover:text-foreground"
-                >
-                  <ChevronDown
-                    size={16}
-                    className={cn(
-                      "transition-transform duration-200",
-                      resolvedExpanded && "rotate-180"
-                    )}
-                  />
-                </button>
+            <div className="min-w-0">
+              <h3 className="truncate text-sm font-semibold text-foreground">{channel.name}</h3>
+              {username ? (
+                <span className="block truncate text-xs text-muted-foreground">{username}</span>
               ) : null}
             </div>
+            <div className="flex shrink-0 items-start gap-2">
+              <span className="inline-flex items-center rounded-full border border-border/60 bg-secondary/30 px-2 py-0.5 text-[11px] font-semibold price-text">
+                {priceLabel}
+              </span>
+              <div className="flex items-center gap-2">
+                {headerActions}
+                {canExpand ? (
+                  <button
+                    type="button"
+                    onClick={handleToggle}
+                    aria-expanded={resolvedExpanded}
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border/60 bg-secondary/40 text-muted-foreground transition hover:text-foreground"
+                  >
+                    <ChevronDown
+                      size={16}
+                      className={cn(
+                        "transition-transform duration-200",
+                        resolvedExpanded && "rotate-180"
+                      )}
+                    />
+                  </button>
+                ) : null}
+              </div>
+            </div>
           </div>
+          <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+            <span>
+              {t("channels.preview.listings")}: {listingsCountLabel}
+            </span>
+            <span>·</span>
+            <span>
+              {t("channels.preview.subscribers")}: {subscribersLabel}
+            </span>
+          </div>
+          {primaryAction ? <div className="pt-1">{primaryAction}</div> : null}
           {tags.visible.length > 0 ? (
             <div className="flex flex-wrap gap-2 text-[11px] text-muted-foreground">
               {tags.visible.map((tag) => (
