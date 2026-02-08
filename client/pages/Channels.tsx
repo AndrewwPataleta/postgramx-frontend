@@ -7,13 +7,13 @@ import ChannelListingsPreview from "@/features/channels/components/ChannelListin
 import { useChannelsList } from "@/features/channels/hooks/useChannelsList";
 import ErrorState from "@/components/feedback/ErrorState";
 import BottomSheet from "@/components/BottomSheet";
-import { Skeleton } from "@/components/ui/skeleton";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { unlinkChannel } from "@/api/features/channelsApi";
 import { getErrorMessage } from "@/lib/api/errors";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { ROUTES } from "@/constants/routes";
+import ChannelsListSkeleton from "@/components/skeletons/ChannelsListSkeleton";
 import type {
   ChannelEntity,
   ListingEntity,
@@ -23,29 +23,6 @@ import { filterListingTags } from "@/features/listings/tagOptions";
 
 const DEFAULT_SORT = "recent";
 const DEFAULT_ORDER = "desc";
-
-const ChannelCardSkeleton = () => (
-  <div className="rounded-2xl border border-border/50 bg-card/80 p-4 shadow-sm">
-    <div className="flex items-start gap-3">
-      <Skeleton className="h-12 w-12 rounded-full" />
-      <div className="flex-1 space-y-2">
-        <Skeleton className="h-4 w-36" />
-        <Skeleton className="h-3 w-24" />
-      </div>
-      <Skeleton className="h-8 w-16 rounded-lg" />
-    </div>
-    <div className="mt-4 grid gap-2 sm:grid-cols-3">
-      <Skeleton className="h-10 w-full rounded-xl" />
-      <Skeleton className="h-10 w-full rounded-xl" />
-      <Skeleton className="h-10 w-full rounded-xl" />
-    </div>
-    <div className="mt-4 flex flex-wrap gap-2">
-      <Skeleton className="h-5 w-20 rounded-full" />
-      <Skeleton className="h-5 w-24 rounded-full" />
-      <Skeleton className="h-5 w-16 rounded-full" />
-    </div>
-  </div>
-);
 
 const getListingSummary = (listings?: ListingEntity[]) => {
   if (!listings) {
@@ -231,12 +208,8 @@ export default function Channels() {
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col">
       <PageContainer className="pt-4 space-y-6">
-        {isLoading ? (
-          <div className="space-y-3">
-            {Array.from({ length: 3 }).map((_, index) => (
-              <ChannelCardSkeleton key={`channel-skeleton-${index}`} />
-            ))}
-          </div>
+        {isLoading && visibleItems.length === 0 ? (
+          <ChannelsListSkeleton />
         ) : error ? (
           <ErrorState
             message={getErrorMessage(error, t("channels.loadError"), t)}

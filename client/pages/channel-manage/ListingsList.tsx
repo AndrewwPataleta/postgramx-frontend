@@ -4,7 +4,7 @@ import { Edit, Plus } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ListingCard } from "@/components/listings/ListingCard";
-import LoadingSkeleton from "@/components/feedback/LoadingSkeleton";
+import ListingsSkeleton from "@/components/skeletons/ListingsSkeleton";
 import { listListingsByChannel } from "@/api/features/listingsApi";
 import { getErrorMessage } from "@/lib/api/errors";
 import type { ChannelManageContext } from "@/pages/channel-manage/ChannelManageLayout";
@@ -48,8 +48,8 @@ const ListingsList = () => {
 
   return (
     <>
-      {listingsQuery.isLoading ? (
-        <LoadingSkeleton items={3} />
+      {listingsQuery.isLoading && listings.length === 0 ? (
+        <ListingsSkeleton count={6} variant="full" />
       ) : hasListings ? (
         <div className="space-y-4">
           <div className="space-y-3">

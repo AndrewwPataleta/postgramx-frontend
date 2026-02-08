@@ -3,7 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { TonConnectButton } from "@tonconnect/ui-react";
 import { toast } from "sonner";
-import { Skeleton } from "@/components/ui/skeleton";
+import ProfileSkeleton from "@/components/skeletons/ProfileSkeleton";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { Input } from "@/components/ui/input";
 import { PageContainer } from "@/components/layout/PageContainer";
@@ -266,43 +266,6 @@ export default function Profile() {
         return "bg-primary/10 text-primary";
     }
   };
-
-  const ProfileSkeleton = () => (
-    <div className="space-y-6">
-      <div className="glass p-5">
-        <div className="flex items-center gap-4">
-          <Skeleton className="h-14 w-14 rounded-full" />
-          <div className="flex-1 space-y-2">
-            <Skeleton className="h-4 w-40" />
-            <Skeleton className="h-3 w-28" />
-            <Skeleton className="h-6 w-36 rounded-full" />
-          </div>
-        </div>
-      </div>
-      <div className="flex gap-6 border-b border-border/60 pb-3">
-        <Skeleton className="h-4 w-20" />
-        <Skeleton className="h-4 w-28" />
-        <Skeleton className="h-4 w-24" />
-      </div>
-      <div className="rounded-[28px] border border-border/40 bg-background/70 shadow-xl overflow-hidden">
-        <div className="px-5 py-4 border-b border-border/40 space-y-2">
-          <Skeleton className="h-4 w-40" />
-          <Skeleton className="h-3 w-52" />
-        </div>
-        <div className="px-5 py-5 space-y-4 pb-8">
-          <div className="grid gap-3 sm:grid-cols-2">
-            <Skeleton className="h-20 w-full rounded-2xl" />
-            <Skeleton className="h-20 w-full rounded-2xl" />
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <Skeleton className="h-16 w-full rounded-2xl" />
-            <Skeleton className="h-16 w-full rounded-2xl" />
-          </div>
-          <Skeleton className="h-8 w-40 rounded-lg" />
-        </div>
-      </div>
-    </div>
-  );
 
   return (
     <div className="w-full max-w-6xl mx-auto">

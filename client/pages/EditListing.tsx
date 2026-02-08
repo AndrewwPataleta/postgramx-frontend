@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ListingPreviewDetails } from "@/components/listings/ListingPreviewDetails";
 import { PageContainer } from "@/components/layout/PageContainer";
+import EditListingSkeleton from "@/components/skeletons/EditListingSkeleton";
 import { listListingsByChannel, updateListing } from "@/api/features/listingsApi";
 import {
   AlertDialog,
@@ -169,11 +170,11 @@ export default function EditListing() {
     24,
   );
 
-  if (!channel || listingsQuery.isLoading) {
+  if (!channel || (listingsQuery.isLoading && !listingsQuery.data)) {
     return (
       <div className="w-full max-w-2xl mx-auto">
         <PageContainer className="py-6">
-          <p className="text-muted-foreground">{t("listings.loading")}</p>
+          <EditListingSkeleton />
         </PageContainer>
       </div>
     );

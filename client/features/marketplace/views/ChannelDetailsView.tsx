@@ -15,7 +15,10 @@ import { PageContainer } from "@/components/layout/PageContainer";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import CircleLoader from "@/components/feedback/CircleLoader";
+import ChannelDetailsSkeleton, {
+  ChannelDetailsListingsSkeleton,
+  ChannelDetailsModeratorsSkeleton,
+} from "@/components/skeletons/ChannelDetailsSkeleton";
 import { useCreateDealMutation } from "@/hooks/use-deals";
 import { formatNumber, formatTon } from "@/i18n/formatters";
 import { getPinnedDurationLabel, getVisibilityDurationLabel } from "@/i18n/labels";
@@ -197,6 +200,11 @@ export default function ChannelDetailsView() {
   };
 
   const channelTags = buildTagList(activeListings.flatMap((listing) => listing.tags ?? []));
+  const isChannelLoading = channelQuery.isLoading && !resolvedChannel;
+  const showListingsSkeleton =
+    listingsQuery.isLoading && shouldFetchListings && formattedListings.length === 0;
+  const showModeratorsSkeleton =
+    moderatorsQuery.isLoading && sortedModerators.length === 0;
 
   const handlePrimaryCta = () => {
     if (!primaryListing) {
@@ -232,6 +240,16 @@ export default function ChannelDetailsView() {
       // Handled by mutation callbacks.
     }
   };
+
+  if (isChannelLoading) {
+    return (
+      <div className="w-full max-w-2xl mx-auto">
+        <PageContainer className="py-6 space-y-4">
+          <ChannelDetailsSkeleton activeTab={activeTab === "moderators" ? "moderators" : "listings"} />
+        </PageContainer>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-2xl mx-auto">
@@ -288,8 +306,8 @@ export default function ChannelDetailsView() {
                     </div>
                   </div>
 
-                  {listingsQuery.isLoading && shouldFetchListings ? (
-                    <CircleLoader items={2} className="py-3" />
+                  {showListingsSkeleton ? (
+                    <ChannelDetailsListingsSkeleton count={4} />
                   ) : listingsQuery.isError ? (
                     <div className="rounded-xl border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">
                       {t("marketplace.listingsLoadFailed")}
@@ -412,8 +430,8 @@ export default function ChannelDetailsView() {
                     {t("channelDetails.moderators.description")}
                   </p>
 
-                  {moderatorsQuery.isLoading ? (
-                    <CircleLoader items={2} className="py-3" />
+                  {showModeratorsSkeleton ? (
+                    <ChannelDetailsModeratorsSkeleton count={4} />
                   ) : moderatorsQuery.isError ? (
                     <div className="rounded-xl border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">
                       {getErrorMessage(

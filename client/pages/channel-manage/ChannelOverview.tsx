@@ -3,7 +3,7 @@ import { Link, useOutletContext } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ListingCard } from "@/components/listings/ListingCard";
-import LoadingSkeleton from "@/components/feedback/LoadingSkeleton";
+import ListingsSkeleton from "@/components/skeletons/ListingsSkeleton";
 import { listListingsByChannel } from "@/api/features/listingsApi";
 import { getErrorMessage } from "@/lib/api/errors";
 import type { ChannelManageContext } from "@/pages/channel-manage/ChannelManageLayout";
@@ -72,8 +72,8 @@ const ChannelOverview = () => {
           </Link>
         </div>
 
-        {listingsQuery.isLoading ? (
-          <LoadingSkeleton items={2} />
+        {listingsQuery.isLoading && listings.length === 0 ? (
+          <ListingsSkeleton count={3} variant="compact" />
         ) : hasListings ? (
           <>
             <div className="space-y-3">

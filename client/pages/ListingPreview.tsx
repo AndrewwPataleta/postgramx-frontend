@@ -3,7 +3,7 @@ import { useOutletContext, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ListingPreviewDetails } from "@/components/listings/ListingPreviewDetails";
-import LoadingSkeleton from "@/components/feedback/LoadingSkeleton";
+import ListingPreviewSkeleton from "@/components/skeletons/ListingPreviewSkeleton";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { listListingsByChannel } from "@/api/features/listingsApi";
 import { getErrorMessage } from "@/lib/api/errors";
@@ -47,8 +47,8 @@ export default function ListingPreview() {
   return (
     <div className="w-full max-w-2xl mx-auto">
       <PageContainer className="py-6 space-y-4">
-        {listingsQuery.isLoading ? (
-          <LoadingSkeleton items={1} />
+        {listingsQuery.isLoading && !listingsQuery.data ? (
+          <ListingPreviewSkeleton />
         ) : listingsQuery.data?.items?.length ? (
           <ListingPreviewDetails
             priceTon={
