@@ -1,7 +1,11 @@
 import { formatTonValue } from "@/i18n/formatters";
 import { formatDuration, getListingFormatLabel } from "@/i18n/labels";
 import { useLanguage } from "@/i18n/LanguageProvider";
-import { filterListingTags, getListingTagLabel } from "@/features/listings/tagOptions";
+import {
+  filterListingTags,
+  getListingTagLabel,
+  listingTagCategories,
+} from "@/features/listings/tagOptions";
 
 interface ListingPreviewDetailsProps {
   priceTon: number;
@@ -49,10 +53,17 @@ export function ListingPreviewDetails({
   const visibilityLabel = formatDuration(visibilityDurationHours, t);
   const pinnedAvailable = pinDurationHours !== null || Boolean(allowPinnedPlacement);
   const filteredTags = filterListingTags(tags);
-  const orderedTags = [
+  const allowedTagValues = new Set(
+    listingTagCategories
+      .find((category) => category.titleKey === "listings.tags.categories.allowed")
+      ?.tags.map((tag) => tag.value) ?? []
+  );
+  const allowedTags = filteredTags.filter((tag) => allowedTagValues.has(tag));
+  const restrictedTags = filteredTags.filter((tag) => !allowedTagValues.has(tag));
+  const orderedRestrictedTags = [
     ...new Set([
-      ...filteredTags.filter((tag) => tag === "Must be pre-approved"),
-      ...filteredTags.filter((tag) => tag !== "Must be pre-approved"),
+      ...restrictedTags.filter((tag) => tag === "Must be pre-approved"),
+      ...restrictedTags.filter((tag) => tag !== "Must be pre-approved"),
     ]),
   ];
   const priceLabel = formatTonValue(priceTon, language);
@@ -111,6 +122,16 @@ export function ListingPreviewDetails({
               ? t("listings.pinnedPlacementAvailable")
               : t("listings.noPinnedPlacement")}
           </span>
+          {allowedTags.length ? (
+            allowedTags.map((tag) => (
+              <span
+                key={`allowed-${tag}`}
+                className="rounded-full bg-secondary/60 px-3 py-1 text-foreground"
+              >
+                {getListingTagLabel(tag, t)}
+              </span>
+            ))
+          ) : null}
         </div>
       </section>
 
@@ -124,8 +145,8 @@ export function ListingPreviewDetails({
           </p>
         </div>
         <div className="flex flex-wrap gap-2 text-[11px]">
-          {orderedTags.length ? (
-            orderedTags.map((tag) => {
+          {orderedRestrictedTags.length ? (
+            orderedRestrictedTags.map((tag) => {
               const isLocked = tag === "Must be pre-approved";
               return (
                 <span
