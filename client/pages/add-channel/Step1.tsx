@@ -36,7 +36,7 @@ const AddChannelStep1 = () => {
       navigate(ROUTES.ADD_CHANNEL_STEP("step-2"));
     },
     onError: (error) => {
-      const message = getChannelErrorMessage(error);
+      const message = getChannelErrorMessage(error, t("errors.genericTitle"), t);
       setInlineError(message);
       setLastError(message);
       toast.error(message);

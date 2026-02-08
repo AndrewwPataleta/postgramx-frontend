@@ -92,7 +92,7 @@ const AddChannelStep2 = () => {
         setOwnerLinkSheetOpen(true);
         return;
       }
-      const message = getChannelErrorMessage(error);
+      const message = getChannelErrorMessage(error, t("errors.genericTitle"), t);
       setVerifyStatus("error");
       setLastError(message);
       toast.error(message);
