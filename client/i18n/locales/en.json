@@ -109,6 +109,8 @@
   "channelDetails.moderators.updateSuccess": "Moderator permissions updated.",
   "channelDetails.tabs.listings": "Listings",
   "channelDetails.tabs.moderators": "Moderators",
+  "channelModerators.accessDeniedSubtitle": "Only the channel owner can manage moderators.",
+  "channelModerators.accessDeniedTitle": "Access denied",
   "common.add": "Add",
   "common.any": "Any",
   "common.appName": "PostGramX",
