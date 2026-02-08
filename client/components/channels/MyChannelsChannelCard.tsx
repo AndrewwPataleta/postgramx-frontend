@@ -58,30 +58,30 @@ export default function MyChannelsChannelCard({
       isExpanded={isExpanded}
       onToggleExpand={onToggleExpand}
       expandedContent={expandedContent}
-      actions={
-        <div className="flex items-center gap-2">
-          {onUnlink ? (
-            <button
-              type="button"
-              onClick={(event) => {
-                event.stopPropagation();
-                onUnlink();
-              }}
-              className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border/60 bg-background/70 text-muted-foreground transition hover:text-foreground"
-              aria-label={t("channels.unlinkAction")}
-            >
-              {t("common.closeSymbol")}
-            </button>
-          ) : null}
-          <Link
-            to={createListingTo}
-            state={createListingState}
-            onClick={(event) => event.stopPropagation()}
-            className="rounded-lg bg-primary px-3 py-1.5 text-[11px] font-semibold text-primary-foreground"
+      headerActions={
+        onUnlink ? (
+          <button
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation();
+              onUnlink();
+            }}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border/60 bg-background/70 text-muted-foreground transition hover:text-foreground"
+            aria-label={t("channels.unlinkAction")}
           >
-            {t("listings.createAction")}
-          </Link>
-        </div>
+            {t("common.closeSymbol")}
+          </button>
+        ) : null
+      }
+      primaryAction={
+        <Link
+          to={createListingTo}
+          state={createListingState}
+          onClick={(event) => event.stopPropagation()}
+          className="block w-full rounded-lg bg-primary px-3 py-2 text-center text-[11px] font-semibold leading-snug text-primary-foreground"
+        >
+          {t("listings.createAction")}
+        </Link>
       }
     />
   );
