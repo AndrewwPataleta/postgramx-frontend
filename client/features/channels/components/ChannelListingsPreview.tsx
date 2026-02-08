@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2, PencilLine, RefreshCcw } from "lucide-react";
 import { listListingsByChannel } from "@/api/features/listingsApi";
-import CircleLoader from "@/components/feedback/CircleLoader";
+import { SkeletonLine, SkeletonList, SkeletonRect } from "@/components/skeletons/Shimmer";
 import { getErrorMessage } from "@/lib/api/errors";
 import { cn } from "@/lib/utils";
 import { formatTon } from "@/i18n/formatters";
@@ -186,10 +186,29 @@ const ChannelListingsPreview = memo(
       }
     };
 
+    const showSkeleton = query.isLoading && items.length === 0;
+
     return (
       <div className="space-y-3">
-        {query.isLoading ? (
-          <CircleLoader items={2} className="py-3" />
+        {showSkeleton ? (
+          <SkeletonList
+            count={2}
+            renderItem={() => (
+              <div className="rounded-xl border border-border/60 bg-background/60 px-3 py-4 space-y-2">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="space-y-2">
+                    <SkeletonLine className="h-3 w-24" />
+                    <SkeletonLine className="h-3 w-32" />
+                  </div>
+                  <SkeletonRect className="h-8 w-20 rounded-lg" />
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <SkeletonRect className="h-4 w-16 rounded-full" />
+                  <SkeletonRect className="h-4 w-20 rounded-full" />
+                </div>
+              </div>
+            )}
+          />
         ) : query.isError ? (
           <div className="rounded-xl border border-destructive/40 bg-destructive/5 px-4 py-3 text-xs text-destructive">
             <p>{getErrorMessage(query.error, t("marketplace.listingsLoadFailed"), t)}</p>

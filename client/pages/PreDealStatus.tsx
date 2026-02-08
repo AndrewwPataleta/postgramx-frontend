@@ -9,7 +9,7 @@ import {
 } from "@/api/features/predealsApi";
 import ErrorState from "@/components/feedback/ErrorState";
 import { PageContainer } from "@/components/layout/PageContainer";
-import CircleLoader from "@/components/feedback/CircleLoader";
+import PreDealStatusSkeleton from "@/components/skeletons/PreDealStatusSkeleton";
 import { getErrorMessage } from "@/lib/api/errors";
 import { formatStatusLabel } from "@/lib/formatting";
 import { openTelegramLink } from "@/lib/telegramLinks";
@@ -131,11 +131,11 @@ export default function PreDealStatus() {
     );
   }
 
-  if (predealQuery.isLoading) {
+  if (predealQuery.isLoading && !predealQuery.data) {
     return (
       <div className="w-full max-w-2xl mx-auto">
         <PageContainer className="py-6">
-          <CircleLoader items={3} className="py-6" />
+          <PreDealStatusSkeleton />
         </PageContainer>
       </div>
     );

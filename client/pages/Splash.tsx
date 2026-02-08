@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import { SkeletonLine } from "@/components/skeletons/Shimmer";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { listMarketplaceChannels, listMyChannels } from "@/api/features/channelsApi";
 import { listDeals } from "@/api/features/dealsApi";
@@ -201,7 +202,7 @@ const Splash = () => {
 
         {!isMissingTelegram && !isAuthError ? (
           <div className="flex items-center gap-3 text-xs text-muted-foreground">
-            <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary/40 border-t-primary" />
+            <SkeletonLine className="h-3 w-20" />
             <span>{isLoading ? "Authorizing session…" : "Preparing session…"}</span>
           </div>
         ) : null}

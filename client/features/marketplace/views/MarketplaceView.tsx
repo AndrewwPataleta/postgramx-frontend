@@ -3,7 +3,8 @@ import { Search, SlidersHorizontal } from "lucide-react";
 import MarketplaceChannelCard from "@/components/channels/MarketplaceChannelCard";
 import { ActiveFiltersChips } from "@/components/ActiveFiltersChips";
 import { FilterModal } from "@/components/FilterModal";
-import CircleLoader from "@/components/feedback/CircleLoader";
+import MarketplaceListSkeleton from "@/components/skeletons/MarketplaceListSkeleton";
+import { SkeletonLine } from "@/components/skeletons/Shimmer";
 import ErrorState from "@/components/feedback/ErrorState";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { useMarketplaceViewModel } from "@/features/marketplace/viewmodels/useMarketplaceViewModel";
@@ -64,13 +65,13 @@ export default function MarketplaceView() {
         </div>
 
         <div className="space-y-3">
-          {state.isLoading
-            ? (
-              <CircleLoader items={5} className="py-4" />
-            )
-            : computed.channels.map((channel) => (
-                <MarketplaceChannelCard key={channel.id} channel={channel} />
-              ))}
+          {state.isLoading && computed.channels.length === 0 ? (
+            <MarketplaceListSkeleton />
+          ) : (
+            computed.channels.map((channel) => (
+              <MarketplaceChannelCard key={channel.id} channel={channel} />
+            ))
+          )}
 
           {!state.isLoading && state.error && computed.channels.length === 0 ? (
             <ErrorState
@@ -104,7 +105,7 @@ export default function MarketplaceView() {
               {computed.hasMore ? (
                 <div ref={loadMoreRef} className="flex w-full justify-center py-2">
                   {state.isLoadingMore ? (
-                    <CircleLoader items={1} size={24} />
+                    <SkeletonLine className="h-3 w-24" />
                   ) : (
                     <span className="text-xs text-muted-foreground">
                       {t("common.loadingMore")}

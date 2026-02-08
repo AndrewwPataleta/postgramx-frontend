@@ -5,7 +5,7 @@ import DealHeaderCard from "@/components/deals/DealHeaderCard";
 import StageTimeline from "@/components/deals/StageTimeline";
 import { getDealDetail, listDeals } from "@/api/features/dealsApi";
 import { toast } from "sonner";
-import LoadingSkeleton from "@/components/feedback/LoadingSkeleton";
+import DealDetailsSkeleton from "@/components/skeletons/DealDetailsSkeleton";
 import ErrorState from "@/components/feedback/ErrorState";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { getErrorMessage } from "@/lib/api/errors";
@@ -80,7 +80,7 @@ export default function DealDetails() {
     return allDeals.find((entry) => entry.id === dealId) ?? null;
   }, [dealId, fallbackListQuery.data]);
 
-  const resolvedDeal = deal
+  const resolvedDeal = deal ?? fallbackDeal;
 
   useEffect(() => {
     if (error || fallbackListQuery.error) {
@@ -167,8 +167,8 @@ export default function DealDetails() {
   return (
     <div className="w-full max-w-2xl mx-auto">
       <PageContainer className="py-6 space-y-4">
-        {isLoading ? (
-          <LoadingSkeleton items={3} />
+        {isLoading && !resolvedDeal ? (
+          <DealDetailsSkeleton />
         ) : error || fallbackListQuery.error || !resolvedDeal ? (
           <ErrorState
             message={getErrorMessage(error ?? fallbackListQuery.error, t("deals.detailNotFound"), t)}
