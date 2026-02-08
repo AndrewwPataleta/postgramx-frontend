@@ -10,6 +10,7 @@ import { getErrorMessage } from "@/lib/api/errors";
 import type { ChannelManageContext } from "@/pages/channel-manage/ChannelManageLayout";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { ROUTES } from "@/constants/routes";
+import { AnimatedList, AnimatedListItem } from "@/motion/AnimatedList";
 
 const ListingsList = () => {
   const { channel } = useOutletContext<ChannelManageContext>();
@@ -52,25 +53,26 @@ const ListingsList = () => {
         <ListingsSkeleton count={6} variant="full" />
       ) : hasListings ? (
         <div className="space-y-4">
-          <div className="space-y-3">
-            {listings.map((listing) => (
-              <ListingCard
-                key={listing.id}
-                listing={listing}
-                variant="full"
-                actionSlot={
-                  <Link
-                    to={ROUTES.CHANNEL_MANAGE_LISTINGS_EDIT(channelId, listing.id)}
-                    state={rootBackTo ? { rootBackTo } : undefined}
-                    className="flex-1 flex items-center justify-center gap-2 bg-secondary hover:bg-secondary/80 text-foreground font-medium py-2 rounded-lg border border-border transition-colors text-sm"
-                  >
-                    <Edit size={16} />
-                    {t("listings.editAction")}
-                  </Link>
-                }
-              />
+          <AnimatedList itemsCount={listings.length} className="space-y-3">
+            {listings.map((listing, index) => (
+              <AnimatedListItem key={listing.id} index={index} pulseKey={listing.isActive}>
+                <ListingCard
+                  listing={listing}
+                  variant="full"
+                  actionSlot={
+                    <Link
+                      to={ROUTES.CHANNEL_MANAGE_LISTINGS_EDIT(channelId, listing.id)}
+                      state={rootBackTo ? { rootBackTo } : undefined}
+                      className="flex-1 flex items-center justify-center gap-2 bg-secondary hover:bg-secondary/80 text-foreground font-medium py-2 rounded-lg border border-border transition-colors text-sm"
+                    >
+                      <Edit size={16} />
+                      {t("listings.editAction")}
+                    </Link>
+                  }
+                />
+              </AnimatedListItem>
             ))}
-          </div>
+          </AnimatedList>
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span>
               {t("common.pageOf", { page, total: totalPages })}

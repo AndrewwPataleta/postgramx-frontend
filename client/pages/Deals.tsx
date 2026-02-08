@@ -13,6 +13,7 @@ import { ROUTES } from "@/constants/routes";
 import type { DealEntity, Paged } from "@/models/entities";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useLanguage } from "@/i18n/LanguageProvider";
+import { AnimatedList, AnimatedListItem } from "@/motion/AnimatedList";
 
 const DEFAULT_LIMIT = 5;
 
@@ -230,13 +231,21 @@ export default function Deals() {
             ) : (
               <div className="space-y-5">
                 {buyerDeals.length > 0 ? (
-                  <div className="space-y-3">
-                    <div className="space-y-3">
-                      {buyerDeals.map((deal) => (
-                        <DealListCard key={deal.id} deal={deal} onSelect={handleSelectDeal} />
-                      ))}
-                    </div>
-                  </div>
+                  <AnimatedList
+                    key={`buyer-${activeTab}`}
+                    itemsCount={buyerDeals.length}
+                    className="space-y-3"
+                  >
+                    {buyerDeals.map((deal, index) => (
+                      <AnimatedListItem
+                        key={deal.id}
+                        index={index}
+                        pulseKey={deal.status}
+                      >
+                        <DealListCard deal={deal} onSelect={handleSelectDeal} />
+                      </AnimatedListItem>
+                    ))}
+                  </AnimatedList>
                 ) : null}
 
                 {buyerDeals.length > 0 && sellerDeals.length > 0 ? (
@@ -244,13 +253,21 @@ export default function Deals() {
                 ) : null}
 
                 {sellerDeals.length > 0 ? (
-                  <div className="space-y-3">
-                    <div className="space-y-3">
-                      {sellerDeals.map((deal) => (
-                        <DealListCard key={deal.id} deal={deal} onSelect={handleSelectDeal} />
-                      ))}
-                    </div>
-                  </div>
+                  <AnimatedList
+                    key={`seller-${activeTab}`}
+                    itemsCount={sellerDeals.length}
+                    className="space-y-3"
+                  >
+                    {sellerDeals.map((deal, index) => (
+                      <AnimatedListItem
+                        key={deal.id}
+                        index={index}
+                        pulseKey={deal.status}
+                      >
+                        <DealListCard deal={deal} onSelect={handleSelectDeal} />
+                      </AnimatedListItem>
+                    ))}
+                  </AnimatedList>
                 ) : null}
 
                 {hasMore ? (

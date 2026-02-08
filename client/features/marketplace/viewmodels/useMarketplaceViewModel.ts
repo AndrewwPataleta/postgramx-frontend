@@ -144,6 +144,7 @@ export const useMarketplaceViewModel = () => {
       searchQuery,
       isFilterOpen,
       filters,
+      filtersKey,
       isLoading: isLoadingInitial,
       isLoadingMore,
       error: query.error,

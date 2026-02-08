@@ -9,6 +9,7 @@ import ErrorState from "@/components/feedback/ErrorState";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { useMarketplaceViewModel } from "@/features/marketplace/viewmodels/useMarketplaceViewModel";
 import { useLanguage } from "@/i18n/LanguageProvider";
+import { AnimatedList, AnimatedListItem } from "@/motion/AnimatedList";
 
 export default function MarketplaceView() {
   const { t } = useLanguage();
@@ -67,11 +68,23 @@ export default function MarketplaceView() {
         <div className="space-y-3">
           {state.isLoading && computed.channels.length === 0 ? (
             <MarketplaceListSkeleton />
-          ) : (
-            computed.channels.map((channel) => (
-              <MarketplaceChannelCard key={channel.id} channel={channel} />
-            ))
-          )}
+          ) : computed.channels.length > 0 ? (
+            <AnimatedList
+              key={state.filtersKey}
+              itemsCount={computed.channels.length}
+              className="space-y-3"
+            >
+              {computed.channels.map((channel, index) => (
+                <AnimatedListItem
+                  key={channel.id}
+                  index={index}
+                  pulseKey={channel.verified}
+                >
+                  <MarketplaceChannelCard channel={channel} />
+                </AnimatedListItem>
+              ))}
+            </AnimatedList>
+          ) : null}
 
           {!state.isLoading && state.error && computed.channels.length === 0 ? (
             <ErrorState

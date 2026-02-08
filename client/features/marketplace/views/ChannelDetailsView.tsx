@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, Loader2 } from "lucide-react";
 import { useLocation, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -26,6 +27,9 @@ import { useLanguage } from "@/i18n/LanguageProvider";
 import { getErrorMessage } from "@/lib/api/errors";
 import { toast } from "sonner";
 import { filterListingTags } from "@/features/listings/tagOptions";
+import { AnimatedList, AnimatedListItem } from "@/motion/AnimatedList";
+import { fadeIn, slideInRight } from "@/motion/presets";
+import { useMotionEnabled } from "@/motion/MotionProvider";
 import type {
   ChannelEntity,
   ChannelModeratorItemDto,
@@ -35,6 +39,7 @@ import type {
 } from "@/models/entities";
 
 export default function ChannelDetailsView() {
+  const motionEnabled = useMotionEnabled();
   const { t, language } = useLanguage();
   const { channelId } = useParams<{ channelId: string }>();
   const location = useLocation();
@@ -292,241 +297,275 @@ export default function ChannelDetailsView() {
                 <TabsTrigger value="moderators">{t("channelDetails.tabs.moderators")}</TabsTrigger>
               </TabsList>
 
-              <TabsContent value="listings">
-                <div
-                  ref={listingsSectionRef}
-                  className="rounded-2xl border border-border/60 bg-card/80 p-4 space-y-3"
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-semibold text-foreground">
-                        {t("marketplace.availablePlacements")}
-                      </p>
-
-                    </div>
-                  </div>
-
-                  {showListingsSkeleton ? (
-                    <ChannelDetailsListingsSkeleton count={4} />
-                  ) : listingsQuery.isError ? (
-                    <div className="rounded-xl border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">
-                      {t("marketplace.listingsLoadFailed")}
-                    </div>
-                  ) : formattedListings.length > 0 ? (
-                    <div className="space-y-3">
-                      {formattedListings.map((listing) => {
-                        const isListingSubmitting = isSubmitting && activeListingId === listing.id;
-                        const isExpanded = expandedListingIds.includes(listing.id);
-                        const tagList = buildListingTagList(listing.tags);
-                        const metaParts = [
-                          listing.pinDurationHours
-                            ? getPinnedDurationLabel(t, listing.pinDurationHours)
-                            : null,
-                          listing.visibilityDurationHours
-                            ? getVisibilityDurationLabel(t, listing.visibilityDurationHours)
-                            : null,
-                        ].filter(Boolean);
-                        const metaLabel = metaParts.join(" • ");
-                        return (
-                          <div
-                            key={listing.id}
-                            className="rounded-xl border border-border/60 bg-card/70 p-3 space-y-2"
-                          >
-                            <div className="flex items-start justify-between gap-3">
-                              <div className="space-y-1">
-                                <p className="text-sm font-semibold price-text">
-                                  {listing.priceTon}
-                                </p>
-                                {metaLabel ? (
-                                  <p className="text-[11px] text-muted-foreground">{metaLabel}</p>
-                                ) : null}
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <button
-                                  type="button"
-                                  onClick={() => handleCreateDeal(listing.id)}
-                                  disabled={isSubmitting}
-                                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground disabled:opacity-60"
-                                >
-                                  {isListingSubmitting ? (
-                                    <Loader2 size={14} className="animate-spin" />
-                                  ) : null}
-                                  {t("common.select")}
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => toggleListingExpanded(listing.id)}
-                                  aria-expanded={isExpanded}
-                                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-border/60 bg-background/70 text-muted-foreground transition hover:text-foreground"
-                                >
-                                  <ChevronDown
-                                    size={16}
-                                    className={`transition-transform ${isExpanded ? "rotate-180" : ""}`}
-                                  />
-                                </button>
-                              </div>
-                            </div>
-                            {!isExpanded && tagList.visible.length > 0 ? (
-                              <div className="flex flex-wrap gap-2 text-[11px] text-muted-foreground">
-                                {tagList.visible.map((tag) => (
-                                  <span
-                                    key={`${listing.id}-${tag}`}
-                                    className="rounded-full border border-border/60 bg-card px-2 py-0.5 text-foreground"
-                                  >
-                                    {tag}
-                                  </span>
-                                ))}
-                                {tagList.hiddenCount > 0 ? (
-                                  <span className="rounded-full border border-border/60 bg-card px-2 py-0.5">
-                                    +{tagList.hiddenCount}
-                                  </span>
-                                ) : null}
-                              </div>
-                            ) : null}
-                            {isExpanded ? (
-                              <div className="space-y-2 text-[11px] text-muted-foreground">
-                                {filterListingTags(listing.tags).length > 0 ? (
-                                  <div className="flex flex-wrap gap-2 text-[11px] text-foreground">
-                                    {filterListingTags(listing.tags).map((tag) => (
-                                      <span
-                                        key={`${listing.id}-expanded-${tag}`}
-                                        className="rounded-full border border-border/60 bg-card px-2 py-0.5"
-                                      >
-                                        {tag}
-                                      </span>
-                                    ))}
-                                  </div>
-                                ) : null}
-                                {listing.contentRulesText ? (
-                                  <div>
-                                    <p className="text-[11px] font-semibold text-muted-foreground">
-                                      {t("listings.rules")}
-                                    </p>
-                                    <p className="line-clamp-3">{listing.contentRulesText}</p>
-                                  </div>
-                                ) : null}
-                              </div>
-                            ) : null}
+              <AnimatePresence mode="wait" initial={false}>
+                {activeTab === "listings" ? (
+                  <TabsContent key="listings" value="listings" forceMount asChild>
+                    <motion.div
+                      variants={motionEnabled ? slideInRight : fadeIn}
+                      initial="hidden"
+                      animate="show"
+                      exit="exit"
+                    >
+                      <div
+                        ref={listingsSectionRef}
+                        className="rounded-2xl border border-border/60 bg-card/80 p-4 space-y-3"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm font-semibold text-foreground">
+                              {t("marketplace.availablePlacements")}
+                            </p>
                           </div>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <div className="rounded-2xl border border-border/60 bg-card/80 p-6 text-center">
-                      <p className="text-sm font-semibold text-foreground">
-                        {t("marketplace.emptyListingsTitle")}
-                      </p>
-                      <p className="mt-2 text-xs text-muted-foreground">
-                        {t("marketplace.emptyListingsSubtitle")}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </TabsContent>
+                        </div>
 
-              <TabsContent value="moderators">
-                <div className="rounded-2xl border border-border/60 bg-card/80 p-4 space-y-4">
-                  <p className="text-xs text-muted-foreground">
-                    {t("channelDetails.moderators.description")}
-                  </p>
-
-                  {showModeratorsSkeleton ? (
-                    <ChannelDetailsModeratorsSkeleton count={4} />
-                  ) : moderatorsQuery.isError ? (
-                    <div className="rounded-xl border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">
-                      {getErrorMessage(
-                        moderatorsQuery.error,
-                        t("channelDetails.moderators.loadError"),
-                        t
-                      )}
-                    </div>
-                  ) : sortedModerators.length > 0 ? (
-                    <div className="space-y-3">
-                      {sortedModerators.map((item) => {
-                        const isOwner = channelOwnerId === item.userId;
-                        const isInactive = !item.isActive || item.isManuallyDisabled;
-                        const canManage = Boolean(currentUserId && channelOwnerId === currentUserId);
-                        const shouldShowSwitch = isOwner || canManage;
-                        const isPending = pendingModeratorId === item.userId;
-                        const isToggleDisabled =
-                          isOwner || isInactive || !canManage || isPending || reviewToggleMutation.isPending;
-                        const roleLabel = isOwner
-                          ? t("channelDetails.moderators.roleOwner")
-                          : t("channelDetails.moderators.roleModerator");
-                        const reviewEnabled = isOwner ? true : item.canReviewDeals;
-                        return (
-                          <div
-                            key={item.userId}
-                            className="flex flex-col gap-3 rounded-xl border border-border/60 bg-card/70 p-3 sm:flex-row sm:items-center sm:justify-between"
-                          >
-                            <div className="flex items-center gap-3 min-w-0">
-                              <Avatar className="h-10 w-10">
-                                {item.avatar ? (
-                                  <AvatarImage src={item.avatar} alt={item.displayName} />
-                                ) : null}
-                                <AvatarFallback className="bg-secondary/60 text-xs font-semibold text-muted-foreground">
-                                  {getInitials(item.displayName)}
-                                </AvatarFallback>
-                              </Avatar>
-                              <div className="min-w-0 space-y-1">
-                                <div className="flex flex-wrap items-center gap-2">
-                                  <p className="text-sm font-semibold text-foreground truncate">
-                                    {item.displayName}
-                                  </p>
-                                  <span className="rounded-full border border-border/60 bg-background px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
-                                    {roleLabel}
-                                  </span>
-                                  {isInactive ? (
-                                    <span className="rounded-full border border-warning/40 bg-warning/10 px-2 py-0.5 text-[10px] font-semibold text-warning">
-                                      {t("channelDetails.moderators.inactive")}
-                                    </span>
-                                  ) : null}
-                                </div>
-                                {item.username ? (
-                                  <p className="text-xs text-muted-foreground">@{item.username}</p>
-                                ) : null}
-                              </div>
-                            </div>
-
-                            <div className="flex flex-col items-start gap-2 sm:items-end">
-                              <p className="text-[11px] text-muted-foreground">
-                                {t("channelDetails.moderators.canReviewDeals")}
-                              </p>
-                              {shouldShowSwitch ? (
-                                <div className="flex items-center gap-2">
-                                  <span className="text-xs font-semibold text-foreground">
-                                    {reviewEnabled ? t("common.on") : t("common.off")}
-                                  </span>
-                                  <Switch
-                                    checked={reviewEnabled}
-                                    disabled={isToggleDisabled}
-                                    onCheckedChange={(checked) =>
-                                      handleToggleReview(item, checked)
-                                    }
-                                  />
-                                </div>
-                              ) : (
-                                <span className="rounded-full border border-border/60 bg-background px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
-                                  {reviewEnabled ? t("common.on") : t("common.off")}
-                                </span>
-                              )}
-                            </div>
+                        {showListingsSkeleton ? (
+                          <ChannelDetailsListingsSkeleton count={4} />
+                        ) : listingsQuery.isError ? (
+                          <div className="rounded-xl border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">
+                            {t("marketplace.listingsLoadFailed")}
                           </div>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <div className="rounded-2xl border border-dashed border-border/60 bg-card/70 p-6 text-center">
-                      <p className="text-sm font-semibold text-foreground">
-                        {t("channelDetails.moderators.emptyTitle")}
-                      </p>
-                      <p className="mt-2 text-xs text-muted-foreground">
-                        {t("channelDetails.moderators.emptySubtitle")}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </TabsContent>
+                        ) : formattedListings.length > 0 ? (
+                          <AnimatedList itemsCount={formattedListings.length} className="space-y-3">
+                            {formattedListings.map((listing, index) => {
+                              const isListingSubmitting =
+                                isSubmitting && activeListingId === listing.id;
+                              const isExpanded = expandedListingIds.includes(listing.id);
+                              const tagList = buildListingTagList(listing.tags);
+                              const metaParts = [
+                                listing.pinDurationHours
+                                  ? getPinnedDurationLabel(t, listing.pinDurationHours)
+                                  : null,
+                                listing.visibilityDurationHours
+                                  ? getVisibilityDurationLabel(t, listing.visibilityDurationHours)
+                                  : null,
+                              ].filter(Boolean);
+                              const metaLabel = metaParts.join(" • ");
+                              return (
+                                <AnimatedListItem
+                                  key={listing.id}
+                                  index={index}
+                                  pulseKey={listing.updatedAt}
+                                >
+                                  <div className="rounded-xl border border-border/60 bg-card/70 p-3 space-y-2">
+                                    <div className="flex items-start justify-between gap-3">
+                                      <div className="space-y-1">
+                                        <p className="text-sm font-semibold price-text">
+                                          {listing.priceTon}
+                                        </p>
+                                        {metaLabel ? (
+                                          <p className="text-[11px] text-muted-foreground">
+                                            {metaLabel}
+                                          </p>
+                                        ) : null}
+                                      </div>
+                                      <div className="flex items-center gap-2">
+                                        <button
+                                          type="button"
+                                          onClick={() => handleCreateDeal(listing.id)}
+                                          disabled={isSubmitting}
+                                          className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground disabled:opacity-60"
+                                        >
+                                          {isListingSubmitting ? (
+                                            <Loader2 size={14} className="animate-spin" />
+                                          ) : null}
+                                          {t("common.select")}
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => toggleListingExpanded(listing.id)}
+                                          aria-expanded={isExpanded}
+                                          className="flex h-8 w-8 items-center justify-center rounded-lg border border-border/60 bg-background/70 text-muted-foreground transition hover:text-foreground"
+                                        >
+                                          <ChevronDown
+                                            size={16}
+                                            className={`transition-transform ${isExpanded ? "rotate-180" : ""}`}
+                                          />
+                                        </button>
+                                      </div>
+                                    </div>
+                                    {!isExpanded && tagList.visible.length > 0 ? (
+                                      <div className="flex flex-wrap gap-2 text-[11px] text-muted-foreground">
+                                        {tagList.visible.map((tag) => (
+                                          <span
+                                            key={`${listing.id}-${tag}`}
+                                            className="rounded-full border border-border/60 bg-card px-2 py-0.5 text-foreground"
+                                          >
+                                            {tag}
+                                          </span>
+                                        ))}
+                                        {tagList.hiddenCount > 0 ? (
+                                          <span className="rounded-full border border-border/60 bg-card px-2 py-0.5">
+                                            +{tagList.hiddenCount}
+                                          </span>
+                                        ) : null}
+                                      </div>
+                                    ) : null}
+                                    {isExpanded ? (
+                                      <div className="space-y-2 text-[11px] text-muted-foreground">
+                                        {filterListingTags(listing.tags).length > 0 ? (
+                                          <div className="flex flex-wrap gap-2 text-[11px] text-foreground">
+                                            {filterListingTags(listing.tags).map((tag) => (
+                                              <span
+                                                key={`${listing.id}-expanded-${tag}`}
+                                                className="rounded-full border border-border/60 bg-card px-2 py-0.5"
+                                              >
+                                                {tag}
+                                              </span>
+                                            ))}
+                                          </div>
+                                        ) : null}
+                                        {listing.contentRulesText ? (
+                                          <div>
+                                            <p className="text-[11px] font-semibold text-muted-foreground">
+                                              {t("listings.rules")}
+                                            </p>
+                                            <p className="line-clamp-3">{listing.contentRulesText}</p>
+                                          </div>
+                                        ) : null}
+                                      </div>
+                                    ) : null}
+                                  </div>
+                                </AnimatedListItem>
+                              );
+                            })}
+                          </AnimatedList>
+                        ) : (
+                          <div className="rounded-2xl border border-border/60 bg-card/80 p-6 text-center">
+                            <p className="text-sm font-semibold text-foreground">
+                              {t("marketplace.emptyListingsTitle")}
+                            </p>
+                            <p className="mt-2 text-xs text-muted-foreground">
+                              {t("marketplace.emptyListingsSubtitle")}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
+                  </TabsContent>
+                ) : null}
+
+                {activeTab === "moderators" ? (
+                  <TabsContent key="moderators" value="moderators" forceMount asChild>
+                    <motion.div
+                      variants={motionEnabled ? slideInRight : fadeIn}
+                      initial="hidden"
+                      animate="show"
+                      exit="exit"
+                    >
+                      <div className="rounded-2xl border border-border/60 bg-card/80 p-4 space-y-4">
+                        <p className="text-xs text-muted-foreground">
+                          {t("channelDetails.moderators.description")}
+                        </p>
+
+                        {showModeratorsSkeleton ? (
+                          <ChannelDetailsModeratorsSkeleton count={4} />
+                        ) : moderatorsQuery.isError ? (
+                          <div className="rounded-xl border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">
+                            {getErrorMessage(
+                              moderatorsQuery.error,
+                              t("channelDetails.moderators.loadError"),
+                              t
+                            )}
+                          </div>
+                        ) : sortedModerators.length > 0 ? (
+                          <AnimatedList itemsCount={sortedModerators.length} className="space-y-3">
+                            {sortedModerators.map((item, index) => {
+                              const isOwner = channelOwnerId === item.userId;
+                              const isInactive = !item.isActive || item.isManuallyDisabled;
+                              const canManage = Boolean(
+                                currentUserId && channelOwnerId === currentUserId
+                              );
+                              const shouldShowSwitch = isOwner || canManage;
+                              const isPending = pendingModeratorId === item.userId;
+                              const isToggleDisabled =
+                                isOwner ||
+                                isInactive ||
+                                !canManage ||
+                                isPending ||
+                                reviewToggleMutation.isPending;
+                              const roleLabel = isOwner
+                                ? t("channelDetails.moderators.roleOwner")
+                                : t("channelDetails.moderators.roleModerator");
+                              const reviewEnabled = isOwner ? true : item.canReviewDeals;
+                              return (
+                                <AnimatedListItem
+                                  key={item.userId}
+                                  index={index}
+                                  pulseKey={`${item.isActive}-${item.canReviewDeals}`}
+                                >
+                                  <div className="flex flex-col gap-3 rounded-xl border border-border/60 bg-card/70 p-3 sm:flex-row sm:items-center sm:justify-between">
+                                    <div className="flex items-center gap-3 min-w-0">
+                                      <Avatar className="h-10 w-10">
+                                        {item.avatar ? (
+                                          <AvatarImage src={item.avatar} alt={item.displayName} />
+                                        ) : null}
+                                        <AvatarFallback className="bg-secondary/60 text-xs font-semibold text-muted-foreground">
+                                          {getInitials(item.displayName)}
+                                        </AvatarFallback>
+                                      </Avatar>
+                                      <div className="min-w-0 space-y-1">
+                                        <div className="flex flex-wrap items-center gap-2">
+                                          <p className="text-sm font-semibold text-foreground truncate">
+                                            {item.displayName}
+                                          </p>
+                                          <span className="rounded-full border border-border/60 bg-background px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
+                                            {roleLabel}
+                                          </span>
+                                          {isInactive ? (
+                                            <span className="rounded-full border border-warning/40 bg-warning/10 px-2 py-0.5 text-[10px] font-semibold text-warning">
+                                              {t("channelDetails.moderators.inactive")}
+                                            </span>
+                                          ) : null}
+                                        </div>
+                                        {item.username ? (
+                                          <p className="text-xs text-muted-foreground">@{item.username}</p>
+                                        ) : null}
+                                      </div>
+                                    </div>
+
+                                    <div className="flex flex-col items-start gap-2 sm:items-end">
+                                      <p className="text-[11px] text-muted-foreground">
+                                        {t("channelDetails.moderators.canReviewDeals")}
+                                      </p>
+                                      {shouldShowSwitch ? (
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-xs font-semibold text-foreground">
+                                            {reviewEnabled ? t("common.on") : t("common.off")}
+                                          </span>
+                                          <Switch
+                                            checked={reviewEnabled}
+                                            disabled={isToggleDisabled}
+                                            onCheckedChange={(checked) =>
+                                              handleToggleReview(item, checked)
+                                            }
+                                          />
+                                        </div>
+                                      ) : (
+                                        <span className="rounded-full border border-border/60 bg-background px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
+                                          {reviewEnabled ? t("common.on") : t("common.off")}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                </AnimatedListItem>
+                              );
+                            })}
+                          </AnimatedList>
+                        ) : (
+                          <div className="rounded-2xl border border-dashed border-border/60 bg-card/70 p-6 text-center">
+                            <p className="text-sm font-semibold text-foreground">
+                              {t("channelDetails.moderators.emptyTitle")}
+                            </p>
+                            <p className="mt-2 text-xs text-muted-foreground">
+                              {t("channelDetails.moderators.emptySubtitle")}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
+                  </TabsContent>
+                ) : null}
+              </AnimatePresence>
             </Tabs>
           </>
         )}

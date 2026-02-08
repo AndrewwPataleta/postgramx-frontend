@@ -14,6 +14,7 @@ import { useLanguage } from "@/i18n/LanguageProvider";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { ROUTES } from "@/constants/routes";
 import ChannelsListSkeleton from "@/components/skeletons/ChannelsListSkeleton";
+import { AnimatedList, AnimatedListItem } from "@/motion/AnimatedList";
 import type {
   ChannelEntity,
   ListingEntity,
@@ -256,8 +257,12 @@ export default function Channels() {
               ))}
             </div>
             {tabbedChannels.length > 0 ? (
-              <div className="space-y-3">
-                {tabbedChannels.map((channel) => {
+              <AnimatedList
+                key={activeTab}
+                itemsCount={tabbedChannels.length}
+                className="space-y-3"
+              >
+                {tabbedChannels.map((channel, index) => {
                   const isExpanded = expandedChannelIds.has(channel.id);
                   const canExpand = channel.status === ChannelStatus.Verified;
                   const listingSummary = getListingSummary(channel.listings);
@@ -269,45 +274,50 @@ export default function Channels() {
                   const tags = getAggregatedTags(channel.listings);
                   const rules = buildRulesSummary(channel.listings, t);
                   return (
-                    <MyChannelsChannelCard
+                    <AnimatedListItem
                       key={channel.id}
-                      channel={channel}
-                      placementsCount={placementsCount}
-                      minPriceNano={minPriceNano}
-                      tags={tags}
-                      rules={rules}
-                      onClick={() => handleChannelClick(channel)}
-                      onUnlink={
-                        activeTab === "moderator"
-                          ? () => {
-                              setUnlinkTarget(channel);
-                            }
-                          : undefined
-                      }
-                      isExpanded={isExpanded}
-                      onToggleExpand={
-                        canExpand ? () => handleToggleExpand(channel.id) : undefined
-                      }
-                      expandedContent={
-                        canExpand ? (
-                          <ChannelListingsPreview
-                            channelId={channel.id}
-                            isExpanded={isExpanded}
-                            onSummaryChange={(summary) => {
-                              setListingSummaries((prev) => ({
-                                ...prev,
-                                [channel.id]: summary,
-                              }));
-                            }}
-                          />
-                        ) : null
-                      }
-                      createListingTo={ROUTES.CHANNEL_MANAGE_LISTINGS_CREATE(channel.id)}
-                      createListingState={{ channel, rootBackTo: ROUTES.CHANNELS }}
-                    />
+                      index={index}
+                      pulseKey={channel.status}
+                    >
+                      <MyChannelsChannelCard
+                        channel={channel}
+                        placementsCount={placementsCount}
+                        minPriceNano={minPriceNano}
+                        tags={tags}
+                        rules={rules}
+                        onClick={() => handleChannelClick(channel)}
+                        onUnlink={
+                          activeTab === "moderator"
+                            ? () => {
+                                setUnlinkTarget(channel);
+                              }
+                            : undefined
+                        }
+                        isExpanded={isExpanded}
+                        onToggleExpand={
+                          canExpand ? () => handleToggleExpand(channel.id) : undefined
+                        }
+                        expandedContent={
+                          canExpand ? (
+                            <ChannelListingsPreview
+                              channelId={channel.id}
+                              isExpanded={isExpanded}
+                              onSummaryChange={(summary) => {
+                                setListingSummaries((prev) => ({
+                                  ...prev,
+                                  [channel.id]: summary,
+                                }));
+                              }}
+                            />
+                          ) : null
+                        }
+                        createListingTo={ROUTES.CHANNEL_MANAGE_LISTINGS_CREATE(channel.id)}
+                        createListingState={{ channel, rootBackTo: ROUTES.CHANNELS }}
+                      />
+                    </AnimatedListItem>
                   );
                 })}
-              </div>
+              </AnimatedList>
             ) : (
               <p className="rounded-xl border border-dashed border-border/60 bg-card/70 px-4 py-3 text-xs text-muted-foreground">
                 {emptyCopy}

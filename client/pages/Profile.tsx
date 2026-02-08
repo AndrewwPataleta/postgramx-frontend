@@ -18,8 +18,9 @@ import { useTheme } from "@/theme/ThemeProvider";
 import BottomSheet from "@/components/BottomSheet";
 import { formatTonFromNano, parseTonToNano } from "@/lib/ton";
 import { useBalanceOverview } from "@/hooks/useBalanceOverview";
-import { useTransactions } from "@/hooks/useTransactions";
+import { buildTransactionsFiltersHash, useTransactions } from "@/hooks/useTransactions";
 import { requestPayout } from "@/api/paymentsBalanceApi";
+import { AnimatedList, AnimatedListItem } from "@/motion/AnimatedList";
 
 type ProfileUser = {
   firstName?: string | null;
@@ -71,6 +72,7 @@ export default function Profile() {
 
   const balanceOverviewQuery = useBalanceOverview();
   const transactionsQuery = useTransactions(transactionFilters);
+  const transactionsFiltersKey = buildTransactionsFiltersHash(transactionFilters);
   const isProfileLoading =
     balanceOverviewQuery.isLoading &&
     transactionsQuery.isLoading &&
@@ -482,8 +484,12 @@ export default function Profile() {
                       {t("profile.transactionsEmpty")}
                     </p>
                   ) : (
-                    <div className="space-y-3">
-                      {transactions.map((item) => {
+                    <AnimatedList
+                      key={transactionsFiltersKey}
+                      itemsCount={transactions.length}
+                      className="space-y-3"
+                    >
+                      {transactions.map((item, index) => {
                         const amountLabel = formatTon(item.amountNano, language);
                         const typeLabel =
                           formatLabel(item.typeLabel) ?? t(`transactions.type.${item.type}`);
@@ -498,36 +504,39 @@ export default function Profile() {
                           item.description ??
                           t("profile.transactionNoDescription");
                         return (
-                          <div
+                          <AnimatedListItem
                             key={item.id}
-                            className="glass p-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
+                            index={index}
+                            pulseKey={item.status}
                           >
-                            <div>
-                              <p className="text-sm font-semibold text-foreground">{typeLabel}</p>
-                              <p className="text-xs text-muted-foreground">{descriptionLabel}</p>
-                              <p className="text-[11px] text-muted-foreground">{statusLabel}</p>
-                            </div>
-                            <div className="text-right flex flex-col items-end gap-1">
-                              <div className="flex items-center gap-2">
-                                <p className="text-sm font-semibold price-text">
-                                  {amountLabel} {item.currency ?? t("common.ton")}
-                                </p>
-                                <span
-                                  className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${directionBadgeStyle(
-                                    item.direction
-                                  )}`}
-                                >
-                                  {directionLabel}
-                                </span>
+                            <div className="glass p-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                              <div>
+                                <p className="text-sm font-semibold text-foreground">{typeLabel}</p>
+                                <p className="text-xs text-muted-foreground">{descriptionLabel}</p>
+                                <p className="text-[11px] text-muted-foreground">{statusLabel}</p>
                               </div>
-                              <p className="text-[11px] text-muted-foreground">
-                                {formatDateTime(item.createdAt, language)}
-                              </p>
+                              <div className="text-right flex flex-col items-end gap-1">
+                                <div className="flex items-center gap-2">
+                                  <p className="text-sm font-semibold price-text">
+                                    {amountLabel} {item.currency ?? t("common.ton")}
+                                  </p>
+                                  <span
+                                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${directionBadgeStyle(
+                                      item.direction
+                                    )}`}
+                                  >
+                                    {directionLabel}
+                                  </span>
+                                </div>
+                                <p className="text-[11px] text-muted-foreground">
+                                  {formatDateTime(item.createdAt, language)}
+                                </p>
+                              </div>
                             </div>
-                          </div>
+                          </AnimatedListItem>
                         );
                       })}
-                    </div>
+                    </AnimatedList>
                   )}
                   {transactionHasNext ? (
                     <button
