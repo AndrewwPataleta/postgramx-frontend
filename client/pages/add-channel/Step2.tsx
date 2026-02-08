@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
@@ -7,6 +7,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { verifyChannel } from "@/api/features/channelsApi";
+import { mapApiErrorToUiAction } from "@/api/errors/mapApiErrorToUiAction";
+import ChannelOwnerLinkSheet from "@/components/channels/ChannelOwnerLinkSheet";
 import { getChannelErrorMessage } from "@/pages/add-channel/errorMapping";
 import { useAddChannelFlow } from "@/pages/add-channel/useAddChannelFlow";
 import { formatNumber } from "@/i18n/formatters";
@@ -34,6 +36,7 @@ const AddChannelStep2 = () => {
     setVerifyStatus,
     setLastError,
   } = useAddChannelFlow();
+  const [ownerLinkSheetOpen, setOwnerLinkSheetOpen] = useState(false);
 
   const preview = state.preview;
 
@@ -78,6 +81,11 @@ const AddChannelStep2 = () => {
       toast.error(t("channels.add.step2.verifyError"));
     },
     onError: (error) => {
+      const uiAction = mapApiErrorToUiAction(error);
+      if (uiAction.handled && uiAction.action.type === "bottomSheet") {
+        setOwnerLinkSheetOpen(true);
+        return;
+      }
       const message = getChannelErrorMessage(error);
       setVerifyStatus("error");
       setLastError(message);
@@ -187,6 +195,11 @@ const AddChannelStep2 = () => {
           {t("common.back")}
         </Button>
       </div>
+
+      <ChannelOwnerLinkSheet
+        open={ownerLinkSheetOpen}
+        onOpenChange={setOwnerLinkSheetOpen}
+      />
     </div>
   );
 };

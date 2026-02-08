@@ -8,7 +8,9 @@ import {
   getVerifyResponseErrorMessage,
   useVerifyChannel,
 } from "@/features/channels/hooks/useVerifyChannel";
+import { mapApiErrorToUiAction } from "@/api/errors/mapApiErrorToUiAction";
 import { channelDetail } from "@/api/features/channelsApi";
+import ChannelOwnerLinkSheet from "@/components/channels/ChannelOwnerLinkSheet";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { formatNumber } from "@/i18n/formatters";
 import { useLanguage } from "@/i18n/LanguageProvider";
@@ -27,6 +29,7 @@ const ChannelManageLayout = () => {
   const { t, language } = useLanguage();
   const { mutateAsync, isPending } = useVerifyChannel();
   const [inlineError, setInlineError] = useState<string | null>(null);
+  const [ownerLinkSheetOpen, setOwnerLinkSheetOpen] = useState(false);
   const fallbackListItem = useMemo(() => {
     const state = location.state as { channel?: ChannelEntity } | null;
     return state?.channel ?? null;
@@ -109,6 +112,11 @@ const ChannelManageLayout = () => {
       );
       setInlineError(message);
     } catch (error) {
+      const uiAction = mapApiErrorToUiAction(error);
+      if (uiAction.handled && uiAction.action.type === "bottomSheet") {
+        setOwnerLinkSheetOpen(true);
+        return;
+      }
       const message = getVerifyErrorMessage(
         error,
         t("channels.verifyUnavailable")
@@ -204,6 +212,11 @@ const ChannelManageLayout = () => {
         <Outlet context={outletContext} />
       </div>
       </PageContainer>
+
+      <ChannelOwnerLinkSheet
+        open={ownerLinkSheetOpen}
+        onOpenChange={setOwnerLinkSheetOpen}
+      />
     </div>
   );
 };

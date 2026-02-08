@@ -7,6 +7,8 @@ import {
   getVerifyResponseErrorMessage,
   useVerifyChannel,
 } from "@/features/channels/hooks/useVerifyChannel";
+import { mapApiErrorToUiAction } from "@/api/errors/mapApiErrorToUiAction";
+import ChannelOwnerLinkSheet from "@/components/channels/ChannelOwnerLinkSheet";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { ROUTES } from "@/constants/routes";
 import type { ChannelEntity } from "@/models/entities";
@@ -35,6 +37,7 @@ const ChannelPendingVerification = () => {
   const { id } = useParams<{ id: string }>();
   const location = useLocation();
   const [inlineError, setInlineError] = useState<string | null>(null);
+  const [ownerLinkSheetOpen, setOwnerLinkSheetOpen] = useState(false);
   const { mutateAsync, isPending } = useVerifyChannel();
 
   const channel = useMemo(() => {
@@ -70,6 +73,11 @@ const ChannelPendingVerification = () => {
       );
       setInlineError(message);
     } catch (error) {
+      const uiAction = mapApiErrorToUiAction(error);
+      if (uiAction.handled && uiAction.action.type === "bottomSheet") {
+        setOwnerLinkSheetOpen(true);
+        return;
+      }
       const message = getVerifyErrorMessage(
         error,
         t("channels.pending.verifyUnavailable"),
@@ -184,6 +192,11 @@ const ChannelPendingVerification = () => {
           </button>
         </div>
       </PageContainer>
+
+      <ChannelOwnerLinkSheet
+        open={ownerLinkSheetOpen}
+        onOpenChange={setOwnerLinkSheetOpen}
+      />
     </div>
   );
 };
