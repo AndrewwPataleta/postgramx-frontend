@@ -44,6 +44,7 @@ export default function MyChannelsChannelCard({
       placementsCount: placementsCount ?? null,
       minPriceNano: minPriceNano ?? null,
       tags: tags ?? [],
+      preview: channel.preview,
       isMine: true,
       rules: rules ?? null,
     }),

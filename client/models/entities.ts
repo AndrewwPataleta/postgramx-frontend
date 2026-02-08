@@ -120,6 +120,11 @@ export type MarketplaceChannelSummary = {
   listings?: ListingEntity[] | null;
   subscribersCount?: number | null;
   memberCount?: number | null;
+  preview?: {
+    listingCount: number;
+    subsCount: number | null;
+    listingFrom: string | null;
+  };
 };
 
 export type ChannelEntity = {
@@ -139,6 +144,11 @@ export type ChannelEntity = {
   createdAt: string;
   updatedAt: string;
   listings?: ListingEntity[];
+  preview?: {
+    listingCount: number;
+    subsCount: number | null;
+    listingFrom: string | null;
+  };
   membership?: {
     role?: string | null;
     telegramAdminStatus?: string | null;
