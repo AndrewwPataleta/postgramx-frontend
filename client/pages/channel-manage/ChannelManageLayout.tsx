@@ -78,6 +78,7 @@ const ChannelManageLayout = () => {
   }, [detailQuery.data, fallbackChannel, id]);
 
   const isPendingVerification = channel?.status === ChannelStatus.PendingVerify;
+  const isOwner = channel?.membership?.role === "OWNER";
   if (!channel) {
     return (
       <div className="w-full max-w-2xl mx-auto">
@@ -190,6 +191,7 @@ const ChannelManageLayout = () => {
         <div className="flex gap-6">
           {[
             { id: "listings", label: t("listings.title") },
+            ...(isOwner ? [{ id: "moderators", label: t("channelDetails.tabs.moderators") }] : []),
             { id: "settings", label: t("channels.settingsTitle") },
           ].map((tab) => (
             <NavLink
