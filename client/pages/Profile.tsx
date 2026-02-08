@@ -363,10 +363,6 @@ export default function Profile() {
                         </div>
                       </div>
                       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                        <p className="text-xs text-muted-foreground">
-                          {t("profile.lastUpdated")} {""}
-                          {formatDateTime(balanceOverview?.lastUpdatedAt, language)}
-                        </p>
                         {connectedWalletAddress ? (
                           <button
                             type="button"

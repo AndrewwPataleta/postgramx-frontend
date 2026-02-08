@@ -165,14 +165,6 @@ export function ListingPreviewDetails({
             <span className="text-muted-foreground">{t("listings.tagsEmpty")}</span>
           )}
         </div>
-        <div className="rounded-xl border border-border/60 bg-card px-3 py-2 text-xs">
-          <p className="text-[11px] font-semibold text-muted-foreground">
-            {t("listings.rules")}
-          </p>
-          <p className="mt-1 text-sm text-foreground">
-            {restrictionRulesText || t("common.emptyValue")}
-          </p>
-        </div>
         {requiresApproval ? (
           <span className="inline-flex w-fit rounded-full bg-primary/15 px-3 py-1 text-[11px] font-semibold text-primary">
             {t("listings.preApprovalRequired")}
