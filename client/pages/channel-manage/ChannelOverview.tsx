@@ -9,6 +9,7 @@ import { getErrorMessage } from "@/lib/api/errors";
 import type { ChannelManageContext } from "@/pages/channel-manage/ChannelManageLayout";
 import { ROUTES } from "@/constants/routes";
 import { useLanguage } from "@/i18n/LanguageProvider";
+import { AnimatedList, AnimatedListItem } from "@/motion/AnimatedList";
 
 const ChannelOverview = () => {
   const { channel } = useOutletContext<ChannelManageContext>();
@@ -75,13 +76,13 @@ const ChannelOverview = () => {
         {listingsQuery.isLoading && listings.length === 0 ? (
           <ListingsSkeleton count={3} variant="compact" />
         ) : hasListings ? (
-          <>
-            <div className="space-y-3">
-              {listings.map((listing) => (
-                <ListingCard key={listing.id} listing={listing} variant="compact" />
-              ))}
-            </div>
-          </>
+          <AnimatedList itemsCount={listings.length} className="space-y-3">
+            {listings.map((listing, index) => (
+              <AnimatedListItem key={listing.id} index={index} pulseKey={listing.isActive}>
+                <ListingCard listing={listing} variant="compact" />
+              </AnimatedListItem>
+            ))}
+          </AnimatedList>
         ) : (
           <div className="rounded-xl border border-border/60 bg-card/60 p-4 text-center">
             <p className="text-sm font-semibold text-foreground">{t("listings.emptyTitle")}</p>

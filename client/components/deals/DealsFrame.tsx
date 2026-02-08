@@ -1,5 +1,6 @@
 import DealCard, { type DealCardData } from "./DealCard";
 import { useLanguage } from "@/i18n/LanguageProvider";
+import { AnimatedList, AnimatedListItem } from "@/motion/AnimatedList";
 
 interface DealsFrameProps {
   title: string;
@@ -51,11 +52,13 @@ export default function DealsFrame({ title, deals, quickFilters }: DealsFramePro
         ))}
       </div>
 
-      <div className="mt-5 space-y-4">
-        {deals.map((deal) => (
-          <DealCard key={deal.id} {...deal} />
+      <AnimatedList itemsCount={deals.length} className="mt-5 space-y-4">
+        {deals.map((deal, index) => (
+          <AnimatedListItem key={deal.id} index={index} pulseKey={deal.statusLabel}>
+            <DealCard {...deal} />
+          </AnimatedListItem>
         ))}
-      </div>
+      </AnimatedList>
     </div>
   );
 }

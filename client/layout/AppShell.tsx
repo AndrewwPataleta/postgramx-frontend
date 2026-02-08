@@ -4,6 +4,7 @@ import { Store, TrendingUp, User, Zap } from "lucide-react";
 import TopToolbar from "@/components/TopToolbar";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { ROUTES } from "@/constants/routes";
+import { AnimatedPresenceRouter } from "@/motion/AnimatedPresenceRouter";
 
 const mainNavPaths = [ROUTES.MARKETPLACE, ROUTES.DEALS, ROUTES.CHANNELS, ROUTES.PROFILE];
 
@@ -117,7 +118,9 @@ const AppShell = () => {
     <div className="flex h-full flex-col bg-background" style={shellStyle}>
       {isAddChannelRoute ? null : <TopToolbar />}
       <main className="flex-1 overflow-y-auto touch-pan-y" ref={mainRef} style={contentStyle}>
-        <Outlet />
+        <AnimatedPresenceRouter>
+          <Outlet />
+        </AnimatedPresenceRouter>
       </main>
 
       <nav
