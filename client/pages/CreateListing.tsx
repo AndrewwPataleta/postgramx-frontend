@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState, type ChangeEvent } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Info } from "lucide-react";
 import { useLocation, useNavigate, useOutletContext, useParams } from "react-router-dom";
@@ -49,6 +49,7 @@ export default function CreateListing() {
   const queryClient = useQueryClient();
   const rootBackTo = (location.state as { rootBackTo?: string } | null)?.rootBackTo;
   const [priceTon, setPriceTon] = useState("25");
+  const priceInputRef = useRef<HTMLInputElement | null>(null);
   const [pinDurationChoice, setPinDurationChoice] = useState("none");
   const [pinCustomHours, setPinCustomHours] = useState("");
   const [visibilityDurationChoice, setVisibilityDurationChoice] = useState("24");
@@ -61,6 +62,23 @@ export default function CreateListing() {
   const parsedPrice = Number(priceTon);
   const isPriceValid = Number.isFinite(parsedPrice) && parsedPrice >= 1;
   const showPriceError = priceTon.trim() !== "" && !isPriceValid;
+
+  const handlePriceChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const nextValue = event.target.value.replace(",", ".");
+    if (!/^[0-9]*\.?[0-9]*$/.test(nextValue)) {
+      return;
+    }
+    setPriceTon(nextValue);
+  };
+
+  const handlePriceFocus = () => {
+    const input = priceInputRef.current;
+    if (!input) {
+      return;
+    }
+    const length = input.value.length;
+    input.setSelectionRange(length, length);
+  };
   const pinDurationOptions = useMemo(
     () => [
       { label: t("listings.pinDuration.none"), value: "none" },
@@ -179,9 +197,12 @@ export default function CreateListing() {
           </div>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             <input
-              type="number"
+              ref={priceInputRef}
+              type="text"
+              inputMode="decimal"
               value={priceTon}
-              onChange={(event) => setPriceTon(event.target.value)}
+              onChange={handlePriceChange}
+              onFocus={handlePriceFocus}
               placeholder={t("listings.pricePlaceholder")}
               className="w-full rounded-xl border border-border/60 bg-card px-3 py-3 text-sm text-foreground sm:flex-1"
             />
