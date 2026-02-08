@@ -439,6 +439,7 @@
   "listings.pricePerPostSubtitle": "Set the price per post in TON.",
   "listings.pricePerPostTitle": "Price per post",
   "listings.pricePlaceholder": "Enter price",
+  "listings.priceMinError": "Minimum price is 1 TON.",
   "listings.publishAction": "Publish listing",
   "listings.publishError": "Failed to publish listing.",
   "listings.publishedTitle": "Listing published",

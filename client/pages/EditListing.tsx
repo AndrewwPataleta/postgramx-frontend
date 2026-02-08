@@ -121,6 +121,9 @@ export default function EditListing() {
   const [selectedTags, setSelectedTags] = useState<string[]>(["Must be pre-approved"]);
   const [showVisibilityWarning, setShowVisibilityWarning] = useState(false);
   const [hasInitialized, setHasInitialized] = useState(false);
+  const parsedPrice = Number(priceTon);
+  const isPriceValid = Number.isFinite(parsedPrice) && parsedPrice >= 1;
+  const showPriceError = priceTon.trim() !== "" && !isPriceValid;
 
   useEffect(() => {
     if (!listing || hasInitialized) {
@@ -191,6 +194,10 @@ export default function EditListing() {
   }
 
   const applySave = async () => {
+    if (!isPriceValid) {
+      toast.error(t("listings.priceMinError"));
+      return;
+    }
     const ensuredTags = selectedTags.includes("Must be pre-approved")
       ? selectedTags
       : [...selectedTags, "Must be pre-approved"];
@@ -280,6 +287,9 @@ export default function EditListing() {
             placeholder={t("listings.pricePlaceholder")}
             className="w-full rounded-xl border border-border/60 bg-card px-3 py-3 text-sm text-foreground"
           />
+          {showPriceError && (
+            <p className="text-xs text-destructive">{t("listings.priceMinError")}</p>
+          )}
         </section>
 
         <section className="space-y-3">
@@ -586,7 +596,8 @@ export default function EditListing() {
           <button
             type="button"
             onClick={handleSave}
-            className="w-full button-primary py-3 text-base font-semibold"
+            disabled={!isPriceValid}
+            className="w-full button-primary py-3 text-base font-semibold disabled:opacity-70"
           >
             {t("listings.saveChanges")}
           </button>
