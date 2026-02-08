@@ -156,19 +156,26 @@ export default function Channels() {
   }, [error, t]);
 
   const currentUserId = (user as { id?: string } | null)?.id ?? null;
+  const isOwnerChannel = useCallback(
+    (channel: ChannelEntity) =>
+      channel.membership?.role === "OWNER" ||
+      channel.membership?.telegramAdminStatus === "creator" ||
+      (currentUserId ? channel.createdByUserId === currentUserId : false),
+    [currentUserId],
+  );
   const ownerChannels = useMemo(
     () =>
       visibleItems.filter((channel) =>
-        !currentUserId || channel.createdByUserId === currentUserId
+        currentUserId ? isOwnerChannel(channel) : false
       ),
-    [visibleItems, currentUserId],
+    [visibleItems, currentUserId, isOwnerChannel],
   );
   const moderatorChannels = useMemo(
     () =>
       visibleItems.filter((channel) =>
-        currentUserId ? channel.createdByUserId !== currentUserId : false
+        currentUserId ? !isOwnerChannel(channel) : false
       ),
-    [visibleItems, currentUserId],
+    [visibleItems, currentUserId, isOwnerChannel],
   );
   const tabbedChannels = activeTab === "owner" ? ownerChannels : moderatorChannels;
   const emptyCopy =
