@@ -9,6 +9,7 @@ import { PageContainer } from "@/components/layout/PageContainer";
 import ChannelDetailsSkeleton, {
   ChannelDetailsListingsSkeleton,
 } from "@/components/skeletons/ChannelDetailsSkeleton";
+import ChannelAnalyticsCard from "@/components/channels/ChannelAnalyticsCard";
 import { useCreateDealMutation } from "@/hooks/use-deals";
 import { formatNumber, formatTon } from "@/i18n/formatters";
 import { getPinnedDurationLabel, getVisibilityDurationLabel } from "@/i18n/labels";
@@ -193,6 +194,8 @@ export default function ChannelDetailsView() {
                 </div>
               </div>
             </div>
+
+            <ChannelAnalyticsCard />
 
             <div
               ref={listingsSectionRef}
