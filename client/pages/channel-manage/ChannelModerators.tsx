@@ -186,8 +186,8 @@ const ChannelModerators = () => {
                   index={index}
                   pulseKey={`${item.isActive}-${item.canReviewDeals}`}
                 >
-                  <div className="flex flex-col gap-3 rounded-xl border border-border/60 bg-card/70 p-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="flex items-center gap-3 min-w-0">
+                  <div className="flex items-center justify-between gap-3 rounded-xl border border-border/60 bg-card/70 p-3">
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
                       <Avatar className="h-10 w-10">
                         {item.avatar ? (
                           <AvatarImage src={item.avatar} alt={item.displayName} />
@@ -216,10 +216,7 @@ const ChannelModerators = () => {
                       </div>
                     </div>
 
-                    <div className="flex flex-col items-start gap-2 sm:items-end">
-                      <p className="text-[11px] text-muted-foreground">
-                        {t("channelDetails.moderators.canReviewDeals")}
-                      </p>
+                    <div className="flex items-center gap-2">
                       {shouldShowSwitch ? (
                         <div className="flex items-center gap-2">
                           <span className="text-xs font-semibold text-foreground">
