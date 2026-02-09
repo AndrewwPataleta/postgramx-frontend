@@ -109,6 +109,7 @@ export default function EditListing() {
   const queryClient = useQueryClient();
 
   const [priceTon, setPriceTon] = useState("25");
+  const latestPriceTonRef = useRef(priceTon);
   const priceInputRef = useRef<HTMLInputElement | null>(null);
   const [pinDurationChoice, setPinDurationChoice] = useState("none");
   const [pinCustomHours, setPinCustomHours] = useState("");
@@ -121,7 +122,7 @@ export default function EditListing() {
   const [customTag, setCustomTag] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>(["Must be pre-approved"]);
   const [showVisibilityWarning, setShowVisibilityWarning] = useState(false);
-  const [hasInitialized, setHasInitialized] = useState(false);
+  const lastListingIdRef = useRef<string | null>(null);
   const parsedPrice = Number(priceTon);
   const isPriceValid = Number.isFinite(parsedPrice) && parsedPrice >= 1;
   const showPriceError = priceTon.trim() !== "" && !isPriceValid;
@@ -131,6 +132,7 @@ export default function EditListing() {
     if (!/^[0-9]*\.?[0-9]*$/.test(nextValue)) {
       return;
     }
+    latestPriceTonRef.current = nextValue;
     setPriceTon(nextValue);
   };
 
@@ -144,7 +146,7 @@ export default function EditListing() {
   };
 
   useEffect(() => {
-    if (!listing || hasInitialized) {
+    if (!listing || lastListingIdRef.current === listing.id) {
       return;
     }
     const initialPinDuration = listing.pinDurationHours ?? null;
@@ -166,7 +168,9 @@ export default function EditListing() {
       : String(initialVisibilityDuration);
     const listingPrice = Number.parseFloat(nanoToTonString(listing.priceNano));
 
-    setPriceTon(Number.isFinite(listingPrice) ? String(listingPrice) : "25");
+    const nextPriceTon = Number.isFinite(listingPrice) ? String(listingPrice) : "25";
+    latestPriceTonRef.current = nextPriceTon;
+    setPriceTon(nextPriceTon);
     setPinDurationChoice(initialPinChoice);
     setPinCustomHours(initialPinCustom);
     setVisibilityDurationChoice(initialVisibilityChoice);
@@ -180,8 +184,12 @@ export default function EditListing() {
         ? initialTags
         : [...initialTags, "Must be pre-approved"],
     );
-    setHasInitialized(true);
-  }, [hasInitialized, listing]);
+    lastListingIdRef.current = listing.id;
+  }, [listing]);
+
+  useEffect(() => {
+    latestPriceTonRef.current = priceTon;
+  }, [priceTon]);
 
   const pinDurationHours =
     pinDurationChoice === "none" ? null : resolveHours(pinDurationChoice, pinCustomHours, 24);
@@ -220,11 +228,14 @@ export default function EditListing() {
       ? selectedTags
       : [...selectedTags, "Must be pre-approved"];
 
+    const submittedPriceTon = latestPriceTonRef.current.trim();
+    const computedPriceNano = parseTonInputToNano(submittedPriceTon);
+
     await updateListing({
       id: listing.id,
       patch: {
         format: ListingFormat.Post,
-        priceNano: parseTonInputToNano(priceTon),
+        priceNano: computedPriceNano,
         currency: CurrencyCode.Ton,
         pinDurationHours,
         visibilityDurationHours,
