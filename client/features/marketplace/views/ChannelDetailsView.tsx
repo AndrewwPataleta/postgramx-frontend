@@ -9,6 +9,7 @@ import { PageContainer } from "@/components/layout/PageContainer";
 import ChannelDetailsSkeleton, {
   ChannelDetailsListingsSkeleton,
 } from "@/components/skeletons/ChannelDetailsSkeleton";
+import ChannelAnalyticsCard from "@/components/channels/ChannelAnalyticsCard";
 import { useCreateDealMutation } from "@/hooks/use-deals";
 import { formatNumber, formatTon } from "@/i18n/formatters";
 import { getPinnedDurationLabel, getVisibilityDurationLabel } from "@/i18n/labels";
@@ -195,6 +196,19 @@ export default function ChannelDetailsView() {
               </div>
             </div>
 
+            <ChannelAnalyticsCard />
+
+            <div
+              ref={listingsSectionRef}
+              className="rounded-2xl border border-border/60 bg-card/80 p-4 space-y-3"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-foreground">
+                    {t("marketplace.availablePlacements")}
+                  </p>
+                </div>
+              </div>
             <Tabs defaultValue="listings" className="space-y-3">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="listings">{t("channelDetails.tabs.listings")}</TabsTrigger>
