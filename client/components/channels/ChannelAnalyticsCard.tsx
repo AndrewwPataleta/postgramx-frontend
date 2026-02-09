@@ -65,11 +65,11 @@ export default function ChannelAnalyticsCard() {
             </div>
             <p className="text-xs text-muted-foreground">Demo / Mock data</p>
           </div>
-          <TabsList className="grid h-8 w-40 grid-cols-2">
-            <TabsTrigger className="text-xs" value="views">
+          <TabsList className="grid h-8 w-40 grid-cols-2 items-center rounded-full bg-muted/80 p-1">
+            <TabsTrigger className="h-6 w-full rounded-full text-[11px] font-semibold" value="views">
               Views
             </TabsTrigger>
-            <TabsTrigger className="text-xs" value="audience">
+            <TabsTrigger className="h-6 w-full rounded-full text-[11px] font-semibold" value="audience">
               Audience
             </TabsTrigger>
           </TabsList>
