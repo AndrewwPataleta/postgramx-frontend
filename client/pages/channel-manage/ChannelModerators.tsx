@@ -142,11 +142,6 @@ const ChannelModerators = () => {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-foreground">
-          {t("channelDetails.tabs.moderators")}
-        </h3>
-      </div>
       <div className="rounded-2xl border border-border/60 bg-card/80 p-4 space-y-4">
         <p className="text-xs text-muted-foreground">
           {t("channelDetails.moderators.description")}
