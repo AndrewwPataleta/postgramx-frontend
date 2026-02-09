@@ -194,7 +194,6 @@ export default function Deals() {
         ) : (
           <>
             <div>
-              <h1 className="text-lg font-semibold text-foreground">{t("deals.title")}</h1>
               <div className="mt-4 flex gap-6 border-b border-border/60">
                 {(["pending", "active", "completed"] as DealSectionKey[]).map((tab) => (
                   <button
