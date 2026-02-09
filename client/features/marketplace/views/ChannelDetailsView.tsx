@@ -196,23 +196,20 @@ export default function ChannelDetailsView() {
               </div>
             </div>
 
-            <ChannelAnalyticsCard />
-
-            <div
-              ref={listingsSectionRef}
-              className="rounded-2xl border border-border/60 bg-card/80 p-4 space-y-3"
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-semibold text-foreground">
-                    {t("marketplace.availablePlacements")}
-                  </p>
-                </div>
-              </div>
             <Tabs defaultValue="listings" className="space-y-3">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="listings">{t("channelDetails.tabs.listings")}</TabsTrigger>
-                <TabsTrigger value="analytics">{t("channelDetails.tabs.analytics")}</TabsTrigger>
+              <TabsList className="h-8 w-full rounded-full bg-secondary/60 p-1 text-xs">
+                <TabsTrigger
+                  value="listings"
+                  className="flex-1 rounded-full px-3 py-1 text-xs font-semibold data-[state=active]:bg-primary/15 data-[state=active]:text-primary"
+                >
+                  {t("channelDetails.tabs.listings")}
+                </TabsTrigger>
+                <TabsTrigger
+                  value="analytics"
+                  className="flex-1 rounded-full px-3 py-1 text-xs font-semibold data-[state=active]:bg-primary/15 data-[state=active]:text-primary"
+                >
+                  {t("channelDetails.tabs.analytics")}
+                </TabsTrigger>
               </TabsList>
               <TabsContent value="listings" className="space-y-3">
                 <div
@@ -349,15 +346,8 @@ export default function ChannelDetailsView() {
                   )}
                 </div>
               </TabsContent>
-              <TabsContent value="analytics">
-                <div className="rounded-2xl border border-border/60 bg-card/80 p-6 text-center">
-                  <p className="text-sm font-semibold text-foreground">
-                    {t("channelDetails.analytics.title")}
-                  </p>
-                  <p className="mt-2 text-xs text-muted-foreground">
-                    {t("channelDetails.analytics.subtitle")}
-                  </p>
-                </div>
+              <TabsContent value="analytics" className="space-y-3">
+                <ChannelAnalyticsCard />
               </TabsContent>
             </Tabs>
           </>
