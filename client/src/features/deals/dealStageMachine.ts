@@ -10,6 +10,9 @@ export const normalizeDealStage = (stage: DealStageId): DealStageId => {
   if (stage === DealStage.CREATIVE_AWAITING_FOR_CHANGES) {
     return DealStage.CREATIVE_AWAITING_SUBMIT;
   }
+  if (stage === DealStage.SCHEDULE_AWAITING_FOR_CHANGES) {
+    return DealStage.SCHEDULING_AWAITING_SUBMIT;
+  }
   return stage;
 };
 
