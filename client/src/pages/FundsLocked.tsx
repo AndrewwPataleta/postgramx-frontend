@@ -1,6 +1,6 @@
 import { Check, Lock } from "lucide-react";
 import { Link } from "react-router-dom";
-import { PageContainer } from "@/components/layout/PageContainer";
+import { PageContainer } from "@/design-system/components/PageContainer";
 import { ROUTES } from "@/constants/routes";
 
 export default function FundsLocked() {

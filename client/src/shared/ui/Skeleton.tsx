@@ -1,6 +1,6 @@
 import type { HTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
-import { Shimmer } from "@/components/skeletons/Shimmer";
+import { Shimmer } from "@/design-system/skeletons/Shimmer";
 
 type SkeletonProps = HTMLAttributes<HTMLDivElement> & { shimmer?: boolean };
 

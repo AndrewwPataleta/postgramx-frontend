@@ -1,5 +1,5 @@
-import DealsFrame from "@/components/deals/DealsFrame";
-import DetailFrame from "@/components/deals/DetailFrame";
+import DealsFrame from "@/features/deals/ui/DealsFrame";
+import DetailFrame from "@/features/deals/ui/DetailFrame";
 import { useDealsOverview } from "@/hooks/use-deals-overview";
 
 export default function Index() {

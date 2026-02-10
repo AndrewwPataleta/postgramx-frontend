@@ -11,8 +11,8 @@ import {
   mapApiErrorToUiAction,
   type BottomSheetPayload,
 } from "@/api/errors/mapApiErrorToUiAction";
-import ChannelOwnerLinkSheet from "@/components/channels/ChannelOwnerLinkSheet";
-import { PageContainer } from "@/components/layout/PageContainer";
+import ChannelOwnerLinkSheet from "@/features/channels/ui/ChannelOwnerLinkSheet";
+import { PageContainer } from "@/design-system/components/PageContainer";
 import { ROUTES } from "@/constants/routes";
 import type { ChannelEntity } from "@/models/entities";
 import { ChannelStatus } from "@/models/enums";

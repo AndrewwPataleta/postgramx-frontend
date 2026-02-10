@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ArrowRight, Bot, Check, Loader2, ShieldCheck, UserCog } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import FlowLayout from "@/components/add-channel/FlowLayout";
+import FlowLayout from "@/features/channels/ui/add-channel/FlowLayout";
 import { ROUTES } from "@/constants/routes";
 
 export default function AddChannel() {

@@ -1,4 +1,4 @@
-import InfoCard from "@/components/deals/InfoCard";
+import InfoCard from "@/features/deals/ui/InfoCard";
 import { cn } from "@/lib/utils";
 
 import type { DealEntity } from "@/models/entities";

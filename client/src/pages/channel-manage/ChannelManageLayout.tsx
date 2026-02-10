@@ -13,8 +13,8 @@ import {
   type BottomSheetPayload,
 } from "@/api/errors/mapApiErrorToUiAction";
 import { channelDetail } from "@/api/features/channelsApi";
-import ChannelOwnerLinkSheet from "@/components/channels/ChannelOwnerLinkSheet";
-import { PageContainer } from "@/components/layout/PageContainer";
+import ChannelOwnerLinkSheet from "@/features/channels/ui/ChannelOwnerLinkSheet";
+import { PageContainer } from "@/design-system/components/PageContainer";
 import { formatNumber } from "@/i18n/formatters";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { ROUTES } from "@/constants/routes";

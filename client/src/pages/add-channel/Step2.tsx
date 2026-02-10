@@ -3,15 +3,15 @@ import { Loader2 } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/design-system/ui/avatar";
+import { Button } from "@/design-system/ui/button";
+import { Card, CardContent } from "@/design-system/ui/card";
 import { verifyChannel } from "@/api/features/channelsApi";
 import {
   mapApiErrorToUiAction,
   type BottomSheetPayload,
 } from "@/api/errors/mapApiErrorToUiAction";
-import ChannelOwnerLinkSheet from "@/components/channels/ChannelOwnerLinkSheet";
+import ChannelOwnerLinkSheet from "@/features/channels/ui/ChannelOwnerLinkSheet";
 import { getChannelErrorMessage } from "@/pages/add-channel/errorMapping";
 import { useAddChannelFlow } from "@/pages/add-channel/useAddChannelFlow";
 import { formatNumber } from "@/i18n/formatters";

@@ -1,4 +1,4 @@
-import type { FilterState } from "@/components/FilterModal";
+import type { FilterState } from "@/design-system/components/FilterModal";
 
 export const defaultMarketplaceFilters: FilterState = {
   priceRange: [0, 100],

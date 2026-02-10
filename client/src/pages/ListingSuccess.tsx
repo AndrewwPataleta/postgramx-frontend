@@ -1,6 +1,6 @@
 import { CheckCircle2 } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
-import { PageContainer } from "@/components/layout/PageContainer";
+import { PageContainer } from "@/design-system/components/PageContainer";
 import { ROUTES } from "@/constants/routes";
 
 export default function ListingSuccess() {

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import type { FilterState } from "@/components/FilterModal";
+import type { FilterState } from "@/design-system/components/FilterModal";
 import { listMarketplaceChannels } from "@/api/features/channelsApi";
 import type { MarketplaceChannelSummary, Paged } from "@/models/entities";
 import { useLanguage } from "@/i18n/LanguageProvider";

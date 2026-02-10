@@ -3,7 +3,7 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import SafeAreaLayout from "@/components/telegram/SafeAreaLayout";
 import { cn } from "@/lib/utils";
 import { AddChannelFlowProvider } from "@/pages/add-channel/useAddChannelFlow";
-import { PageContainer } from "@/components/layout/PageContainer";
+import { PageContainer } from "@/design-system/components/PageContainer";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { ROUTES } from "@/constants/routes";
 
