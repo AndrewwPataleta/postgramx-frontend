@@ -1,6 +1,6 @@
 import { Lock, ChevronDown } from "lucide-react";
 import { useState } from "react";
-import { PageContainer } from "@/components/layout/PageContainer";
+import { PageContainer } from "@/design-system/components/PageContainer";
 
 export default function EscrowPayment() {
   const [showManualTransfer, setShowManualTransfer] = useState(false);

@@ -1,1 +1,1 @@
-export type { ChannelEntity, ChannelModeratorItemDto, ChannelModeratorsListResponse } from "@/models/entities";
+export * from "@/features/channels/model/types";

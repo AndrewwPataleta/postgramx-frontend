@@ -1,4 +1,4 @@
-import InfoCard from "@/components/deals/InfoCard";
+import InfoCard from "@/features/deals/ui/InfoCard";
 import type { DealEntity } from "@/models/entities";
 import { openTelegramLink } from "@/lib/telegramLinks";
 import { cn } from "@/lib/utils";

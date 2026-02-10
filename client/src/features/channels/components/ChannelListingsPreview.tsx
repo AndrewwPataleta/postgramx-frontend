@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2, PencilLine, RefreshCcw } from "lucide-react";
 import { listListingsByChannel } from "@/api/features/listingsApi";
-import { SkeletonLine, SkeletonList, SkeletonRect } from "@/components/skeletons/Shimmer";
+import { SkeletonLine, SkeletonList, SkeletonRect } from "@/design-system/skeletons/Shimmer";
 import { getErrorMessage } from "@/lib/api/errors";
 import { cn } from "@/lib/utils";
 import { formatTon } from "@/i18n/formatters";

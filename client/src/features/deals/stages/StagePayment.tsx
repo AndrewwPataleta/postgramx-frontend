@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { TonConnectButton, useTonConnectUI } from "@tonconnect/ui-react";
 
-import InfoCard from "@/components/deals/InfoCard";
+import InfoCard from "@/features/deals/ui/InfoCard";
 import type { DealEntity } from "@/models/entities";
 import { EscrowStatus } from "@/models/enums";
 import { cn } from "@/lib/utils";
@@ -54,7 +54,8 @@ async function buildCommentPayloadBase64(comment: string): Promise<string> {
   }
 
   // lazy import so app doesn't crash on load
-  const ton = await import("@ton/core");
+  const tonCoreModule = "@ton/core";
+  const ton = await import(/* @vite-ignore */ tonCoreModule);
 
   const cell = ton
     .beginCell()

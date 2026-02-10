@@ -4,9 +4,9 @@ import { Info } from "lucide-react";
 import { useLocation, useNavigate, useOutletContext, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { ListingPreviewDetails } from "@/components/listings/ListingPreviewDetails";
-import { PageContainer } from "@/components/layout/PageContainer";
-import EditListingSkeleton from "@/components/skeletons/EditListingSkeleton";
+import { ListingPreviewDetails } from "@/features/listings/ui/ListingPreviewDetails";
+import { PageContainer } from "@/design-system/components/PageContainer";
+import EditListingSkeleton from "@/features/listings/ui/skeletons/EditListingSkeleton";
 import { listListingsByChannel, updateListing } from "@/api/features/listingsApi";
 import {
   AlertDialog,
@@ -17,7 +17,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+} from "@/design-system/ui/alert-dialog";
 import { filterListingTags, getListingTagLabel, listingTagCategories } from "@/features/listings/tagOptions";
 import { getErrorMessage } from "@/lib/api/errors";
 import { nanoToTonString } from "@/lib/ton";

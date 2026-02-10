@@ -1,2 +1,4 @@
 export * as DealsApi from "./api";
-export * from "@/features/deals/hooks";
+export * from "./hooks";
+export * from "./model/types";
+export { default as DealDetailsScreen } from "./ui/screens/DealDetailsScreen";

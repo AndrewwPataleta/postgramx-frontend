@@ -4,19 +4,19 @@ import { useLocation, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { channelDetail } from "@/api/features/channelsApi";
 import { listListingsByChannel } from "@/api/features/listingsApi";
-import ErrorState from "@/components/feedback/ErrorState";
-import { PageContainer } from "@/components/layout/PageContainer";
+import ErrorState from "@/design-system/components/ErrorState";
+import { PageContainer } from "@/design-system/components/PageContainer";
 import ChannelDetailsSkeleton, {
   ChannelDetailsListingsSkeleton,
-} from "@/components/skeletons/ChannelDetailsSkeleton";
-import ChannelAnalyticsCard from "@/components/channels/ChannelAnalyticsCard";
+} from "@/features/channels/ui/skeletons/ChannelDetailsSkeleton";
+import ChannelAnalyticsCard from "@/features/channels/ui/ChannelAnalyticsCard";
 import { useCreateDealMutation } from "@/hooks/use-deals";
 import { formatNumber, formatTon } from "@/i18n/formatters";
 import { getPinnedDurationLabel, getVisibilityDurationLabel } from "@/i18n/labels";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { filterListingTags } from "@/features/listings/tagOptions";
 import { AnimatedList, AnimatedListItem } from "@/motion/AnimatedList";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/design-system/ui/tabs";
 import type {
   ChannelEntity,
   ListingEntity,

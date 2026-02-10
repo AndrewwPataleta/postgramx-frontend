@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import InfoCard from "@/components/deals/InfoCard";
+import InfoCard from "@/features/deals/ui/InfoCard";
 import type { DealEntity } from "@/models/entities";
 import { approveCreative, rejectCreative, requestCreativeEdits } from "@/api/features/dealsApi";
 import { getErrorMessage } from "@/lib/api/errors";

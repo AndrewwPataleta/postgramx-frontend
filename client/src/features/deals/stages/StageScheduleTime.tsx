@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import type { DealEntity } from "@/models/entities";
 import { scheduleDeal } from "@/api/features/dealsApi";
 import { getErrorMessage } from "@/lib/api/errors";
-import InfoCard from "@/components/deals/InfoCard";
+import InfoCard from "@/features/deals/ui/InfoCard";
 import { cn } from "@/lib/utils";
 import { formatDateTime } from "@/i18n/formatters";
 import { useLanguage } from "@/i18n/LanguageProvider";

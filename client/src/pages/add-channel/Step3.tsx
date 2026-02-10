@@ -1,8 +1,8 @@
 import { CheckCircle2, XCircle } from "lucide-react";
 import { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/design-system/ui/button";
+import { Card, CardContent } from "@/design-system/ui/card";
 import { useAddChannelFlow } from "@/pages/add-channel/useAddChannelFlow";
 import type { ChannelEntity } from "@/models/entities";
 import { useLanguage } from "@/i18n/LanguageProvider";

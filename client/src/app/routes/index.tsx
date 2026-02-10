@@ -1,8 +1,8 @@
 import { Suspense, lazy } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
-import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import PageLoader from "@/components/PageLoader";
-import ErrorBoundary from "@/components/ErrorBoundary";
+import ProtectedRoute from "@/features/auth/ui/ProtectedRoute";
+import PageLoader from "@/design-system/components/PageLoader";
+import ErrorBoundary from "@/design-system/components/ErrorBoundary";
 import AppShell from "@/layout/AppShell";
 import { ROUTES } from "@app/routes/paths";
 

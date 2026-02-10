@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import InfoCard from "@/components/deals/InfoCard";
+import InfoCard from "@/features/deals/ui/InfoCard";
 import type { DealEntity } from "@/models/entities";
 import { openTelegramLink } from "@/lib/telegramLinks";
 import { submitCreative } from "@/api/features/dealsApi";

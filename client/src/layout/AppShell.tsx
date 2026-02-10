@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { Store, TrendingUp, User, Zap } from "lucide-react";
-import TopToolbar from "@/components/TopToolbar";
+import TopToolbar from "@/design-system/components/TopToolbar";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { ROUTES } from "@/constants/routes";
 

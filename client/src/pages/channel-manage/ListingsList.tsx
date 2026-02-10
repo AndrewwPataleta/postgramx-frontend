@@ -3,8 +3,8 @@ import { Link, useLocation, useOutletContext, useParams } from "react-router-dom
 import { Edit, Plus } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { ListingCard } from "@/components/listings/ListingCard";
-import ListingsSkeleton from "@/components/skeletons/ListingsSkeleton";
+import { ListingCard } from "@/features/listings/ui/ListingCard";
+import ListingsSkeleton from "@/features/listings/ui/skeletons/ListingsSkeleton";
 import { listListingsByChannel } from "@/api/features/listingsApi";
 import { getErrorMessage } from "@/lib/api/errors";
 import type { ChannelManageContext } from "@/pages/channel-manage/ChannelManageLayout";

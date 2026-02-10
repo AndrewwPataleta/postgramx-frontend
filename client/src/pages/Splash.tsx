@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
-import { SkeletonLine } from "@/components/skeletons/Shimmer";
-import { useAuth } from "@/components/auth/AuthProvider";
+import { Button } from "@/design-system/ui/button";
+import { SkeletonLine } from "@/design-system/skeletons/Shimmer";
+import { useAuth } from "@/features/auth/ui/AuthProvider";
 import { listMarketplaceChannels, listMyChannels } from "@/api/features/channelsApi";
 import { listDeals } from "@/api/features/dealsApi";
 import { getBalanceOverview } from "@/api/paymentsBalanceApi";

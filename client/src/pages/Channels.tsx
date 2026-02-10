@@ -2,18 +2,18 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Loader2, Plus } from "lucide-react";
 import { toast } from "sonner";
-import MyChannelsChannelCard from "@/components/channels/MyChannelsChannelCard";
+import MyChannelsChannelCard from "@/features/channels/ui/MyChannelsChannelCard";
 import ChannelListingsPreview from "@/features/channels/components/ChannelListingsPreview";
 import { useChannelsList } from "@/features/channels/hooks/useChannelsList";
-import ErrorState from "@/components/feedback/ErrorState";
-import BottomSheet from "@/components/BottomSheet";
-import { PageContainer } from "@/components/layout/PageContainer";
+import ErrorState from "@/design-system/components/ErrorState";
+import BottomSheet from "@/design-system/components/BottomSheet";
+import { PageContainer } from "@/design-system/components/PageContainer";
 import { unlinkChannel } from "@/api/features/channelsApi";
 import { getErrorMessage } from "@/lib/api/errors";
 import { useLanguage } from "@/i18n/LanguageProvider";
-import { useAuth } from "@/components/auth/AuthProvider";
+import { useAuth } from "@/features/auth/ui/AuthProvider";
 import { ROUTES } from "@/constants/routes";
-import ChannelsListSkeleton from "@/components/skeletons/ChannelsListSkeleton";
+import ChannelsListSkeleton from "@/features/channels/ui/skeletons/ChannelsListSkeleton";
 import { AnimatedList, AnimatedListItem } from "@/motion/AnimatedList";
 import type {
   ChannelEntity,

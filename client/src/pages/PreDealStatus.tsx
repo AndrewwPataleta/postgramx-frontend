@@ -7,9 +7,9 @@ import {
   predealsGet,
   type PreDealDto,
 } from "@/api/features/predealsApi";
-import ErrorState from "@/components/feedback/ErrorState";
-import { PageContainer } from "@/components/layout/PageContainer";
-import PreDealStatusSkeleton from "@/components/skeletons/PreDealStatusSkeleton";
+import ErrorState from "@/design-system/components/ErrorState";
+import { PageContainer } from "@/design-system/components/PageContainer";
+import PreDealStatusSkeleton from "@/features/deals/ui/skeletons/PreDealStatusSkeleton";
 import { getErrorMessage } from "@/lib/api/errors";
 import { formatStatusLabel } from "@/lib/formatting";
 import { openTelegramLink } from "@/lib/telegramLinks";

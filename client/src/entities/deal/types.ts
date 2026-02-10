@@ -1,1 +1,1 @@
-export type { DealEntity } from "@/models/entities";
+export * from "@/features/deals/model/types";
