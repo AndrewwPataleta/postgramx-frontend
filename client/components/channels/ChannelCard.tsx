@@ -312,13 +312,13 @@ export default function ChannelCard({
             resolvedExpanded ? "mt-4 max-h-[1200px] opacity-100" : "max-h-0 opacity-0"
           )}
         >
-          <div className="rounded-2xl border border-border/60 bg-background/60 p-3">
-            {expandedContent ? (
-              expandedContent
-            ) : (
+          {expandedContent ? (
+            expandedContent
+          ) : (
+            <div className="rounded-2xl border border-border/60 bg-background/60 p-3">
               <ListingPreview listings={channel.listingsPreview ?? []} />
-            )}
-          </div>
+            </div>
+          )}
         </div>
       ) : null}
     </div>
