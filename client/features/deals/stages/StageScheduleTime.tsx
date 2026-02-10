@@ -85,6 +85,7 @@ const toUtcIsoString = (date: Date) => date.toISOString();
 export default function StageScheduleTime({ deal, readonly, onAction }: StageScheduleTimeProps) {
   const queryClient = useQueryClient();
   const { t, language } = useLanguage();
+  const isLocalDev = import.meta.env.DEV;
 
   const [dateValue, setDateValue] = useState("");
   const [timeValue, setTimeValue] = useState("");
@@ -105,7 +106,7 @@ export default function StageScheduleTime({ deal, readonly, onAction }: StageSch
     [dateValue, timeValue]
   );
 
-  const minAllowedMs = useMemo(() => Date.now() + 60 * 60 * 1000, []);
+  const minAllowedMs = useMemo(() => (isLocalDev ? Date.now() : Date.now() + 60 * 60 * 1000), [isLocalDev]);
 
   const isValidSchedule = useMemo(() => {
     if (!scheduledLocal) return false;
