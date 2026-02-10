@@ -11,7 +11,10 @@ import { PageContainer } from "@/components/layout/PageContainer";
 import { getErrorMessage } from "@/lib/api/errors";
 import { DealStage, DealStatus } from "@/models/enums";
 import type { DealEntity } from "@/models/entities";
-import { allStages } from "@/features/deals/dealStageMachine";
+import {
+  allStages,
+  normalizeDealStage,
+} from "@/features/deals/dealStageMachine";
 import DealScheduleCard from "@/components/deals/DealScheduleCard";
 import StageScheduleTime from "@/features/deals/stages/StageScheduleTime";
 import StageSendPost from "@/features/deals/stages/StageSendPost";
@@ -33,7 +36,9 @@ export default function DealDetails() {
   const { user } = useAuth();
   const { t } = useLanguage();
   const stateDeal = (location.state as { deal?: DealEntity } | null)?.deal;
-  const cachedDeal = dealId ? queryClient.getQueryData<DealEntity>(["deal", dealId]) : undefined;
+  const cachedDeal = dealId
+    ? queryClient.getQueryData<DealEntity>(["deal", dealId])
+    : undefined;
   const preferredDeal = stateDeal?.id === dealId ? stateDeal : cachedDeal;
   const [selectedStage, setSelectedStage] = useState<DealStage | null>(null);
 
@@ -84,11 +89,19 @@ export default function DealDetails() {
 
   useEffect(() => {
     if (error || fallbackListQuery.error) {
-      toast.error(getErrorMessage(error ?? fallbackListQuery.error, "Unable to load deal", t));
+      toast.error(
+        getErrorMessage(
+          error ?? fallbackListQuery.error,
+          "Unable to load deal",
+          t,
+        ),
+      );
     }
   }, [error, fallbackListQuery.error]);
 
-  const currentStage = resolvedDeal?.stage ?? DealStage.CREATIVE_AWAITING_SUBMIT;
+  const currentStage = normalizeDealStage(
+    resolvedDeal?.stage ?? DealStage.CREATIVE_AWAITING_SUBMIT,
+  );
 
   const availableStages = resolvedDeal ? allStages : [];
 
@@ -96,11 +109,15 @@ export default function DealDetails() {
     if (!resolvedDeal) {
       return;
     }
-    setSelectedStage(resolvedDeal.stage);
+    setSelectedStage(normalizeDealStage(resolvedDeal.stage));
   }, [resolvedDeal?.stage]);
 
   useEffect(() => {
-    if (!resolvedDeal || resolvedDeal.status === DealStatus.Completed || resolvedDeal.status === DealStatus.Canceled) {
+    if (
+      !resolvedDeal ||
+      resolvedDeal.status === DealStatus.Completed ||
+      resolvedDeal.status === DealStatus.Canceled
+    ) {
       return undefined;
     }
     const interval = window.setInterval(() => {
@@ -116,8 +133,7 @@ export default function DealDetails() {
     const currentUserId = (user as { id?: string } | null)?.id;
     const isAdvertiser = currentUserId === resolvedDeal.advertiserUserId;
     const readonlyForPublisher = !isAdvertiser;
-    const stageComponents: Record<DealStage, JSX.Element> = {
-
+    const stageComponents: Partial<Record<DealStage, JSX.Element>> = {
       [DealStage.CREATIVE_AWAITING_SUBMIT]: (
         <StageSendPost deal={resolvedDeal} readonly={!isAdvertiser} />
       ),
@@ -128,7 +144,9 @@ export default function DealDetails() {
         <StagePayment
           deal={resolvedDeal}
           readonly={readonlyForPublisher}
-          onAction={readonlyForPublisher ? undefined : { onRefresh: () => refetch() }}
+          onAction={
+            readonlyForPublisher ? undefined : { onRefresh: () => refetch() }
+          }
           isRefreshing={isFetching}
         />
       ),
@@ -145,8 +163,10 @@ export default function DealDetails() {
       [DealStage.DELIVERY_CONFIRMED]: (
         <StageVerifying deal={resolvedDeal} readonly={readonlyForPublisher} />
       ),
-      [DealStage.FINALIZED]: <StageDone deal={resolvedDeal} readonly={readonlyForPublisher} />
-/*
+      [DealStage.FINALIZED]: (
+        <StageDone deal={resolvedDeal} readonly={readonlyForPublisher} />
+      ),
+      /*
 
       [DealStage.PaymentPending]: (
         <StagePaymentPending
@@ -161,7 +181,11 @@ export default function DealDetails() {
      ,*/
     };
 
-    return stageComponents[resolvedDeal.stage];
+    return (
+      stageComponents[normalizeDealStage(resolvedDeal.stage)] ??
+      stageComponents[DealStage.CREATIVE_AWAITING_SUBMIT] ??
+      null
+    );
   }, [isFetching, refetch, resolvedDeal]);
 
   return (
@@ -171,7 +195,11 @@ export default function DealDetails() {
           <DealDetailsSkeleton />
         ) : error || fallbackListQuery.error || !resolvedDeal ? (
           <ErrorState
-            message={getErrorMessage(error ?? fallbackListQuery.error, t("deals.detailNotFound"), t)}
+            message={getErrorMessage(
+              error ?? fallbackListQuery.error,
+              t("deals.detailNotFound"),
+              t,
+            )}
             description={t("deals.detailLoadHint")}
             onRetry={() => refetch()}
           />
@@ -187,7 +215,9 @@ export default function DealDetails() {
                 if (!resolvedDeal) {
                   return;
                 }
-                const currentIndex = stageOrder.indexOf(resolvedDeal.stage);
+                const currentIndex = stageOrder.indexOf(
+                  normalizeDealStage(resolvedDeal.stage),
+                );
                 const nextIndex = stageOrder.indexOf(stage);
                 if (nextIndex <= currentIndex) {
                   setSelectedStage(stage);

@@ -368,6 +368,7 @@
   "deals.timeline.previousStage": "Previous stage",
   "deals.timeline.stage.SCHEDULING_AWAITING_SUBMIT": "Schedule time",
   "deals.timeline.stage.CREATIVE_AWAITING_SUBMIT": "Submit creative",
+  "deals.timeline.stage.CREATIVE_AWAITING_FOR_CHANGES": "Submit creative",
   "deals.timeline.stage.SCHEDULING_AWAITING_CONFIRM": "Schedule review",
   "deals.timeline.stage.CREATIVE_AWAITING_CONFIRM": "Confirm creative",
   "deals.timeline.stage.PAYMENT_AWAITING": "Payment",

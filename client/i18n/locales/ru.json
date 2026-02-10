@@ -368,6 +368,7 @@
   "deals.timeline.previousStage": "Предыдущий этап",
   "deals.timeline.stage.SCHEDULING_AWAITING_SUBMIT": "Выбор времени",
   "deals.timeline.stage.CREATIVE_AWAITING_SUBMIT": "Отправка креатива",
+  "deals.timeline.stage.CREATIVE_AWAITING_FOR_CHANGES": "Отправка креатива",
   "deals.timeline.stage.SCHEDULING_AWAITING_CONFIRM": "Проверка администратором",
   "deals.timeline.stage.CREATIVE_AWAITING_CONFIRM": "Подтверждение креатива",
   "deals.timeline.stage.PAYMENT_AWAITING": "Оплата",
