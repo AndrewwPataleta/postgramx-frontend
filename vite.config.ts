@@ -8,7 +8,7 @@ export default defineConfig(() => ({
     host: "::",
     port: 8081,
     fs: {
-      allow: [".", "./client"],
+      allow: [".", "./client", "./client/src"],
       deny: [".env.local", ".env.local.*", "*.{crt,pem}", "**/.git/**"],
     },
   },
@@ -21,7 +21,12 @@ export default defineConfig(() => ({
   plugins: [react()],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./client"),
+      "@": path.resolve(__dirname, "./client/src"),
+      "@app": path.resolve(__dirname, "./client/src/app"),
+      "@shared": path.resolve(__dirname, "./client/src/shared"),
+      "@entities": path.resolve(__dirname, "./client/src/entities"),
+      "@features": path.resolve(__dirname, "./client/src/features"),
+      "@pages": path.resolve(__dirname, "./client/src/pages"),
     },
   },
 }));
