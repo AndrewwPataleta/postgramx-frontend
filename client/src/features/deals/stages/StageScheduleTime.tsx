@@ -8,6 +8,7 @@ import InfoCard from "@/components/deals/InfoCard";
 import { cn } from "@/lib/utils";
 import { formatDateTime } from "@/i18n/formatters";
 import { useLanguage } from "@/i18n/LanguageProvider";
+import { DealStage } from "@/models/enums";
 
 interface StageScheduleTimeProps {
   deal: DealEntity;
@@ -87,6 +88,17 @@ export default function StageScheduleTime({ deal, readonly, onAction }: StageSch
   const { t, language } = useLanguage();
   const isLocalDev = import.meta.env.DEV;
 
+  const isAwaitingScheduleChanges = deal.stage === DealStage.SCHEDULE_AWAITING_FOR_CHANGES;
+  const titleKey = isAwaitingScheduleChanges
+    ? "deals.schedule.awaiting_changes.title"
+    : "deals.stage.scheduleTime.title";
+  const descriptionKey = isAwaitingScheduleChanges
+    ? "deals.schedule.awaiting_changes.subtitle"
+    : "deals.stage.scheduleTime.description";
+  const confirmKey = isAwaitingScheduleChanges
+    ? "deals.schedule.awaiting_changes.cta"
+    : "deals.stage.scheduleTime.confirm";
+
   const [dateValue, setDateValue] = useState("");
   const [timeValue, setTimeValue] = useState("");
 
@@ -132,7 +144,7 @@ export default function StageScheduleTime({ deal, readonly, onAction }: StageSch
 
   if (readonly) {
     return (
-      <InfoCard title={t("deals.stage.scheduleTime.title")}>
+      <InfoCard title={t(titleKey)}>
         <p className="text-xs text-muted-foreground">{t("deals.stage.scheduleTime.readonly")}</p>
         <p className="text-xs text-muted-foreground">
           {t("deals.scheduledAt")}:{" "}
@@ -163,8 +175,8 @@ export default function StageScheduleTime({ deal, readonly, onAction }: StageSch
   };
 
   return (
-    <InfoCard title={t("deals.stage.scheduleTime.title")}>
-      <p className="text-xs text-muted-foreground">{t("deals.stage.scheduleTime.description")}</p>
+    <InfoCard title={t(titleKey)}>
+      <p className="text-xs text-muted-foreground">{t(descriptionKey)}</p>
 
       <div className="space-y-3">
         <div className="rounded-2xl border border-border/60 bg-card/80 p-3">
@@ -227,7 +239,7 @@ export default function StageScheduleTime({ deal, readonly, onAction }: StageSch
               : "hover:bg-primary/90"
           )}
         >
-          {mutation.isPending ? t("common.saving") ?? "Saving..." : t("deals.stage.scheduleTime.confirm")}
+          {mutation.isPending ? t("common.saving") ?? "Saving..." : t(confirmKey)}
         </button>
       </div>
     </InfoCard>
