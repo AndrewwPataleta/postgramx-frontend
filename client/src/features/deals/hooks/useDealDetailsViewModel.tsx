@@ -105,6 +105,7 @@ export const useDealDetailsViewModel = () => {
       ),
       [DealStage.SCHEDULING_AWAITING_SUBMIT]: <StageScheduleTime deal={resolvedDeal} readonly={!isAdvertiser} />,
       [DealStage.SCHEDULING_AWAITING_CONFIRM]: <StageScheduleApproval deal={resolvedDeal} readonly={isAdvertiser} />,
+      [DealStage.SCHEDULE_AWAITING_FOR_CHANGES]: <StageScheduleApproval deal={resolvedDeal} readonly={isAdvertiser} />,
       [DealStage.POST_SCHEDULED]: <StageScheduled deal={resolvedDeal} readonly={readonlyForPublisher} />,
       [DealStage.DELIVERY_CONFIRMED]: <StageVerifying deal={resolvedDeal} readonly={readonlyForPublisher} />,
       [DealStage.FINALIZED]: <StageDone deal={resolvedDeal} readonly={readonlyForPublisher} />,
