@@ -14,7 +14,7 @@ const SafeAreaLayout = ({
 }: SafeAreaLayoutProps) => {
   const style: CSSProperties = {
     paddingTop:
-      "calc(var(--tg-content-safe-area-inset-top) + var(--tg-safe-area-inset-top))",
+      "calc(var(--tg-content-safe-area-inset-top)",
     paddingBottom: `calc(max(var(--tg-safe-bottom), var(--tg-content-safe-area-inset-bottom)) + ${bottomNavHeight}px)`,
     paddingLeft:
       "max(var(--tg-safe-left), var(--tg-content-safe-area-inset-left))",
