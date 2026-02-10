@@ -16,6 +16,7 @@ export default function CreatePreDeal() {
   const navigate = useNavigate();
   const [scheduledAt, setScheduledAt] = useState<Date | null>(null);
   const { t } = useLanguage();
+  const isLocalDev = import.meta.env.DEV;
 
   const createMutation = useMutation({
     mutationFn: predealsCreate,
@@ -43,8 +44,8 @@ export default function CreatePreDeal() {
       return false;
     }
     const scheduledTime = new Date(scheduledIso).getTime();
-    return scheduledTime > Date.now() + 60 * 60 * 1000;
-  }, [scheduledIso]);
+    return scheduledTime > (isLocalDev ? Date.now() : Date.now() + 60 * 60 * 1000);
+  }, [scheduledIso, isLocalDev]);
 
   const handleSubmit = async () => {
     if (!listingId) {

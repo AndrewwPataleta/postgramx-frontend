@@ -45,8 +45,9 @@ const minTimeStringForDay = (selectedDay: Date, minSelectableTime: Date) => {
 };
 
 export function ScheduleDatePicker({ value, onChange }: ScheduleDatePickerProps) {
-  // минимум = сейчас + 1 час, округлить вверх до 5 минут
-  const minDateTime = useMemo(() => addHours(new Date(), 1), []);
+  const isLocalDev = import.meta.env.DEV;
+  // В локальной разработке убираем ограничение "+1 час" для более удобного тестирования.
+  const minDateTime = useMemo(() => (isLocalDev ? new Date(0) : addHours(new Date(), 1)), [isLocalDev]);
   const minSelectableTime = useMemo(
     () => roundUpToInterval(minDateTime, TIME_INTERVAL_MINUTES),
     [minDateTime],
