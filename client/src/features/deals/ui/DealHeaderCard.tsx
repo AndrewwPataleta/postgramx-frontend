@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import type { DealEntity } from "@/models/entities";
-import { cn } from "@/lib/utils";
 import { formatTon } from "@/i18n/formatters";
 import { formatDuration, getListingFormatLabel } from "@/i18n/labels";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { ChevronDown } from "lucide-react";
+import { COUNTDOWN_TICK_MS, formatHmsCountdown } from "@/features/deals/time";
 
 interface DealHeaderCardProps {
   deal: DealEntity;
@@ -15,7 +15,8 @@ export default function DealHeaderCard({ deal }: DealHeaderCardProps) {
   const [expanded, setExpanded] = useState(false);
   const [idleCountdown, setIdleCountdown] = useState<string | null>(null);
   const priceLabel = `${formatTon(deal.listingSnapshot.priceNano, language)} ${t("common.ton")}`;
-  const channelTitle = deal.channel?.title ?? deal.channel?.username ?? "Unknown";
+  const channelTitle =
+    deal.channel?.title ?? deal.channel?.username ?? "Unknown";
   const channelUsername = deal.channel?.username
     ? `@${deal.channel.username.replace(/^@/, "")}`
     : "Unknown";
@@ -28,14 +29,18 @@ export default function DealHeaderCard({ deal }: DealHeaderCardProps) {
     () => [
       {
         label: t("listings.pinDuration"),
-        value: pinDurationHours ? formatDuration(pinDurationHours, t) : t("common.none"),
+        value: pinDurationHours
+          ? formatDuration(pinDurationHours, t)
+          : t("common.none"),
       },
       {
         label: t("listings.lifetimeDuration"),
-        value: lifetimeHours ? formatDuration(lifetimeHours, t) : t("common.emptyValue"),
+        value: lifetimeHours
+          ? formatDuration(lifetimeHours, t)
+          : t("common.emptyValue"),
       },
     ],
-    [pinDurationHours, lifetimeHours, t]
+    [pinDurationHours, lifetimeHours, t],
   );
 
   useEffect(() => {
@@ -44,20 +49,10 @@ export default function DealHeaderCard({ deal }: DealHeaderCardProps) {
       return;
     }
     const updateCountdown = () => {
-      const deadlineMs = new Date(deal.idleExpiresAt ?? "").getTime();
-      if (Number.isNaN(deadlineMs)) {
-        setIdleCountdown(null);
-        return;
-      }
-      const diff = Math.max(0, deadlineMs - Date.now());
-      const hours = Math.floor(diff / 3_600_000);
-      const minutes = Math.floor((diff % 3_600_000) / 60_000);
-      const seconds = Math.floor((diff % 60_000) / 1000);
-      const pad = (value: number) => value.toString().padStart(2, "0");
-      setIdleCountdown(`${pad(hours)}:${pad(minutes)}:${pad(seconds)}`);
+      setIdleCountdown(formatHmsCountdown(deal.idleExpiresAt));
     };
     updateCountdown();
-    const interval = window.setInterval(updateCountdown, 1000);
+    const interval = window.setInterval(updateCountdown, COUNTDOWN_TICK_MS);
     return () => window.clearInterval(interval);
   }, [deal.idleExpiresAt]);
 
@@ -90,8 +85,13 @@ export default function DealHeaderCard({ deal }: DealHeaderCardProps) {
           onClick={() => setExpanded((prev) => !prev)}
           className="flex w-full items-center justify-between rounded-lg border border-border/60 bg-background/60 px-3 py-2 text-xs font-semibold text-muted-foreground transition hover:text-foreground"
         >
-          <span>{expanded ? t("common.hideDetails") : t("common.showDetails")}</span>
-          <ChevronDown size={14} className={`transition-transform ${expanded ? "rotate-180" : ""}`} />
+          <span>
+            {expanded ? t("common.hideDetails") : t("common.showDetails")}
+          </span>
+          <ChevronDown
+            size={14}
+            className={`transition-transform ${expanded ? "rotate-180" : ""}`}
+          />
         </button>
       </div>
 
@@ -112,11 +112,16 @@ export default function DealHeaderCard({ deal }: DealHeaderCardProps) {
 
           <div className="grid gap-2 sm:grid-cols-2">
             {detailItems.map((item) => (
-              <div key={item.label} className="flex items-center justify-between gap-2">
+              <div
+                key={item.label}
+                className="flex items-center justify-between gap-2"
+              >
                 <span className="text-[11px] font-semibold text-muted-foreground">
                   {item.label}
                 </span>
-                <span className="font-semibold text-foreground">{item.value}</span>
+                <span className="font-semibold text-foreground">
+                  {item.value}
+                </span>
               </div>
             ))}
           </div>
@@ -126,10 +131,11 @@ export default function DealHeaderCard({ deal }: DealHeaderCardProps) {
               <p className="text-[11px] font-semibold text-foreground/80">
                 {t("listings.rulesTitle")}
               </p>
-              <p className="mt-1 text-xs text-muted-foreground">{deal.listingSnapshot.contentRulesText}</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {deal.listingSnapshot.contentRulesText}
+              </p>
             </div>
           ) : null}
-
         </div>
       ) : null}
     </div>

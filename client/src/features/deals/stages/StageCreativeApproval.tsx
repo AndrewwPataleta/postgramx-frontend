@@ -3,10 +3,15 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import InfoCard from "@/features/deals/ui/InfoCard";
 import type { DealEntity } from "@/models/entities";
-import { approveCreative, rejectCreative, requestCreativeEdits } from "@/api/features/dealsApi";
+import {
+  approveCreative,
+  rejectCreative,
+  requestCreativeEdits,
+} from "@/api/features/dealsApi";
 import { getErrorMessage } from "@/lib/api/errors";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/i18n/LanguageProvider";
+import { COUNTDOWN_TICK_MS, formatHmsCountdown } from "@/features/deals/time";
 
 interface StageAdminApprovalProps {
   deal: DealEntity;
@@ -18,22 +23,6 @@ interface StageAdminApprovalProps {
   };
 }
 
-const formatAdminCountdown = (deadline: string | null | undefined) => {
-  if (!deadline) {
-    return null;
-  }
-  const deadlineMs = new Date(deadline).getTime();
-  if (Number.isNaN(deadlineMs)) {
-    return null;
-  }
-  const diff = Math.max(0, deadlineMs - Date.now());
-  const hours = Math.floor(diff / 3_600_000);
-  const minutes = Math.floor((diff % 3_600_000) / 60_000);
-  const seconds = Math.floor((diff % 60_000) / 1000);
-  const pad = (value: number) => value.toString().padStart(2, "0");
-  return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
-};
-
 export default function StageCreativeApproval({
   deal,
   readonly,
@@ -42,7 +31,7 @@ export default function StageCreativeApproval({
   const queryClient = useQueryClient();
   const { t } = useLanguage();
   const [countdown, setCountdown] = useState<string | null>(() =>
-    formatAdminCountdown(deal.idleExpiresAt)
+    formatHmsCountdown(deal.idleExpiresAt),
   );
 
   useEffect(() => {
@@ -51,10 +40,10 @@ export default function StageCreativeApproval({
       return;
     }
     const updateCountdown = () => {
-      setCountdown(formatAdminCountdown(deal.idleExpiresAt));
+      setCountdown(formatHmsCountdown(deal.idleExpiresAt));
     };
     updateCountdown();
-    const interval = window.setInterval(updateCountdown, 1000);
+    const interval = window.setInterval(updateCountdown, COUNTDOWN_TICK_MS);
     return () => window.clearInterval(interval);
   }, [deal.idleExpiresAt]);
 
@@ -67,7 +56,9 @@ export default function StageCreativeApproval({
       queryClient.invalidateQueries({ queryKey: ["deal", deal.id] });
     },
     onError: (error) => {
-      toast.error(getErrorMessage(error, t("deals.stage.adminApproval.approveError"), t));
+      toast.error(
+        getErrorMessage(error, t("deals.stage.adminApproval.approveError"), t),
+      );
     },
   });
 
@@ -80,7 +71,9 @@ export default function StageCreativeApproval({
       queryClient.invalidateQueries({ queryKey: ["deal", deal.id] });
     },
     onError: (error) => {
-      toast.error(getErrorMessage(error, t("deals.stage.adminApproval.requestError"), t));
+      toast.error(
+        getErrorMessage(error, t("deals.stage.adminApproval.requestError"), t),
+      );
     },
   });
 
@@ -93,7 +86,9 @@ export default function StageCreativeApproval({
       queryClient.invalidateQueries({ queryKey: ["deal", deal.id] });
     },
     onError: (error) => {
-      toast.error(getErrorMessage(error, t("deals.stage.adminApproval.rejectError"), t));
+      toast.error(
+        getErrorMessage(error, t("deals.stage.adminApproval.rejectError"), t),
+      );
     },
   });
 
@@ -153,7 +148,7 @@ export default function StageCreativeApproval({
           disabled={approveMutation.isPending}
           className={cn(
             "rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground",
-            approveMutation.isPending && "cursor-not-allowed opacity-60"
+            approveMutation.isPending && "cursor-not-allowed opacity-60",
           )}
         >
           {t("common.approve")}
@@ -164,7 +159,7 @@ export default function StageCreativeApproval({
           disabled={requestChangesMutation.isPending}
           className={cn(
             "rounded-lg border border-border/60 px-4 py-2 text-xs font-semibold text-foreground",
-            requestChangesMutation.isPending && "cursor-not-allowed opacity-60"
+            requestChangesMutation.isPending && "cursor-not-allowed opacity-60",
           )}
         >
           {t("common.requestChanges")}
@@ -175,7 +170,7 @@ export default function StageCreativeApproval({
           disabled={rejectMutation.isPending}
           className={cn(
             "rounded-lg border border-border/60 px-4 py-2 text-xs font-semibold text-foreground",
-            rejectMutation.isPending && "cursor-not-allowed opacity-60"
+            rejectMutation.isPending && "cursor-not-allowed opacity-60",
           )}
         >
           {t("common.reject")}
