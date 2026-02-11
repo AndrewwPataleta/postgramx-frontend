@@ -1,13 +1,25 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-const readJson = (relativePath: string) => {
-  const filePath = resolve(process.cwd(), relativePath);
+const resolveExistingPath = (paths: string[]) => {
+  const filePath = paths
+    .map((relativePath) => resolve(process.cwd(), relativePath))
+    .find((candidate) => existsSync(candidate));
+
+  if (!filePath) {
+    throw new Error(`None of the expected locale files were found: ${paths.join(", ")}`);
+  }
+
+  return filePath;
+};
+
+const readJson = (paths: string[]) => {
+  const filePath = resolveExistingPath(paths);
   return JSON.parse(readFileSync(filePath, "utf-8")) as Record<string, string>;
 };
 
-const en = readJson("client/i18n/locales/en.json");
-const ru = readJson("client/i18n/locales/ru.json");
+const en = readJson(["client/src/i18n/locales/en.json", "client/i18n/locales/en.json"]);
+const ru = readJson(["client/src/i18n/locales/ru.json", "client/i18n/locales/ru.json"]);
 
 const enKeys = new Set(Object.keys(en));
 const ruKeys = new Set(Object.keys(ru));
