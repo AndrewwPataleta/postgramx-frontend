@@ -1,0 +1,6 @@
+import{c as d,a as i,j as e}from"./index-BtDkYxvh.js";/**
+ * @license lucide-react v0.539.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const a=[["path",{d:"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3",key:"wmoenq"}],["path",{d:"M12 9v4",key:"juzpu7"}],["path",{d:"M12 17h.01",key:"p32p05"}]],l=d("triangle-alert",a),m=({message:s,description:o,onRetry:r})=>{const{t}=i(),n=s??t("errors.genericTitle"),c=o??t("errors.genericSubtitle");return e.jsxs("div",{className:"rounded-2xl border border-border/60 bg-card/80 p-6 text-center text-sm text-muted-foreground",children:[e.jsx("div",{className:"mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10 text-destructive",children:e.jsx(l,{size:20})}),e.jsx("p",{className:"text-sm font-semibold text-foreground",children:n}),e.jsx("p",{className:"mt-1 text-xs text-muted-foreground",children:c}),r?e.jsx("button",{type:"button",onClick:r,className:"mt-4 inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground",children:t("common.retry")}):null]})};export{m as E};
