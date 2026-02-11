@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Megaphone, ShoppingCart } from "lucide-react";
+import { Filter } from "lucide-react";
 import DealListCard from "@/features/deals/ui/DealListCard";
 import ErrorState from "@/design-system/components/ErrorState";
 import { PageContainer } from "@/design-system/components/PageContainer";
@@ -13,7 +13,11 @@ import { ROUTES } from "@/constants/routes";
 import type { DealEntity, Paged } from "@/models/entities";
 import { useAuth } from "@/features/auth/ui/AuthProvider";
 import { useLanguage } from "@/i18n/LanguageProvider";
-import { AnimatedList, AnimatedListItem } from "@/motion/AnimatedList";
+import { Button } from "@/design-system/ui/button";
+import DealsFiltersSheet from "@/components/deals/DealsFiltersSheet";
+import { useDealsFilters } from "@/features/deals/filters/useDealsFilters";
+import { applyDealsFilters, detectDealsFilterCapabilities } from "@/features/deals/filters/applyDealsFilters";
+import { countActiveFilters } from "@/features/deals/filters/countActiveFilters";
 
 const DEFAULT_LIMIT = 5;
 
@@ -84,6 +88,8 @@ export default function Deals() {
   );
 
   const { data, isLoading, isFetching, error, refetch } = useDealsListQuery(queryParams);
+  const { filters, setFilters, resetFilters } = useDealsFilters();
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   useEffect(() => {
     if (!data) {
@@ -147,28 +153,33 @@ export default function Deals() {
   const handleSelectDeal = useCallback(
     (deal: DealEntity) => {
       queryClient.setQueryData(["dealById", deal.id], deal);
-      const currentUserId = (user as { id?: string } | null)?.id;
-      const dealRole =
-        currentUserId && currentUserId === deal.advertiserUserId
-          ? "advertiser"
-          : "publisher";
       navigate(ROUTES.DEAL_DETAILS(deal.id));
     },
-    [navigate, queryClient, user]
+    [navigate, queryClient]
   );
 
   const currentGroup = groups[activeTab];
+  const currentUserId = (user as { id?: string } | null)?.id;
+  const filteredDeals = useMemo(
+    () => applyDealsFilters(currentGroup.items, filters, activeTab, currentUserId),
+    [activeTab, currentGroup.items, currentUserId, filters]
+  );
+  const filterCapabilities = useMemo(
+    () => detectDealsFilterCapabilities(currentGroup.items),
+    [currentGroup.items]
+  );
+  const activeFiltersCount = useMemo(() => countActiveFilters(filters), [filters]);
+
   const { buyerDeals, sellerDeals } = useMemo(() => {
-    const currentUserId = (user as { id?: string } | null)?.id;
-    const buyer = currentGroup.items.filter(
+    const buyer = filteredDeals.filter(
       (deal) => currentUserId && currentUserId === deal.advertiserUserId
     );
-    const seller = currentGroup.items.filter(
+    const seller = filteredDeals.filter(
       (deal) => !currentUserId || currentUserId !== deal.advertiserUserId
     );
     return { buyerDeals: buyer, sellerDeals: seller };
-  }, [currentGroup.items, user]);
-  const hasMore = currentGroup.items.length < currentGroup.total;
+  }, [filteredDeals, currentUserId]);
+  const hasMore = activeFiltersCount === 0 && currentGroup.items.length < currentGroup.total;
   const showEmptyState =
     !isLoading && !error && buyerDeals.length === 0 && sellerDeals.length === 0 && !isFetching;
   const emptyStateCopy = {
@@ -194,21 +205,44 @@ export default function Deals() {
         ) : (
           <>
             <div>
-              <div className="mt-4 flex gap-6 border-b border-border/60">
-                {(["pending", "active", "completed"] as DealSectionKey[]).map((tab) => (
-                  <button
-                    key={tab}
-                    type="button"
-                    onClick={() => setActiveTab(tab)}
-                    className={`pb-3 text-sm font-semibold transition-colors ${
-                      activeTab === tab
-                        ? "border-b-2 border-primary text-primary"
-                        : "text-muted-foreground"
-                    }`}
-                  >
-                    {t(`deals.tabs.${tab}`)}
-                  </button>
-                ))}
+              <div className="mt-4 flex items-center justify-between gap-2 border-b border-border/60">
+                <div className="flex-1 min-w-0 overflow-x-auto">
+                  <div className="flex min-w-max gap-6">
+                    {(["pending", "active", "completed"] as DealSectionKey[]).map((tab) => (
+                      <button
+                        key={tab}
+                        type="button"
+                        onClick={() => setActiveTab(tab)}
+                        className={`pb-3 text-sm font-semibold transition-colors ${
+                          activeTab === tab
+                            ? "border-b-2 border-primary text-primary"
+                            : "text-muted-foreground"
+                        }`}
+                      >
+                        {t(`deals.tabs.${tab}`)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="shrink-0 relative mb-2"
+                  onClick={() => setFiltersOpen(true)}
+                  aria-label={
+                    activeFiltersCount > 0
+                      ? t("deals.filters.activeCount", { count: activeFiltersCount })
+                      : t("deals.filters.button")
+                  }
+                >
+                  <Filter className="h-4 w-4" />
+                  {activeFiltersCount > 0 ? (
+                    <span className="absolute -right-0.5 -top-0.5 min-w-4 h-4 rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground leading-4 text-center">
+                      {activeFiltersCount}
+                    </span>
+                  ) : null}
+                </Button>
               </div>
             </div>
 
@@ -230,21 +264,13 @@ export default function Deals() {
             ) : (
               <div className="space-y-5">
                 {buyerDeals.length > 0 ? (
-                  <AnimatedList
-                    key={`buyer-${activeTab}`}
-                    itemsCount={buyerDeals.length}
-                    className="space-y-3"
-                  >
-                    {buyerDeals.map((deal, index) => (
-                      <AnimatedListItem
-                        key={deal.id}
-                        index={index}
-                        pulseKey={deal.status}
-                      >
+                  <div className="space-y-3">
+                    {buyerDeals.map((deal) => (
+                      <div key={deal.id}>
                         <DealListCard deal={deal} onSelect={handleSelectDeal} />
-                      </AnimatedListItem>
+                      </div>
                     ))}
-                  </AnimatedList>
+                  </div>
                 ) : null}
 
                 {buyerDeals.length > 0 && sellerDeals.length > 0 ? (
@@ -252,21 +278,13 @@ export default function Deals() {
                 ) : null}
 
                 {sellerDeals.length > 0 ? (
-                  <AnimatedList
-                    key={`seller-${activeTab}`}
-                    itemsCount={sellerDeals.length}
-                    className="space-y-3"
-                  >
-                    {sellerDeals.map((deal, index) => (
-                      <AnimatedListItem
-                        key={deal.id}
-                        index={index}
-                        pulseKey={deal.status}
-                      >
+                  <div className="space-y-3">
+                    {sellerDeals.map((deal) => (
+                      <div key={deal.id}>
                         <DealListCard deal={deal} onSelect={handleSelectDeal} />
-                      </AnimatedListItem>
+                      </div>
                     ))}
-                  </AnimatedList>
+                  </div>
                 ) : null}
 
                 {hasMore ? (
@@ -283,6 +301,16 @@ export default function Deals() {
             )}
           </>
         )}
+
+        <DealsFiltersSheet
+          open={filtersOpen}
+          onOpenChange={setFiltersOpen}
+          filters={filters}
+          onChange={setFilters}
+          onReset={resetFilters}
+          activeTab={activeTab}
+          capabilities={filterCapabilities}
+        />
       </PageContainer>
     </div>
   );
