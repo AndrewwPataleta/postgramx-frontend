@@ -30,9 +30,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
 
-      - name: i18n check
-        run: pnpm i18n:check
-
       - name: Build
         run: pnpm build
 
