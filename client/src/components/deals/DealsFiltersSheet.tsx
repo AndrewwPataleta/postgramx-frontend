@@ -49,6 +49,7 @@ export default function DealsFiltersSheet({
   }, [filters, open]);
 
   const showDateCustom = draft.datePreset === "custom";
+  const selectedStagesCount = draft.stages.length;
 
   const stageOptions = useMemo(() => {
     return STAGE_TAB_ORDER.map((tab) => ({
@@ -76,10 +77,10 @@ export default function DealsFiltersSheet({
 
   return (
     <BottomSheet open={open} onOpenChange={onOpenChange} title={t("deals.filters.title")}>
-      <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
-        <div className="space-y-2">
+      <div className="max-h-[72vh] space-y-4 overflow-y-auto pr-1">
+        <div className="space-y-2 rounded-xl border border-border/60 bg-muted/20 p-3">
           <Label className="text-sm font-medium">{t("deals.filters.role.label")}</Label>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
             {ROLE_OPTIONS.map((role) => (
               <Button
                 key={role}
@@ -87,7 +88,7 @@ export default function DealsFiltersSheet({
                 variant={draft.role === role ? "default" : "outline"}
                 size="sm"
                 onClick={() => setDraft((prev) => ({ ...prev, role }))}
-                className="capitalize"
+                className="h-10 capitalize"
               >
                 {t(`deals.filters.role.${role}` as TranslationKey)}
               </Button>
@@ -97,16 +98,22 @@ export default function DealsFiltersSheet({
 
         <Separator />
 
-        <div className="space-y-3">
-          <Label className="text-sm font-medium">{t("deals.filters.stage.label")}</Label>
+        <div className="space-y-3 rounded-xl border border-border/60 bg-muted/20 p-3">
+          <div className="flex items-baseline justify-between gap-3">
+            <Label className="text-sm font-medium">{t("deals.filters.stage.label")}</Label>
+            <span className="text-xs text-muted-foreground">{selectedStagesCount}</span>
+          </div>
           {stageOptions.map(({ tab, stages }) => (
             <div key={tab} className="space-y-2">
               <p className={`text-xs uppercase ${tab === activeTab ? "text-primary" : "text-muted-foreground"}`}>
                 {t(`deals.tabs.${tab}` as TranslationKey)}
               </p>
-              <div className="space-y-2">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 {stages.map((stage) => (
-                  <label key={stage} className="flex items-center gap-2 text-sm text-foreground">
+                  <label
+                    key={stage}
+                    className="flex items-center gap-2 rounded-lg border border-border/50 bg-background/30 px-2 py-2 text-sm text-foreground transition hover:border-primary/50"
+                  >
                     <Checkbox
                       checked={draft.stages.includes(stage)}
                       onCheckedChange={(checked) => updateStage(stage, checked === true)}
@@ -121,7 +128,7 @@ export default function DealsFiltersSheet({
 
         <Separator />
 
-        <div className="space-y-2">
+        <div className="space-y-2 rounded-xl border border-border/60 bg-muted/20 p-3">
           <Label htmlFor="deals-filter-query" className="text-sm font-medium">
             {t("deals.filters.channelSearch.label")}
           </Label>
@@ -135,43 +142,49 @@ export default function DealsFiltersSheet({
 
         <Separator />
 
-        <div className="space-y-2">
+        <div className="space-y-2 rounded-xl border border-border/60 bg-muted/20 p-3">
           <Label className="text-sm font-medium">{t("deals.filters.amount.label")}</Label>
-          <div className="grid grid-cols-2 gap-2">
-            <Input
-              type="number"
-              min="0"
-              placeholder={t("deals.filters.amount.min")}
-              value={draft.amountMinTon ?? ""}
-              onChange={(event) => {
-                const value = event.target.value;
-                setDraft((prev) => ({
-                  ...prev,
-                  amountMinTon: value ? Number(value) : undefined,
-                }));
-              }}
-            />
-            <Input
-              type="number"
-              min="0"
-              placeholder={t("deals.filters.amount.max")}
-              value={draft.amountMaxTon ?? ""}
-              onChange={(event) => {
-                const value = event.target.value;
-                setDraft((prev) => ({
-                  ...prev,
-                  amountMaxTon: value ? Number(value) : undefined,
-                }));
-              }}
-            />
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <div className="space-y-1">
+              <Label className="text-xs text-muted-foreground">{t("deals.filters.amount.min")}</Label>
+              <Input
+                type="number"
+                min="0"
+                placeholder={t("deals.filters.amount.min")}
+                value={draft.amountMinTon ?? ""}
+                onChange={(event) => {
+                  const value = event.target.value;
+                  setDraft((prev) => ({
+                    ...prev,
+                    amountMinTon: value ? Number(value) : undefined,
+                  }));
+                }}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs text-muted-foreground">{t("deals.filters.amount.max")}</Label>
+              <Input
+                type="number"
+                min="0"
+                placeholder={t("deals.filters.amount.max")}
+                value={draft.amountMaxTon ?? ""}
+                onChange={(event) => {
+                  const value = event.target.value;
+                  setDraft((prev) => ({
+                    ...prev,
+                    amountMaxTon: value ? Number(value) : undefined,
+                  }));
+                }}
+              />
+            </div>
           </div>
         </div>
 
         <Separator />
 
-        <div className="space-y-2">
+        <div className="space-y-2 rounded-xl border border-border/60 bg-muted/20 p-3">
           <Label className="text-sm font-medium">{t("deals.filters.date.label")}</Label>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             {DATE_OPTIONS.map((option) => (
               <Button
                 key={option}
@@ -240,7 +253,7 @@ export default function DealsFiltersSheet({
         ) : null}
       </div>
 
-      <div className="mt-4 grid grid-cols-2 gap-2">
+      <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
         <Button type="button" variant="outline" onClick={reset}>
           {t("deals.filters.reset")}
         </Button>
