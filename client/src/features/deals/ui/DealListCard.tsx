@@ -1,4 +1,3 @@
-
 import { memo, useEffect, useMemo, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import type { DealEntity } from "@/models/entities";
@@ -14,6 +13,7 @@ import { useLanguage } from "@/i18n/LanguageProvider";
 import { USER_ROLE } from "@/constants/roles";
 import { useAuth } from "@/features/auth/ui/AuthProvider";
 import { stageToLabel } from "@/features/deals/dealStageMachine";
+import { COUNTDOWN_TICK_MS, formatHmsCountdown } from "@/features/deals/time";
 
 const roleToneMap: Record<string, string> = {
   [USER_ROLE.ADVERTISER]: "bg-success/10 text-success",
@@ -26,32 +26,15 @@ interface DealListCardProps {
   onSelect: (deal: DealEntity) => void;
 }
 
-const formatIdleCountdown = (deadline: string | null | undefined) => {
-  if (!deadline) {
-    return null;
-  }
-  const deadlineMs = new Date(deadline).getTime();
-  if (Number.isNaN(deadlineMs)) {
-    return null;
-  }
-  const diff = Math.max(0, deadlineMs - Date.now());
-  const hours = Math.floor(diff / 3_600_000);
-  const minutes = Math.floor((diff % 3_600_000) / 60_000);
-  const seconds = Math.floor((diff % 60_000) / 1000);
-  const pad = (value: number) => value.toString().padStart(2, "0");
-  return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
-};
-
 const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
   const { t, language } = useLanguage();
   const { user } = useAuth();
   const [expanded, setExpanded] = useState(false);
   const [idleCountdown, setIdleCountdown] = useState<string | null>(() =>
-    formatIdleCountdown(deal.idleExpiresAt)
+    formatHmsCountdown(deal.idleExpiresAt),
   );
 
   const currentUserId = (user as { id?: string } | null)?.id;
-
 
   const channelTitle = deal?.channel?.title ?? t("common.emptyValue");
   const channelUsername = deal?.channel?.username ?? "";
@@ -71,7 +54,13 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
     ? getPinnedDurationLabel(t, listingSnapshot.pinDurationHours)
     : null;
 
-  const detailLine = [getListingFormatLabel(t, deal.listingSnapshot.format), visibilityLabel, pinnedLabel].filter(Boolean).join(" • ");
+  const detailLine = [
+    getListingFormatLabel(t, deal.listingSnapshot.format),
+    visibilityLabel,
+    pinnedLabel,
+  ]
+    .filter(Boolean)
+    .join(" • ");
 
   const escrowStatus =
     (deal as any)?.escrow?.status ?? (deal as any)?.escrowStatus ?? null;
@@ -84,7 +73,6 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
     currentUserId && currentUserId === deal?.advertiserUserId
       ? USER_ROLE.ADVERTISER
       : USER_ROLE.PUBLISHER;
-
 
   useMemo(() => {
     if (!deal?.escrow && !(deal as any)?.escrowStatus) {
@@ -99,10 +87,10 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
       return;
     }
     const updateCountdown = () => {
-      setIdleCountdown(formatIdleCountdown(deal.idleExpiresAt));
+      setIdleCountdown(formatHmsCountdown(deal.idleExpiresAt));
     };
     updateCountdown();
-    const interval = window.setInterval(updateCountdown, 1000);
+    const interval = window.setInterval(updateCountdown, COUNTDOWN_TICK_MS);
     return () => window.clearInterval(interval);
   }, [deal.idleExpiresAt]);
 
@@ -145,25 +133,30 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
               <span className="truncate">{channelTitle}</span>
             </div>
             {channelUsername ? (
-              <p className="text-xs text-muted-foreground">@{channelUsername}</p>
+              <p className="text-xs text-muted-foreground">
+                @{channelUsername}
+              </p>
             ) : (
-              <p className="text-xs text-muted-foreground">{t("common.emptyValue")}</p>
+              <p className="text-xs text-muted-foreground">
+                {t("common.emptyValue")}
+              </p>
             )}
           </div>
-
         </div>
 
         <span
           className={`max-w-[160px] truncate whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold ${roleToneMap[resolvedRole]}`}
           style={{ textOverflow: "ellipsis" }}
         >
-
-          {t("deals.badge.youAreRole", { role: getDealRoleLabel(t, resolvedRole) })}
+          {t("deals.badge.youAreRole", {
+            role: getDealRoleLabel(t, resolvedRole),
+          })}
         </span>
-
       </div>
       <div className="mt-3 space-y-1">
-        {detailLine ? <p className="text-xs text-muted-foreground">{detailLine}</p> : null}
+        {detailLine ? (
+          <p className="text-xs text-muted-foreground">{detailLine}</p>
+        ) : null}
       </div>
       <button
         type="button"
@@ -173,13 +166,17 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
         }}
         className="mt-3 flex w-full items-center justify-between rounded-lg border border-border/60 bg-background/60 px-3 py-2 text-xs font-semibold text-muted-foreground transition hover:text-foreground"
       >
-        <span>{expanded ? t("common.hideDetails") : t("common.showDetails")}</span>
-        <ChevronDown size={14} className={`transition-transform ${expanded ? "rotate-180" : ""}`} />
+        <span>
+          {expanded ? t("common.hideDetails") : t("common.showDetails")}
+        </span>
+        <ChevronDown
+          size={14}
+          className={`transition-transform ${expanded ? "rotate-180" : ""}`}
+        />
       </button>
 
       {expanded ? (
         <div className="mt-3 space-y-3 text-xs text-muted-foreground">
-
           {listingSnapshot?.tags?.length ? (
             <div className="flex flex-wrap ">
               {listingSnapshot.tags.map((tag, index) => (
@@ -192,8 +189,6 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
               ))}
             </div>
           ) : null}
-
-
         </div>
       ) : null}
     </div>
