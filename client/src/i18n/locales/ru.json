@@ -379,7 +379,7 @@
   "deals.timeline.stage.POST_SCHEDULED": "Запланировано",
   "deals.timeline.stage.FINALIZED": "Завершено",
   "deals.timeline.stage.POSTED_VERIFYING": "Проверка публикации",
-  "deals.timeline.stage.DELIVERY_CONFIRMED": "Опубликовано",
+  "deals.timeline.stage.POSTED_VERIFYING": "Опубликовано",
   "deals.timeline.step.accepted": "Принята",
   "deals.timeline.step.creative": "Креатив",
   "deals.timeline.step.payment": "Оплата",

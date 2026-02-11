@@ -379,7 +379,7 @@
   "deals.timeline.stage.POST_SCHEDULED": "Scheduled",
   "deals.timeline.stage.FINALIZED": "Finished",
   "deals.timeline.stage.POSTED_VERIFYING": "Verifying",
-  "deals.timeline.stage.DELIVERY_CONFIRMED": "Published",
+  "deals.timeline.stage.POSTED_VERIFYING": "Published",
   "deals.timeline.step.accepted": "Accepted",
   "deals.timeline.step.creative": "Creative",
   "deals.timeline.step.payment": "Payment",
