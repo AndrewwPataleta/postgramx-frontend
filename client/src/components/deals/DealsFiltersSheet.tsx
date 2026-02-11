@@ -76,8 +76,14 @@ export default function DealsFiltersSheet({
   };
 
   return (
-    <BottomSheet open={open} onOpenChange={onOpenChange} title={t("deals.filters.title")}>
-      <div className="max-h-[72vh] space-y-4 overflow-y-auto pr-1">
+    <BottomSheet
+      open={open}
+      onOpenChange={onOpenChange}
+      title={t("deals.filters.title")}
+      contentClassName="flex max-h-[85dvh] flex-col overflow-hidden sm:max-h-[80vh]"
+      bodyClassName="flex min-h-0 flex-1 flex-col"
+    >
+      <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1">
         <div className="space-y-2 rounded-xl border border-border/60 bg-muted/20 p-3">
           <Label className="text-sm font-medium">{t("deals.filters.role.label")}</Label>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
