@@ -123,14 +123,6 @@ export const applyDealsFilters = (
       return false;
     }
 
-    if (filters.role === "advertiser" && currentUserId && deal.advertiserUserId !== currentUserId) {
-      return false;
-    }
-
-    if (filters.role === "publisher" && currentUserId && deal.advertiserUserId === currentUserId) {
-      return false;
-    }
-
     if (selectedStages.size > 0 && !selectedStages.has(deal.stage)) {
       return false;
     }

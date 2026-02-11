@@ -3,9 +3,6 @@ import type { DealsFilters } from "./filters.types";
 export const countActiveFilters = (filters: DealsFilters): number => {
   let count = 0;
 
-  if (filters.role !== "all") {
-    count += 1;
-  }
   if (filters.stages.length > 0) {
     count += 1;
   }

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/design-system/ui/button";
 import { Checkbox } from "@/design-system/ui/checkbox";
 import BottomSheet from "@/design-system/components/BottomSheet";
@@ -25,9 +25,6 @@ type DealsFiltersSheetProps = {
   };
 };
 
-const STAGE_TAB_ORDER: DealSectionKey[] = ["pending", "active", "completed"];
-
-const ROLE_OPTIONS: DealsFilters["role"][] = ["all", "advertiser", "publisher"];
 const DATE_OPTIONS: DealsFilters["datePreset"][] = ["all", "today", "7d", "30d", "custom"];
 
 export default function DealsFiltersSheet({
@@ -44,19 +41,14 @@ export default function DealsFiltersSheet({
 
   useEffect(() => {
     if (!open) {
-      setDraft(filters);
+      setDraft({ ...filters, role: "all" });
     }
   }, [filters, open]);
 
   const showDateCustom = draft.datePreset === "custom";
-  const selectedStagesCount = draft.stages.length;
+  const selectedStagesCount = draft.stages.filter((stage) => DEAL_STAGE_GROUPS[activeTab].includes(stage)).length;
 
-  const stageOptions = useMemo(() => {
-    return STAGE_TAB_ORDER.map((tab) => ({
-      tab,
-      stages: DEAL_STAGE_GROUPS[tab],
-    }));
-  }, []);
+  const stageOptions = [{ tab: activeTab, stages: DEAL_STAGE_GROUPS[activeTab] }];
 
   const updateStage = (stage: DealStage, checked: boolean) => {
     setDraft((prev) => ({
@@ -66,7 +58,7 @@ export default function DealsFiltersSheet({
   };
 
   const apply = () => {
-    onChange(draft);
+    onChange({ ...draft, role: "all" });
     onOpenChange(false);
   };
 
@@ -84,26 +76,6 @@ export default function DealsFiltersSheet({
       bodyClassName="flex min-h-0 flex-1 flex-col"
     >
       <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1">
-        <div className="space-y-2 rounded-xl border border-border/60 bg-muted/20 p-3">
-          <Label className="text-sm font-medium">{t("deals.filters.role.label")}</Label>
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-            {ROLE_OPTIONS.map((role) => (
-              <Button
-                key={role}
-                type="button"
-                variant={draft.role === role ? "default" : "outline"}
-                size="sm"
-                onClick={() => setDraft((prev) => ({ ...prev, role }))}
-                className="h-10 capitalize"
-              >
-                {t(`deals.filters.role.${role}` as TranslationKey)}
-              </Button>
-            ))}
-          </div>
-        </div>
-
-        <Separator />
-
         <div className="space-y-3 rounded-xl border border-border/60 bg-muted/20 p-3">
           <div className="flex items-baseline justify-between gap-3">
             <Label className="text-sm font-medium">{t("deals.filters.stage.label")}</Label>
