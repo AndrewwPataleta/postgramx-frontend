@@ -101,50 +101,6 @@ export default function DealsFiltersSheet({
       bodyClassName="flex min-h-0 flex-1 flex-col"
     >
       <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1">
-        {showStageFilters ? (
-          <>
-            <div className="space-y-3 rounded-xl border border-border/60 bg-muted/20 p-3">
-              <div className="flex items-baseline justify-between gap-3">
-                <Label className="text-sm font-medium">
-                  {t("deals.filters.stage.label")}
-                </Label>
-                <span className="text-xs text-muted-foreground">
-                  {selectedStagesCount}
-                </span>
-              </div>
-              {stageOptions.map(({ tab, stages }) => (
-                <div key={tab} className="space-y-2">
-                  <p
-                    className={`text-xs uppercase ${tab === activeTab ? "text-primary" : "text-muted-foreground"}`}
-                  >
-                    {t(`deals.tabs.${tab}` as TranslationKey)}
-                  </p>
-                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                    {stages.map((stage) => (
-                      <label
-                        key={stage}
-                        className="flex items-center gap-2 rounded-lg border border-border/50 bg-background/30 px-2 py-2 text-sm text-foreground transition hover:border-primary/50"
-                      >
-                        <Checkbox
-                          checked={draft.stages.includes(stage)}
-                          onCheckedChange={(checked) =>
-                            updateStage(stage, checked === true)
-                          }
-                        />
-                        <span>
-                          {t(`deals.timeline.stage.${stage}` as TranslationKey)}
-                        </span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <Separator />
-          </>
-        ) : null}
-
         <div className="space-y-2 rounded-xl border border-border/60 bg-muted/20 p-3">
           <Label htmlFor="deals-filter-query" className="text-sm font-medium">
             {t("deals.filters.channelSearch.label")}
