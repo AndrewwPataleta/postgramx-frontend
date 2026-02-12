@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { CalendarDays } from "lucide-react";
 import { Button } from "@/design-system/ui/button";
 import { Checkbox } from "@/design-system/ui/checkbox";
 import BottomSheet from "@/design-system/components/BottomSheet";
@@ -8,7 +9,11 @@ import { Separator } from "@/design-system/ui/separator";
 import { Switch } from "@/design-system/ui/switch";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import type { TranslationKey } from "@/i18n/translations";
-import { DEAL_STAGE_GROUPS, type DealSectionKey, type DealsFilters } from "@/features/deals/filters/filters.types";
+import {
+  DEAL_STAGE_GROUPS,
+  type DealSectionKey,
+  type DealsFilters,
+} from "@/features/deals/filters/filters.types";
 import { DealStage } from "@/models/enums";
 
 type DealsFiltersSheetProps = {
@@ -25,7 +30,13 @@ type DealsFiltersSheetProps = {
   };
 };
 
-const DATE_OPTIONS: DealsFilters["datePreset"][] = ["all", "today", "7d", "30d", "custom"];
+const DATE_OPTIONS: DealsFilters["datePreset"][] = [
+  "all",
+  "today",
+  "7d",
+  "30d",
+  "custom",
+];
 
 export default function DealsFiltersSheet({
   open,
@@ -46,14 +57,21 @@ export default function DealsFiltersSheet({
   }, [filters, open]);
 
   const showDateCustom = draft.datePreset === "custom";
-  const selectedStagesCount = draft.stages.filter((stage) => DEAL_STAGE_GROUPS[activeTab].includes(stage)).length;
+  const showStageFilters = activeTab === "completed";
+  const selectedStagesCount = draft.stages.filter((stage) =>
+    DEAL_STAGE_GROUPS[activeTab].includes(stage),
+  ).length;
 
-  const stageOptions = [{ tab: activeTab, stages: DEAL_STAGE_GROUPS[activeTab] }];
+  const stageOptions = [
+    { tab: activeTab, stages: DEAL_STAGE_GROUPS[activeTab] },
+  ];
 
   const updateStage = (stage: DealStage, checked: boolean) => {
     setDraft((prev) => ({
       ...prev,
-      stages: checked ? [...prev.stages, stage] : prev.stages.filter((item) => item !== stage),
+      stages: checked
+        ? [...prev.stages, stage]
+        : prev.stages.filter((item) => item !== stage),
     }));
   };
 
@@ -67,6 +85,13 @@ export default function DealsFiltersSheet({
     onOpenChange(false);
   };
 
+  const selectedDateLabel =
+    draft.datePreset === "7d"
+      ? t("deals.filters.date.last7")
+      : draft.datePreset === "30d"
+        ? t("deals.filters.date.last30")
+        : t(`deals.filters.date.${draft.datePreset}` as TranslationKey);
+
   return (
     <BottomSheet
       open={open}
@@ -76,35 +101,49 @@ export default function DealsFiltersSheet({
       bodyClassName="flex min-h-0 flex-1 flex-col"
     >
       <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1">
-        <div className="space-y-3 rounded-xl border border-border/60 bg-muted/20 p-3">
-          <div className="flex items-baseline justify-between gap-3">
-            <Label className="text-sm font-medium">{t("deals.filters.stage.label")}</Label>
-            <span className="text-xs text-muted-foreground">{selectedStagesCount}</span>
-          </div>
-          {stageOptions.map(({ tab, stages }) => (
-            <div key={tab} className="space-y-2">
-              <p className={`text-xs uppercase ${tab === activeTab ? "text-primary" : "text-muted-foreground"}`}>
-                {t(`deals.tabs.${tab}` as TranslationKey)}
-              </p>
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                {stages.map((stage) => (
-                  <label
-                    key={stage}
-                    className="flex items-center gap-2 rounded-lg border border-border/50 bg-background/30 px-2 py-2 text-sm text-foreground transition hover:border-primary/50"
-                  >
-                    <Checkbox
-                      checked={draft.stages.includes(stage)}
-                      onCheckedChange={(checked) => updateStage(stage, checked === true)}
-                    />
-                    <span>{t(`deals.timeline.stage.${stage}` as TranslationKey)}</span>
-                  </label>
-                ))}
+        {showStageFilters ? (
+          <>
+            <div className="space-y-3 rounded-xl border border-border/60 bg-muted/20 p-3">
+              <div className="flex items-baseline justify-between gap-3">
+                <Label className="text-sm font-medium">
+                  {t("deals.filters.stage.label")}
+                </Label>
+                <span className="text-xs text-muted-foreground">
+                  {selectedStagesCount}
+                </span>
               </div>
+              {stageOptions.map(({ tab, stages }) => (
+                <div key={tab} className="space-y-2">
+                  <p
+                    className={`text-xs uppercase ${tab === activeTab ? "text-primary" : "text-muted-foreground"}`}
+                  >
+                    {t(`deals.tabs.${tab}` as TranslationKey)}
+                  </p>
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                    {stages.map((stage) => (
+                      <label
+                        key={stage}
+                        className="flex items-center gap-2 rounded-lg border border-border/50 bg-background/30 px-2 py-2 text-sm text-foreground transition hover:border-primary/50"
+                      >
+                        <Checkbox
+                          checked={draft.stages.includes(stage)}
+                          onCheckedChange={(checked) =>
+                            updateStage(stage, checked === true)
+                          }
+                        />
+                        <span>
+                          {t(`deals.timeline.stage.${stage}` as TranslationKey)}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
 
-        <Separator />
+            <Separator />
+          </>
+        ) : null}
 
         <div className="space-y-2 rounded-xl border border-border/60 bg-muted/20 p-3">
           <Label htmlFor="deals-filter-query" className="text-sm font-medium">
@@ -113,7 +152,9 @@ export default function DealsFiltersSheet({
           <Input
             id="deals-filter-query"
             value={draft.query}
-            onChange={(event) => setDraft((prev) => ({ ...prev, query: event.target.value }))}
+            onChange={(event) =>
+              setDraft((prev) => ({ ...prev, query: event.target.value }))
+            }
             placeholder="@postgramx"
           />
         </div>
@@ -121,10 +162,14 @@ export default function DealsFiltersSheet({
         <Separator />
 
         <div className="space-y-2 rounded-xl border border-border/60 bg-muted/20 p-3">
-          <Label className="text-sm font-medium">{t("deals.filters.amount.label")}</Label>
+          <Label className="text-sm font-medium">
+            {t("deals.filters.amount.label")}
+          </Label>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             <div className="space-y-1">
-              <Label className="text-xs text-muted-foreground">{t("deals.filters.amount.min")}</Label>
+              <Label className="text-xs text-muted-foreground">
+                {t("deals.filters.amount.min")}
+              </Label>
               <Input
                 type="number"
                 min="0"
@@ -140,7 +185,9 @@ export default function DealsFiltersSheet({
               />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs text-muted-foreground">{t("deals.filters.amount.max")}</Label>
+              <Label className="text-xs text-muted-foreground">
+                {t("deals.filters.amount.max")}
+              </Label>
               <Input
                 type="number"
                 min="0"
@@ -161,7 +208,15 @@ export default function DealsFiltersSheet({
         <Separator />
 
         <div className="space-y-2 rounded-xl border border-border/60 bg-muted/20 p-3">
-          <Label className="text-sm font-medium">{t("deals.filters.date.label")}</Label>
+          <div className="flex items-center justify-between gap-2">
+            <Label className="text-sm font-medium">
+              {t("deals.filters.date.label")}
+            </Label>
+            <span className="inline-flex items-center gap-1 rounded-full bg-background/70 px-2 py-1 text-xs text-muted-foreground">
+              <CalendarDays size={12} />
+              {selectedDateLabel}
+            </span>
+          </div>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             {DATE_OPTIONS.map((option) => (
               <Button
@@ -169,28 +224,46 @@ export default function DealsFiltersSheet({
                 type="button"
                 variant={draft.datePreset === option ? "default" : "outline"}
                 size="sm"
-                onClick={() => setDraft((prev) => ({ ...prev, datePreset: option }))}
+                onClick={() =>
+                  setDraft((prev) => ({ ...prev, datePreset: option }))
+                }
               >
-                {t(`deals.filters.date.${option === "7d" ? "last7" : option === "30d" ? "last30" : option}` as TranslationKey)}
+                {t(
+                  `deals.filters.date.${option === "7d" ? "last7" : option === "30d" ? "last30" : option}` as TranslationKey,
+                )}
               </Button>
             ))}
           </div>
           {showDateCustom ? (
             <div className="grid grid-cols-2 gap-2">
               <div className="space-y-1">
-                <Label className="text-xs text-muted-foreground">{t("deals.filters.date.from")}</Label>
+                <Label className="text-xs text-muted-foreground">
+                  {t("deals.filters.date.from")}
+                </Label>
                 <Input
                   type="date"
                   value={draft.dateFrom ?? ""}
-                  onChange={(event) => setDraft((prev) => ({ ...prev, dateFrom: event.target.value || undefined }))}
+                  onChange={(event) =>
+                    setDraft((prev) => ({
+                      ...prev,
+                      dateFrom: event.target.value || undefined,
+                    }))
+                  }
                 />
               </div>
               <div className="space-y-1">
-                <Label className="text-xs text-muted-foreground">{t("deals.filters.date.to")}</Label>
+                <Label className="text-xs text-muted-foreground">
+                  {t("deals.filters.date.to")}
+                </Label>
                 <Input
                   type="date"
                   value={draft.dateTo ?? ""}
-                  onChange={(event) => setDraft((prev) => ({ ...prev, dateTo: event.target.value || undefined }))}
+                  onChange={(event) =>
+                    setDraft((prev) => ({
+                      ...prev,
+                      dateTo: event.target.value || undefined,
+                    }))
+                  }
                 />
               </div>
             </div>
@@ -204,7 +277,9 @@ export default function DealsFiltersSheet({
               <span>{t("deals.filters.expiring24h")}</span>
               <Switch
                 checked={draft.expiring24h}
-                onCheckedChange={(checked) => setDraft((prev) => ({ ...prev, expiring24h: checked }))}
+                onCheckedChange={(checked) =>
+                  setDraft((prev) => ({ ...prev, expiring24h: checked }))
+                }
               />
             </label>
           </>
@@ -215,7 +290,12 @@ export default function DealsFiltersSheet({
             <span>{t("deals.filters.requiresReview")}</span>
             <Switch
               checked={draft.requiresReview === true}
-              onCheckedChange={(checked) => setDraft((prev) => ({ ...prev, requiresReview: checked ? true : undefined }))}
+              onCheckedChange={(checked) =>
+                setDraft((prev) => ({
+                  ...prev,
+                  requiresReview: checked ? true : undefined,
+                }))
+              }
             />
           </label>
         ) : null}
@@ -225,7 +305,12 @@ export default function DealsFiltersSheet({
             <span>{t("deals.filters.hasIssues")}</span>
             <Switch
               checked={draft.hasIssues === true}
-              onCheckedChange={(checked) => setDraft((prev) => ({ ...prev, hasIssues: checked ? true : undefined }))}
+              onCheckedChange={(checked) =>
+                setDraft((prev) => ({
+                  ...prev,
+                  hasIssues: checked ? true : undefined,
+                }))
+              }
             />
           </label>
         ) : null}

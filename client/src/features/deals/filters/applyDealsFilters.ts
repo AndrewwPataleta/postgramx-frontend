@@ -1,6 +1,10 @@
 import { parseTonToNano } from "@/lib/ton";
 import type { DealEntity } from "@/models/entities";
-import { DEAL_STAGE_GROUPS, type DealSectionKey, type DealsFilters } from "./filters.types";
+import {
+  DEAL_STAGE_GROUPS,
+  type DealSectionKey,
+  type DealsFilters,
+} from "./filters.types";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -35,8 +39,10 @@ const getDateRange = (filters: DealsFilters): { from?: Date; to?: Date } => {
   return {};
 };
 
-const textIncludes = (source: string | null | undefined, query: string): boolean =>
-  Boolean(source?.toLowerCase().includes(query));
+const textIncludes = (
+  source: string | null | undefined,
+  query: string,
+): boolean => Boolean(source?.toLowerCase().includes(query));
 
 const getExpiringDate = (deal: DealEntity): Date | undefined => {
   const ext = deal as DealEntity & {
@@ -46,9 +52,12 @@ const getExpiringDate = (deal: DealEntity): Date | undefined => {
     expiresIn?: number | null;
   };
 
-  const dateCandidates = [deal.idleExpiresAt, ext.deadlineAt, ext.expireAt, ext.expiresAt].filter(
-    (value): value is string => Boolean(value)
-  );
+  const dateCandidates = [
+    deal.idleExpiresAt,
+    ext.deadlineAt,
+    ext.expireAt,
+    ext.expiresAt,
+  ].filter((value): value is string => Boolean(value));
 
   for (const value of dateCandidates) {
     const parsed = new Date(value);
@@ -84,7 +93,10 @@ const requiresReviewValue = (deal: DealEntity): boolean | undefined => {
     return ext.requiresReview;
   }
 
-  if (typeof ext.needsCreativeApproval === "boolean" || typeof ext.scheduleApproval === "boolean") {
+  if (
+    typeof ext.needsCreativeApproval === "boolean" ||
+    typeof ext.scheduleApproval === "boolean"
+  ) {
     return Boolean(ext.needsCreativeApproval || ext.scheduleApproval);
   }
 
@@ -92,9 +104,15 @@ const requiresReviewValue = (deal: DealEntity): boolean | undefined => {
 };
 
 export const detectDealsFilterCapabilities = (deals: DealEntity[]) => {
-  const supportsExpiring24h = deals.some((deal) => Boolean(getExpiringDate(deal)));
-  const supportsRequiresReview = deals.some((deal) => typeof requiresReviewValue(deal) === "boolean");
-  const supportsHasIssues = deals.some((deal) => typeof hasIssuesValue(deal) === "boolean");
+  const supportsExpiring24h = deals.some((deal) =>
+    Boolean(getExpiringDate(deal)),
+  );
+  const supportsRequiresReview = deals.some(
+    (deal) => typeof requiresReviewValue(deal) === "boolean",
+  );
+  const supportsHasIssues = deals.some(
+    (deal) => typeof hasIssuesValue(deal) === "boolean",
+  );
 
   return {
     supportsExpiring24h,
@@ -107,15 +125,19 @@ export const applyDealsFilters = (
   deals: DealEntity[],
   filters: DealsFilters,
   activeTab: DealSectionKey,
-  currentUserId?: string
+  currentUserId?: string,
 ): DealEntity[] => {
   const tabStages = new Set(DEAL_STAGE_GROUPS[activeTab]);
   const selectedStages = new Set(filters.stages);
   const query = filters.query.trim().toLowerCase();
   const minNano =
-    typeof filters.amountMinTon === "number" ? parseTonToNano(String(filters.amountMinTon)) : null;
+    typeof filters.amountMinTon === "number"
+      ? parseTonToNano(String(filters.amountMinTon))
+      : null;
   const maxNano =
-    typeof filters.amountMaxTon === "number" ? parseTonToNano(String(filters.amountMaxTon)) : null;
+    typeof filters.amountMaxTon === "number"
+      ? parseTonToNano(String(filters.amountMaxTon))
+      : null;
   const { from, to } = getDateRange(filters);
 
   return deals.filter((deal) => {
@@ -123,7 +145,11 @@ export const applyDealsFilters = (
       return false;
     }
 
-    if (selectedStages.size > 0 && !selectedStages.has(deal.stage)) {
+    if (
+      activeTab === "completed" &&
+      selectedStages.size > 0 &&
+      !selectedStages.has(deal.stage)
+    ) {
       return false;
     }
 
@@ -138,7 +164,9 @@ export const applyDealsFilters = (
     if (minNano || maxNano) {
       let amountNano: bigint | null = null;
       try {
-        amountNano = BigInt(deal.escrow?.amountNano ?? deal.listingSnapshot?.priceNano ?? "");
+        amountNano = BigInt(
+          deal.escrow?.amountNano ?? deal.listingSnapshot?.priceNano ?? "",
+        );
       } catch {
         amountNano = null;
       }
