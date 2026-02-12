@@ -1,4 +1,5 @@
 import DealStatusPill, { DealStatusTone } from "./DealStatusPill";
+import ChannelAvatar from "@/components/ChannelAvatar";
 import { useLanguage } from "@/i18n/LanguageProvider";
 
 interface DealCardProps {
@@ -47,13 +48,12 @@ export default function DealCard({
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-secondary/60 text-xl">
-            {avatarUrl.startsWith("http") ? (
-              <img src={avatarUrl} alt={name} className="h-full w-full rounded-full object-cover" />
-            ) : (
-              avatarUrl
-            )}
-          </div>
+          <ChannelAvatar
+            title={name}
+            username={username}
+            avatarUrl={avatarUrl}
+            className="h-11 w-11 text-xl"
+          />
           <div>
             <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
               <span>{name}</span>

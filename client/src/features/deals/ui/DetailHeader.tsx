@@ -1,4 +1,5 @@
-import DealStatusPill, { DealStatusTone } from "./DealStatusPill";
+import { DealStatusTone } from "./DealStatusPill";
+import ChannelAvatar from "@/components/ChannelAvatar";
 
 interface DetailHeaderProps {
   status: string;
@@ -24,17 +25,12 @@ export default function DetailHeader({
   return (
     <div className="rounded-2xl border border-border/60 bg-card/80 p-6">
       <div className="flex items-center gap-3">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary/60 text-xl">
-          {avatarUrl ? (
-            avatarUrl.startsWith("http") ? (
-              <img src={avatarUrl} alt={title} className="h-full w-full rounded-full object-cover" />
-            ) : (
-              avatarUrl
-            )
-          ) : (
-            title.slice(0, 1)
-          )}
-        </div>
+        <ChannelAvatar
+          title={title}
+          username={username}
+          avatarUrl={avatarUrl}
+          className="h-12 w-12 text-xl"
+        />
         <div className="flex-1">
           <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
             <span>{title}</span>
@@ -45,7 +41,6 @@ export default function DetailHeader({
           <p className="font-semibold price-text">{price}</p>
         </div>
       </div>
-
     </div>
   );
 }
