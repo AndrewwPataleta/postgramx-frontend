@@ -179,31 +179,52 @@ export default function StageScheduleTime({ deal, readonly, onAction }: StageSch
       <p className="text-xs text-muted-foreground">{t(descriptionKey)}</p>
 
       <div className="space-y-3">
-        <div className="rounded-2xl border border-border/60 bg-card/80 p-3">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <div className="space-y-1">
-
-              <input
-                type="date"
-                value={dateValue}
-                onChange={(e) => setDateValue(e.target.value)}
-                className={cn(
-                  "h-11 w-full rounded-xl border border-border/60 bg-background/70 px-3 text-sm font-medium text-foreground shadow-sm outline-none transition",
-                  "focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
-                )}
-              />
+        <div className="overflow-hidden rounded-2xl border border-border/60 bg-card/80 p-3">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div className="min-w-0 space-y-1">
+              <label className="sr-only" htmlFor="deal-schedule-date">
+                {t("deals.stage.scheduleTime.dateHint")}
+              </label>
+              <div className="relative min-w-0">
+                <input
+                  id="deal-schedule-date"
+                  type="date"
+                  value={dateValue}
+                  onChange={(e) => setDateValue(e.target.value)}
+                  className={cn(
+                    "h-11 w-full min-w-0 rounded-xl border border-border/60 bg-background/70 px-3 text-sm font-medium text-foreground shadow-sm outline-none transition",
+                    "focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
+                  )}
+                />
+                {!dateValue ? (
+                  <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                    {t("deals.stage.scheduleTime.dateHint")}
+                  </span>
+                ) : null}
+              </div>
             </div>
 
-            <div className="space-y-1">
-              <input
-                type="time"
-                value={timeValue}
-                onChange={(e) => setTimeValue(e.target.value)}
-                className={cn(
-                  "h-11 w-full rounded-xl border border-border/60 bg-background/70 px-3 text-sm font-medium text-foreground shadow-sm outline-none transition",
-                  "focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
-                )}
-              />
+            <div className="min-w-0 space-y-1">
+              <label className="sr-only" htmlFor="deal-schedule-time">
+                {t("deals.stage.scheduleTime.timeHint")}
+              </label>
+              <div className="relative min-w-0">
+                <input
+                  id="deal-schedule-time"
+                  type="time"
+                  value={timeValue}
+                  onChange={(e) => setTimeValue(e.target.value)}
+                  className={cn(
+                    "h-11 w-full min-w-0 rounded-xl border border-border/60 bg-background/70 px-3 text-sm font-medium text-foreground shadow-sm outline-none transition",
+                    "focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
+                  )}
+                />
+                {!timeValue ? (
+                  <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                    {t("deals.stage.scheduleTime.timeHint")}
+                  </span>
+                ) : null}
+              </div>
             </div>
           </div>
 
