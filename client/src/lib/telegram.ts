@@ -109,7 +109,7 @@ export const mockTelegramUser: TelegramUser = {
 };
 
 export const mockTelegramInitData =
-  "user=%7B%22id%22%3A268812292%2C%22first_name%22%3A%22TesterTwo%22%2C%22last_name%22%3A%22%22%2C%22language_code%22%3A%22ru%22%2C%22is_premium%22%3Atrue%2C%22allows_write_to_pm%22%3Atrue%2C%22photo_url%22%3A%22https%3A%5C%2F%5C%2Ft.me%5C%2Fi%5C%2Fuserpic%5C%2F320%5C%2FWAAqxD0XRTi2ZRg_jpupi5rmt6cyvdCRpEPWQQnDCRc.svg%22%7D&chat_instance=5325968562620564049&chat_type=sender&auth_date=1739958508&signature=QyNk2aUQUIw6aq2ppG5odd1UnZt41zL-j1Ulx9sHmGMADwGlQFyfHr5oij2d4__X-QdM7e84pb8wtwdDmuP1Dg&hash=66cd49b163827889fc650a5f64d775a6938ac3e0640bfc4cbe3501cd24da95b2";
+  "user=%7B%22id%22%3A701831837%2C%22first_name%22%3A%22TesterTwo%22%2C%22last_name%22%3A%22%22%2C%22language_code%22%3A%22ru%22%2C%22is_premium%22%3Atrue%2C%22allows_write_to_pm%22%3Atrue%2C%22photo_url%22%3A%22https%3A%5C%2F%5C%2Ft.me%5C%2Fi%5C%2Fuserpic%5C%2F320%5C%2FWAAqxD0XRTi2ZRg_jpupi5rmt6cyvdCRpEPWQQnDCRc.svg%22%7D&chat_instance=5325968562620564049&chat_type=sender&auth_date=1739958508&signature=QyNk2aUQUIw6aq2ppG5odd1UnZt41zL-j1Ulx9sHmGMADwGlQFyfHr5oij2d4__X-QdM7e84pb8wtwdDmuP1Dg&hash=66cd49b163827889fc650a5f64d775a6938ac3e0640bfc4cbe3501cd24da95b2";
 
 export const mockTelegramAuth = {
   initData: mockTelegramInitData,

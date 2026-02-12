@@ -179,13 +179,6 @@ export default function StagePayment({
               </p>
             ) : null}
 
-            {paymentDeadlineAt ? (
-              <DualTimeLabel
-                dateIso={paymentDeadlineAt}
-                display={deal.escrow.paymentDeadlineAtDisplay}
-                emptyLabel={t("common.emptyValue")}
-              />
-            ) : null}
           </div>
         </div>
 
