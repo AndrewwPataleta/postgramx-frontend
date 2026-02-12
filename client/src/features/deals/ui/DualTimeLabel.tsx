@@ -33,8 +33,7 @@ export default function DualTimeLabel({ dateIso, display, emptyLabel }: DualTime
 
   return (
     <span className="inline-flex flex-col leading-tight">
-      <span className="font-semibold text-foreground">Your time: {localLabel}</span>
-      <span className="text-[11px] text-muted-foreground">UTC: {utcLabel ?? ""}</span>
+      <span className="font-semibold text-foreground">{localLabel}</span>
     </span>
   );
 }
