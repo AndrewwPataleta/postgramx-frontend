@@ -239,13 +239,13 @@ export default function Deals() {
 
   return (
     <div className="w-full max-w-3xl mx-auto">
-      <PageContainer className="pt-6 space-y-4">
+      <PageContainer className="pt-4 space-y-4">
         {isLoading && currentGroup.items.length === 0 ? (
           <DealsPageSkeleton />
         ) : (
           <>
             <div>
-              <div className="mt-4 flex items-center justify-between gap-2 border-b border-border/60">
+              <div className="flex items-center justify-between gap-2 border-b border-border/60">
                 <div className="flex-1 min-w-0 overflow-x-auto">
                   <div className="flex min-w-max gap-6">
                     {(["pending", "active", "completed"] as DealSectionKey[]).map((tab) => (
