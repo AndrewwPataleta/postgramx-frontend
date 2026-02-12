@@ -309,6 +309,8 @@
   "deals.stage.requested.label": "Запрошено",
   "deals.stage.scheduleTime.confirm": "Подтвердить расписание",
   "deals.stage.scheduleTime.description": "Выберите время публикации с учетом расписания кампании и часового пояса. Пожалуйста, укажите время не ранее чем через 1 час.",
+  "deals.stage.scheduleTime.descriptionIntro": "Выберите время публикации с учетом расписания кампании и часового пояса.",
+  "deals.stage.scheduleTime.descriptionHighlight": "Пожалуйста, укажите время не ранее чем через 1 час.",
   "deals.stage.scheduleTime.dateHint": "Укажите дату",
   "deals.stage.scheduleTime.notScheduled": "Не запланировано",
   "deals.stage.scheduleTime.readonly": "Расписание задает рекламодатель.",

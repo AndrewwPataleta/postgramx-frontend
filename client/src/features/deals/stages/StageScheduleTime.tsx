@@ -160,6 +160,17 @@ export default function StageScheduleTime({ deal, readonly, onAction }: StageSch
     );
   }
 
+  const scheduleDescription = isAwaitingScheduleChanges ? (
+    <p className="text-xs text-muted-foreground">{t(descriptionKey)}</p>
+  ) : (
+    <p className="text-xs text-muted-foreground">
+      {t("deals.stage.scheduleTime.descriptionIntro")} {" "}
+      <span className="font-semibold text-foreground">
+        {t("deals.stage.scheduleTime.descriptionHighlight")}
+      </span>
+    </p>
+  );
+
   const handleConfirm = () => {
     if (!scheduledLocal || !isValidSchedule) {
       toast.error(t("deals.stage.scheduleTime.selectDateError"));
@@ -178,7 +189,7 @@ export default function StageScheduleTime({ deal, readonly, onAction }: StageSch
 
   return (
     <InfoCard title={t(titleKey)}>
-      <p className="text-xs text-muted-foreground">{t(descriptionKey)}</p>
+      {scheduleDescription}
 
       <div className="space-y-3">
         <div className="overflow-hidden rounded-2xl border border-border/60 bg-card/80 p-3">
