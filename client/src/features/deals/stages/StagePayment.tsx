@@ -46,19 +46,10 @@ function uint8ToBase64(bytes: Uint8Array) {
 }
 
 async function buildCommentPayloadBase64(comment: string): Promise<string> {
-  // Buffer polyfill (browser)
-  const w = window as any;
-  if (!w.Buffer) {
-    const mod = await import("buffer");
-    w.Buffer = mod.Buffer;
-  }
-
-  // lazy import so app doesn't crash on load
   const tonCoreModule = "@ton/core";
-  const ton = await import(/* @vite-ignore */ tonCoreModule);
+  const ton = await import(tonCoreModule);
 
-  const cell = ton
-    .beginCell()
+  const cell = ton.beginCell()
     .storeUint(0, 32) // text comment opcode
     .storeStringTail(comment)
     .endCell();
