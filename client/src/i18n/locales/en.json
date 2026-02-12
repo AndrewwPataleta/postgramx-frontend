@@ -48,7 +48,7 @@
   "channels.emptyTitle": "No channels yet",
   "channels.emptyVerified": "No verified channels yet.",
   "channels.expandPlacements": "Show placements",
-  "channels.errors.bot_forbidden": "The PostGramX bot cannot post in this channel.",
+  "channels.errors.bot_forbidden": "Add the PostGramX bot to the channel and grant it administrator permissions.",
   "channels.errors.channel_already_linked": "This channel is already linked to another account.",
   "channels.ownerLinkSheet.body": "Ask the main owner to link the channel to PostgramX. After linking, the owner can grant moderators permission to review and confirm deals.",
   "channels.ownerLinkSheet.primaryAction": "OK",
