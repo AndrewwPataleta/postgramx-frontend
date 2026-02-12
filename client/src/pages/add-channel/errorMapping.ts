@@ -7,6 +7,7 @@ const CHANNEL_ERROR_MESSAGES: Record<string, string> = {
   CHANNEL_PRIVATE_OR_NO_USERNAME: "Channel must be public",
   USER_NOT_ADMIN: "You must be an admin of this channel",
   BOT_NOT_ADMIN: "Please add the bot as an admin",
+  BOT_FORBIDDEN: "channels.errors.bot_forbidden",
   NOT_ADMIN: "channels.errors.not_admin",
   BOT_MISSING_RIGHTS: "Bot needs permission to post messages",
   CHANNEL_ALREADY_LINKED: "channels.errors.channel_already_linked",

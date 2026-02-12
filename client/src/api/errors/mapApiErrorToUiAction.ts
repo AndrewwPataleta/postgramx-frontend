@@ -13,7 +13,6 @@ export type ApiErrorUiActionResult =
   | { handled: true; action: ApiErrorUiAction }
   | { handled: false };
 
-const BOT_FORBIDDEN_MESSAGE_KEY = "channels.errors.bot_forbidden";
 const USER_NOT_CREATOR_MESSAGE_KEY = "channels.errors.user_not_creator";
 
 const readString = (value: unknown): string | undefined => {
@@ -85,20 +84,6 @@ const extractCodeAndMessage = (error: unknown) => {
 
 export const mapApiErrorToUiAction = (error: unknown): ApiErrorUiActionResult => {
   const { code, message } = extractCodeAndMessage(error);
-
-  if (code === "BOT_FORBIDDEN" || message === BOT_FORBIDDEN_MESSAGE_KEY) {
-    return {
-      handled: true,
-      action: {
-        type: "bottomSheet",
-        payload: {
-          titleKey: "channels.ownerLinkSheet.title",
-          bodyKey: "channels.ownerLinkSheet.body",
-          primaryActionKey: "channels.ownerLinkSheet.primaryAction",
-        },
-      },
-    };
-  }
 
   if (code === "USER_NOT_CREATOR" || message === USER_NOT_CREATOR_MESSAGE_KEY) {
     return {

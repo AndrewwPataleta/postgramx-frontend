@@ -48,7 +48,7 @@
   "channels.emptyTitle": "Каналов нет",
   "channels.emptyVerified": "Нет подтвержденных каналов.",
   "channels.expandPlacements": "Показать размещения",
-  "channels.errors.bot_forbidden": "Бот PostGramX не может публиковать в этом канале.",
+  "channels.errors.bot_forbidden": "Добавьте бота PostGramX в канал и выдайте ему права администратора.",
   "channels.errors.channel_already_linked": "Этот канал уже привязан к другому аккаунту.",
   "channels.ownerLinkSheet.body": "Попросите основного владельца подключить канал к PostgramX. После подключения владелец сможет дать модераторам право проверять и подтверждать сделки.",
   "channels.ownerLinkSheet.primaryAction": "ОК",
