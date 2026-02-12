@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Filter } from "lucide-react";
+import { SlidersHorizontal } from "lucide-react";
 import DealListCard from "@/features/deals/ui/DealListCard";
 import ErrorState from "@/design-system/components/ErrorState";
 import { PageContainer } from "@/design-system/components/PageContainer";
@@ -11,13 +11,14 @@ import { getTelegramWebApp } from "@/lib/telegram";
 import { useDealsListQuery } from "@/hooks/use-deals";
 import { ROUTES } from "@/constants/routes";
 import type { DealEntity, Paged } from "@/models/entities";
+import type { DealStage } from "@/models/enums";
 import { useAuth } from "@/features/auth/ui/AuthProvider";
 import { useLanguage } from "@/i18n/LanguageProvider";
-import { Button } from "@/design-system/ui/button";
 import DealsFiltersSheet from "@/components/deals/DealsFiltersSheet";
 import { useDealsFilters } from "@/features/deals/filters/useDealsFilters";
 import { applyDealsFilters, detectDealsFilterCapabilities } from "@/features/deals/filters/applyDealsFilters";
 import { countActiveFilters } from "@/features/deals/filters/countActiveFilters";
+import DealsActiveFiltersChips from "@/features/deals/ui/DealsActiveFiltersChips";
 
 const DEFAULT_LIMIT = 5;
 
@@ -170,6 +171,45 @@ export default function Deals() {
   );
   const activeFiltersCount = useMemo(() => countActiveFilters(filters), [filters]);
 
+  const removeFilter = useCallback(
+    (type: "query" | "amount" | "date" | "expiring24h" | "requiresReview" | "hasIssues") => {
+      setFilters((prev) => {
+        if (type === "query") {
+          return { ...prev, query: "" };
+        }
+        if (type === "amount") {
+          return { ...prev, amountMinTon: undefined, amountMaxTon: undefined };
+        }
+        if (type === "date") {
+          return {
+            ...prev,
+            datePreset: "all",
+            dateFrom: undefined,
+            dateTo: undefined,
+          };
+        }
+        if (type === "expiring24h") {
+          return { ...prev, expiring24h: false };
+        }
+        if (type === "requiresReview") {
+          return { ...prev, requiresReview: undefined };
+        }
+        return { ...prev, hasIssues: undefined };
+      });
+    },
+    [setFilters]
+  );
+
+  const removeStageFilter = useCallback(
+    (stage: DealStage) => {
+      setFilters((prev) => ({
+        ...prev,
+        stages: prev.stages.filter((item) => item !== stage),
+      }));
+    },
+    [setFilters]
+  );
+
   const { buyerDeals, sellerDeals } = useMemo(() => {
     const buyer = filteredDeals.filter(
       (deal) => currentUserId && currentUserId === deal.advertiserUserId
@@ -224,26 +264,35 @@ export default function Deals() {
                     ))}
                   </div>
                 </div>
-                <Button
+                <button
                   type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="shrink-0 relative mb-2"
                   onClick={() => setFiltersOpen(true)}
+                  className="mb-2 inline-flex shrink-0 items-center gap-2 rounded-lg bg-secondary/60 px-3 py-1 text-xs text-muted-foreground"
                   aria-label={
                     activeFiltersCount > 0
                       ? t("deals.filters.activeCount", { count: activeFiltersCount })
                       : t("deals.filters.button")
                   }
                 >
-                  <Filter className="h-4 w-4" />
+                  <SlidersHorizontal size={14} />
+                  {t("deals.filters.title")}
                   {activeFiltersCount > 0 ? (
-                    <span className="absolute -right-0.5 -top-0.5 min-w-4 h-4 rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground leading-4 text-center">
+                    <span className="rounded-full bg-primary px-1.5 py-0 text-[10px] font-semibold leading-4 text-primary-foreground">
                       {activeFiltersCount}
                     </span>
                   ) : null}
-                </Button>
+                </button>
               </div>
+              <DealsActiveFiltersChips
+                filters={filters}
+                onRemoveQuery={() => removeFilter("query")}
+                onRemoveAmount={() => removeFilter("amount")}
+                onRemoveDate={() => removeFilter("date")}
+                onRemoveExpiring24h={() => removeFilter("expiring24h")}
+                onRemoveRequiresReview={() => removeFilter("requiresReview")}
+                onRemoveHasIssues={() => removeFilter("hasIssues")}
+                onRemoveStage={removeStageFilter}
+              />
             </div>
 
             {error ? (
