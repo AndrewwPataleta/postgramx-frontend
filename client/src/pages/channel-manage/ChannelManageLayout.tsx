@@ -187,7 +187,7 @@ const ChannelManageLayout = () => {
         ) : null}
       </div>
 
-      <div className="border-b border-border/50 bg-card/80 backdrop-blur-glass">
+      <div className="border-b border-border/60">
         <div className="flex gap-6">
           {[
             { id: "listings", label: t("listings.title") },
@@ -203,7 +203,7 @@ const ChannelManageLayout = () => {
                   : undefined
               }
               className={({ isActive }) =>
-                `py-3 font-medium text-sm border-b-2 transition-colors ${
+                `pb-3 text-sm font-semibold border-b-2 transition-colors ${
                   isActive
                     ? "text-primary border-b-primary"
                     : "text-muted-foreground border-b-transparent hover:text-foreground"
