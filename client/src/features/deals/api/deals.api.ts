@@ -4,6 +4,15 @@ import type { DealStage, DealStatus } from "@/models/enums";
 
 type DealListItem = DealEntity | { deal: DealEntity };
 
+type ChannelAvatarPayload = {
+  avatarUrl?: string | null;
+  photoUrl?: string | null;
+  avatar?: string | null;
+  photo?: string | null;
+  avatar_url?: string | null;
+  photo_url?: string | null;
+};
+
 type DealsGroupedResponseRaw = {
   pending: Paged<DealListItem>;
   active: Paged<DealListItem>;
@@ -16,12 +25,42 @@ export type DealsGroupedResponse = {
   completed: Paged<DealEntity>;
 };
 
+const normalizeDealChannelAvatar = (deal: DealEntity): DealEntity => {
+  const channel = deal.channel as ChannelAvatarPayload | undefined;
+
+  if (!channel) {
+    return deal;
+  }
+
+  const resolvedAvatarUrl =
+    channel.avatarUrl ??
+    channel.photoUrl ??
+    channel.avatar ??
+    channel.photo ??
+    channel.avatar_url ??
+    channel.photo_url ??
+    null;
+
+  return {
+    ...deal,
+    channel: {
+      ...deal.channel,
+      avatarUrl: resolvedAvatarUrl,
+    },
+  };
+};
+
+const unwrapDealListItem = (item: DealListItem): DealEntity => {
+  const deal = "deal" in item ? item.deal : item;
+  return normalizeDealChannelAvatar(deal);
+};
+
 export const createDeal = async (data: {
   listingId: string;
   brief?: string;
   scheduledAt?: string | null;
 }): Promise<DealEntity> =>
-  apiPost<DealEntity, typeof data>("/deals/create", data);
+  apiPost<DealEntity, typeof data>("/deals/create", data).then(normalizeDealChannelAvatar);
 
 export const listDeals = async (data: {
   role?: "all" | "advertiser" | "publisher";
@@ -35,20 +74,20 @@ export const listDeals = async (data: {
   apiPost<DealsGroupedResponseRaw, typeof data>("/deals/list", data).then((response) => ({
     pending: {
       ...response.pending,
-      items: response.pending.items.map((item) => ("deal" in item ? item.deal : item)),
+      items: response.pending.items.map(unwrapDealListItem),
     },
     active: {
       ...response.active,
-      items: response.active.items.map((item) => ("deal" in item ? item.deal : item)),
+      items: response.active.items.map(unwrapDealListItem),
     },
     completed: {
       ...response.completed,
-      items: response.completed.items.map((item) => ("deal" in item ? item.deal : item)),
+      items: response.completed.items.map(unwrapDealListItem),
     },
   }));
 
 export const getDealDetail = async (data: { id: string }): Promise<DealEntity> =>
-  apiPost<DealEntity, typeof data>("/deals/detail", data);
+  apiPost<DealEntity, typeof data>("/deals/detail", data).then(normalizeDealChannelAvatar);
 
 export const scheduleDeal = async (data: {
   id: string;
@@ -64,16 +103,16 @@ export const scheduleDeal = async (data: {
   });
 
 export const submitCreative = async (data: { id: string }): Promise<DealDetailResponse> =>
-  apiPost<DealDetailResponse, typeof data>("/deals/creative/submit", data);
+  apiPost<DealDetailResponse, typeof data>("/deals/creative/submit", data).then(normalizeDealChannelAvatar);
 
 export const cancelDeal = async (data: { id: string; reason?: string }): Promise<DealDetailResponse> =>
-  apiPost<DealDetailResponse, typeof data>("/deals/cancel", data);
+  apiPost<DealDetailResponse, typeof data>("/deals/cancel", data).then(normalizeDealChannelAvatar);
 
 export const approveCreative = async (data: { id: string }): Promise<DealDetailResponse> =>
-  apiPost<DealDetailResponse, typeof data>("/deals/creative/approve", data);
+  apiPost<DealDetailResponse, typeof data>("/deals/creative/approve", data).then(normalizeDealChannelAvatar);
 
 export const requestCreativeEdits = async (data: { id: string }): Promise<DealDetailResponse> =>
-  apiPost<DealDetailResponse, typeof data>("/deals/creative/edits", data);
+  apiPost<DealDetailResponse, typeof data>("/deals/creative/edits", data).then(normalizeDealChannelAvatar);
 
 export const rejectCreative = async (data: { id: string }): Promise<DealDetailResponse> =>
-  apiPost<DealDetailResponse, typeof data>("/deals/creative/reject", data);
+  apiPost<DealDetailResponse, typeof data>("/deals/creative/reject", data).then(normalizeDealChannelAvatar);
