@@ -409,7 +409,6 @@
   "deals.timeline.stage.PAYMENT_PENDING": "Ожидание оплаты",
   "deals.timeline.stage.POST_SCHEDULED": "Запланировано",
   "deals.timeline.stage.FINALIZED": "Завершено",
-  "deals.timeline.stage.POSTED_VERIFYING": "Проверка публикации",
   "deals.timeline.stage.POSTED_VERIFYING": "Опубликовано",
   "deals.timeline.step.accepted": "Принята",
   "deals.timeline.step.creative": "Креатив",
@@ -706,5 +705,6 @@
   "splash.modulesSubtitle": "Финальные проверки перед стартом",
   "splash.modulesTitle": "Запускаем основные модули",
   "splash.visualsSubtitle": "Готовим интерфейс к запуску",
-  "splash.visualsTitle": "Инициализируем визуалы"
+  "splash.visualsTitle": "Инициализируем визуалы",
+  "channels.errors.not_admin": "Вы не администратор этого канала."
 }
