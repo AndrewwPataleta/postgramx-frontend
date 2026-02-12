@@ -409,7 +409,6 @@
   "deals.timeline.stage.PAYMENT_PENDING": "Payment pending",
   "deals.timeline.stage.POST_SCHEDULED": "Scheduled",
   "deals.timeline.stage.FINALIZED": "Finished",
-  "deals.timeline.stage.POSTED_VERIFYING": "Verifying",
   "deals.timeline.stage.POSTED_VERIFYING": "Published",
   "deals.timeline.step.accepted": "Accepted",
   "deals.timeline.step.creative": "Creative",
@@ -706,5 +705,6 @@
   "splash.modulesSubtitle": "Final checks before takeoff",
   "splash.modulesTitle": "Starting core modules",
   "splash.visualsSubtitle": "Preparing the interface for launch",
-  "splash.visualsTitle": "Initializing visuals"
+  "splash.visualsTitle": "Initializing visuals",
+  "channels.errors.not_admin": "You are not an admin of this channel."
 }
