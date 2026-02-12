@@ -1,0 +1,1 @@
+import{j as i}from"./index-BtN5a9Pu.js";const r=({itemsCount:n,children:s,className:t,...e})=>i.jsx("div",{className:t,...e,children:s}),u=({index:n,pulseKey:s,className:t,children:e,...m})=>i.jsx("div",{className:t,...m,children:e});export{r as A,u as a};
