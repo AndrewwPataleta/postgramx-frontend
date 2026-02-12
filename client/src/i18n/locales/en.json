@@ -225,7 +225,7 @@
   "deals.securePaymentTitle": "Secure payment",
   "deals.stage.adminApproval.approveError": "Failed to approve. Try again.",
   "deals.stage.adminApproval.approvedToast": "Deal approved.",
-  "deals.stage.adminApproval.description": "At this step, the admin reviews your creative, checks it against placement rules, and approves, rejects, or requests edits so the deal can move forward.",
+  "deals.stage.adminApproval.description": "At this step admin reviews creative.",
   "deals.stage.adminApproval.readonly": "Your creative is currently under admin review. The admin checks the content against placement rules and may approve, reject, or request edits before the deal moves forward.",
   "deals.stage.adminApproval.rejectError": "Failed to reject.",
   "deals.stage.adminApproval.rejectedToast": "Deal rejected.",
