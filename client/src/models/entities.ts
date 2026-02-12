@@ -130,6 +130,7 @@ export type MarketplaceChannelSummary = {
 export type ChannelEntity = {
   id: string;
   username: string;
+  avatarUrl?: string | null;
   telegramChatId: string | null;
   title: string;
   status: ChannelStatus;

@@ -19,6 +19,20 @@ interface MyChannelsChannelCardProps {
   createListingState?: Record<string, unknown>;
 }
 
+const resolveAvatarUrl = (avatarUrl?: string | null, username?: string | null) => {
+  if (!avatarUrl) {
+    return null;
+  }
+
+  // Telegram bot file URLs can be inaccessible from client apps and expose bot token.
+  if (avatarUrl.includes("api.telegram.org/file/bot")) {
+    const cleanUsername = username?.replace(/^@/, "");
+    return cleanUsername ? `https://t.me/i/userpic/320/${cleanUsername}.jpg` : null;
+  }
+
+  return avatarUrl;
+};
+
 export default function MyChannelsChannelCard({
   channel,
   placementsCount,
@@ -39,7 +53,7 @@ export default function MyChannelsChannelCard({
       id: channel.id,
       name: channel.title || t("channels.untitled"),
       username: channel.username,
-      avatarUrl: null,
+      avatarUrl: resolveAvatarUrl(channel.avatarUrl, channel.username),
       subscribers: channel.subscribersCount ?? channel.memberCount ?? null,
       placementsCount: placementsCount ?? null,
       minPriceNano: minPriceNano ?? null,
