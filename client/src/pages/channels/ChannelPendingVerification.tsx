@@ -17,6 +17,7 @@ import { ROUTES } from "@/constants/routes";
 import type { ChannelEntity } from "@/models/entities";
 import { ChannelStatus } from "@/models/enums";
 import { useLanguage } from "@/i18n/LanguageProvider";
+import ChannelAvatar from "@/components/ChannelAvatar";
 
 const formatMetric = (value?: number | null) => {
   if (value == null) {
@@ -49,7 +50,8 @@ const ChannelPendingVerification = () => {
     const state = location.state as { channel?: ChannelEntity } | null;
     return state?.channel ?? null;
   }, [location.state]);
-  const rootBackTo = (location.state as { rootBackTo?: string } | null)?.rootBackTo;
+  const rootBackTo = (location.state as { rootBackTo?: string } | null)
+    ?.rootBackTo;
 
   const handleRetry = async () => {
     if (!id) {
@@ -60,7 +62,9 @@ const ChannelPendingVerification = () => {
     try {
       const response = await mutateAsync(id);
       if (response.status === ChannelStatus.Verified) {
-        const nextChannel = channel ? { ...channel, status: ChannelStatus.Verified } : undefined;
+        const nextChannel = channel
+          ? { ...channel, status: ChannelStatus.Verified }
+          : undefined;
         navigate(ROUTES.CHANNEL_MANAGE_LISTINGS(id), {
           replace: true,
           state: nextChannel
@@ -137,17 +141,28 @@ const ChannelPendingVerification = () => {
         </button>
 
         <div className="rounded-2xl border border-border/60 bg-card/80 p-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-muted-foreground">
-                {t("channels.pending.title")}
-              </p>
-              <h1 className="mt-1 text-lg font-semibold text-foreground">
-                {channel?.title || t("channels.pending.heading")}
-              </h1>
-              {channel?.username ? (
-                <p className="text-sm text-muted-foreground">@{channel.username}</p>
-              ) : null}
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <ChannelAvatar
+                title={channel?.title}
+                username={channel?.username}
+                avatarUrl={channel?.avatarUrl}
+                fallback={t("channels.avatarFallback")}
+                className="h-12 w-12"
+              />
+              <div>
+                <p className="text-xs text-muted-foreground">
+                  {t("channels.pending.title")}
+                </p>
+                <h1 className="mt-1 text-lg font-semibold text-foreground">
+                  {channel?.title || t("channels.pending.heading")}
+                </h1>
+                {channel?.username ? (
+                  <p className="text-sm text-muted-foreground">
+                    @{channel.username}
+                  </p>
+                ) : null}
+              </div>
             </div>
             <span className="rounded-full border border-warning/40 bg-warning/15 px-3 py-1 text-[11px] font-semibold text-warning">
               {t("channels.status.PENDING_VERIFY")}
@@ -155,7 +170,9 @@ const ChannelPendingVerification = () => {
           </div>
 
           <div className="mt-4 rounded-xl bg-muted/30 p-3">
-            <p className="text-xs text-muted-foreground">{t("channels.members")}</p>
+            <p className="text-xs text-muted-foreground">
+              {t("channels.members")}
+            </p>
             <p className="mt-1 text-base font-semibold text-foreground">
               {formatMetric(channel?.memberCount)}
             </p>
@@ -186,7 +203,11 @@ const ChannelPendingVerification = () => {
             disabled={isPending}
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground transition disabled:cursor-not-allowed disabled:opacity-70"
           >
-            {isPending ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />}
+            {isPending ? (
+              <Loader2 size={16} className="animate-spin" />
+            ) : (
+              <RefreshCw size={16} />
+            )}
             {t("channels.pending.retry")}
           </button>
           <button

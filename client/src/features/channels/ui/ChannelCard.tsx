@@ -4,8 +4,12 @@ import { cn } from "@/lib/utils";
 import { formatNumber, formatTon } from "@/i18n/formatters";
 import { formatDuration, getListingFormatLabel } from "@/i18n/labels";
 import { useLanguage } from "@/i18n/LanguageProvider";
-import { filterListingTags, getListingTagLabel } from "@/features/listings/tagOptions";
+import {
+  filterListingTags,
+  getListingTagLabel,
+} from "@/features/listings/tagOptions";
 import type { ListingEntity } from "@/models/entities";
+import ChannelAvatar from "@/components/ChannelAvatar";
 
 export type ChannelCardModel = {
   id: string;
@@ -73,21 +77,27 @@ const ListingPreview = ({ listings }: { listings: ListingEntity[] }) => {
       {listings.map((listing) => {
         const tags = buildTags(filterListingTags(listing.tags ?? []));
         const rules = [
-          listing.allowPinnedPlacement ? t("listings.allowPinned.allowed") : null,
+          listing.allowPinnedPlacement
+            ? t("listings.allowPinned.allowed")
+            : null,
           listing.requiresApproval ? t("listings.requiresApproval") : null,
         ].filter(Boolean);
-        const listingPrice = formatTon(listing.priceNano, language) ?? listing.priceNano;
+        const listingPrice =
+          formatTon(listing.priceNano, language) ?? listing.priceNano;
         const pinLabel = listing.pinDurationHours
           ? `${t("listings.meta.pinned")} ${formatDuration(listing.pinDurationHours, t)}`
           : t("listings.meta.notPinned");
         const visibilityLabel = `${t("listings.meta.visible")} ${formatDuration(
           listing.visibilityDurationHours,
-          t
+          t,
         )}`;
         const requirements = parseRules(listing.contentRulesText).join(", ");
 
         return (
-          <div key={listing.id} className="rounded-xl border border-border/60 bg-card/80 p-3">
+          <div
+            key={listing.id}
+            className="rounded-xl border border-border/60 bg-card/80 p-3"
+          >
             <div className="flex items-center justify-between gap-3">
               <div className="text-sm font-semibold price-text">
                 {listingPrice} {t("common.ton")}
@@ -151,15 +161,16 @@ export default function ChannelCard({
 }: ChannelCardProps) {
   const { t, language } = useLanguage();
   const [internalExpanded, setInternalExpanded] = useState(false);
-  const [avatarError, setAvatarError] = useState(false);
   const resolvedExpanded = isExpanded ?? internalExpanded;
-  const canExpand = Boolean(onToggleExpand || expandedContent || channel.listingsPreview);
+  const canExpand = Boolean(
+    onToggleExpand || expandedContent || channel.listingsPreview,
+  );
   const tags = buildTags(filterListingTags(channel.tags ?? []));
   const allowedRules = channel.rules?.allowed ?? [];
   const prohibitedRules = channel.rules?.prohibited ?? [];
-  const username = channel.username ? `@${channel.username.replace(/^@/, "")}` : null;
-  const avatarFallback = channel.name?.[0]?.toUpperCase() ?? t("common.avatarFallback");
-  const avatarSrc = !avatarError && channel.avatarUrl ? channel.avatarUrl : null;
+  const username = channel.username
+    ? `@${channel.username.replace(/^@/, "")}`
+    : null;
   const listingsCountLabel =
     typeof channel.preview?.listingCount === "number"
       ? formatNumber(channel.preview.listingCount, language)
@@ -186,7 +197,7 @@ export default function ChannelCard({
     <div
       className={cn(
         "w-full rounded-2xl border border-border/50 bg-card/80 p-4 text-left shadow-sm transition",
-        onClick && "cursor-pointer hover:border-border/80 hover:bg-card"
+        onClick && "cursor-pointer hover:border-border/80 hover:bg-card",
       )}
       role={onClick ? "button" : undefined}
       tabIndex={onClick ? 0 : undefined}
@@ -202,24 +213,23 @@ export default function ChannelCard({
       }}
     >
       <div className="flex items-start gap-3">
-        {avatarSrc ? (
-          <img
-            src={avatarSrc}
-            alt={channel.name}
-            className="h-12 w-12 rounded-full object-cover"
-            onError={() => setAvatarError(true)}
-          />
-        ) : (
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-primary/30 via-secondary/50 to-secondary text-lg text-foreground">
-            {avatarFallback}
-          </div>
-        )}
+        <ChannelAvatar
+          title={channel.name}
+          username={channel.username}
+          avatarUrl={channel.avatarUrl}
+          fallback={t("common.avatarFallback")}
+          className="h-12 w-12 text-lg"
+        />
         <div className="min-w-0 flex-1 space-y-2">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <h3 className="truncate text-sm font-semibold text-foreground">{channel.name}</h3>
+              <h3 className="truncate text-sm font-semibold text-foreground">
+                {channel.name}
+              </h3>
               {username ? (
-                <span className="block truncate text-xs text-muted-foreground">{username}</span>
+                <span className="block truncate text-xs text-muted-foreground">
+                  {username}
+                </span>
               ) : null}
             </div>
             <div className="flex shrink-0 items-start gap-2">
@@ -239,7 +249,7 @@ export default function ChannelCard({
                       size={16}
                       className={cn(
                         "transition-transform duration-200",
-                        resolvedExpanded && "rotate-180"
+                        resolvedExpanded && "rotate-180",
                       )}
                     />
                   </button>
@@ -309,7 +319,9 @@ export default function ChannelCard({
         <div
           className={cn(
             "overflow-hidden transition-all duration-300",
-            resolvedExpanded ? "mt-4 max-h-[1200px] opacity-100" : "max-h-0 opacity-0"
+            resolvedExpanded
+              ? "mt-4 max-h-[1200px] opacity-100"
+              : "max-h-0 opacity-0",
           )}
         >
           {expandedContent ? (

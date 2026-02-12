@@ -13,6 +13,7 @@ import { useLanguage } from "@/i18n/LanguageProvider";
 import { USER_ROLE } from "@/constants/roles";
 import { useAuth } from "@/features/auth/ui/AuthProvider";
 import { stageToLabel } from "@/features/deals/dealStageMachine";
+import ChannelAvatar from "@/components/ChannelAvatar";
 import { COUNTDOWN_TICK_MS, formatHmsCountdown } from "@/features/deals/time";
 
 const roleToneMap: Record<string, string> = {
@@ -38,7 +39,6 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
 
   const channelTitle = deal?.channel?.title ?? t("common.emptyValue");
   const channelUsername = deal?.channel?.username ?? "";
-  const channelInitial = channelTitle?.trim()?.[0] ?? "•";
 
   const listingSnapshot = deal?.listingSnapshot;
   const stageLabel = stageToLabel(deal.stage, t);
@@ -125,9 +125,14 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
       </div>
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-secondary/60 text-lg font-semibold text-muted-foreground">
-            {channelInitial}
-          </div>
+          <ChannelAvatar
+            title={channelTitle}
+            username={channelUsername}
+            avatarUrl={deal?.channel?.avatarUrl}
+            fallback={t("channels.avatarFallback")}
+            className="h-12 w-12 text-lg font-semibold"
+            fallbackClassName="bg-secondary/60 text-muted-foreground"
+          />
           <div className="min-w-0">
             <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
               <span className="truncate">{channelTitle}</span>

@@ -2,7 +2,11 @@ import type { ManagedChannel } from "@/features/channels/managedChannels";
 import { formatTonValue } from "@/i18n/formatters";
 import { formatDuration } from "@/i18n/labels";
 import { useLanguage } from "@/i18n/LanguageProvider";
-import { filterListingTags, getListingTagLabel } from "@/features/listings/tagOptions";
+import {
+  filterListingTags,
+  getListingTagLabel,
+} from "@/features/listings/tagOptions";
+import ChannelAvatar from "@/components/ChannelAvatar";
 
 interface ListingSummaryCardProps {
   channel: ManagedChannel;
@@ -30,12 +34,18 @@ export function ListingSummaryCard({
   return (
     <div className="rounded-2xl border border-border/60 bg-card/80 p-4 shadow-sm">
       <div className="flex items-start gap-3">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary/60 text-xl">
-          {channel.avatar}
-        </div>
+        <ChannelAvatar
+          title={channel.name}
+          username={channel.username}
+          avatarUrl={(channel as { avatarUrl?: string | null }).avatarUrl}
+          className="h-12 w-12 text-xl"
+          fallbackClassName="bg-secondary/60"
+        />
         <div className="flex-1">
           <div className="flex items-center gap-2">
-            <p className="text-sm font-semibold text-foreground">{channel.name}</p>
+            <p className="text-sm font-semibold text-foreground">
+              {channel.name}
+            </p>
           </div>
           <p className="text-xs text-muted-foreground">{channel.username}</p>
           <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-muted-foreground">
@@ -69,10 +79,15 @@ export function ListingSummaryCard({
       </div>
       {filteredTags.length > 0 ? (
         <div className="mt-3 space-y-2">
-          <p className="text-xs text-muted-foreground">{t("listings.tagsLabel")}</p>
+          <p className="text-xs text-muted-foreground">
+            {t("listings.tagsLabel")}
+          </p>
           <div className="flex flex-wrap gap-2 text-[11px] text-foreground">
             {filteredTags.map((tag) => (
-              <span key={tag} className="rounded-full border border-border/60 bg-card px-2.5 py-1">
+              <span
+                key={tag}
+                className="rounded-full border border-border/60 bg-card px-2.5 py-1"
+              >
                 {getListingTagLabel(tag, t)}
               </span>
             ))}

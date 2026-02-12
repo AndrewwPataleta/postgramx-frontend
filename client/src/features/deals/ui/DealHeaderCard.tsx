@@ -5,6 +5,7 @@ import { formatDuration, getListingFormatLabel } from "@/i18n/labels";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { ChevronDown } from "lucide-react";
 import { COUNTDOWN_TICK_MS, formatHmsCountdown } from "@/features/deals/time";
+import ChannelAvatar from "@/components/ChannelAvatar";
 
 interface DealHeaderCardProps {
   deal: DealEntity;
@@ -64,9 +65,14 @@ export default function DealHeaderCard({ deal }: DealHeaderCardProps) {
         </p>
       ) : null}
       <div className="flex items-center gap-3">
-        <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-secondary/60 text-lg font-semibold text-muted-foreground">
-          {channelTitle.slice(0, 1) || "U"}
-        </div>
+        <ChannelAvatar
+          title={channelTitle}
+          username={deal.channel?.username}
+          avatarUrl={deal.channel?.avatarUrl}
+          fallback={t("channels.avatarFallback")}
+          className="h-12 w-12 text-lg font-semibold"
+          fallbackClassName="bg-secondary/60 text-muted-foreground"
+        />
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
             <span className="truncate">{channelTitle}</span>
