@@ -36,28 +36,6 @@ const formatShortAddress = (address: string) => {
 const toNanoString = (value: string | bigint) =>
   typeof value === "bigint" ? value.toString() : value;
 
-function uint8ToBase64(bytes: Uint8Array) {
-  let binary = "";
-  const chunkSize = 0x8000;
-  for (let i = 0; i < bytes.length; i += chunkSize) {
-    binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
-  }
-  return btoa(binary);
-}
-
-async function buildCommentPayloadBase64(comment: string): Promise<string> {
-  const tonCoreModule = "@ton/core";
-  const ton = await import(tonCoreModule);
-
-  const cell = ton.beginCell()
-    .storeUint(0, 32) // text comment opcode
-    .storeStringTail(comment)
-    .endCell();
-
-  const boc: Uint8Array = cell.toBoc({ idx: false });
-  return uint8ToBase64(boc);
-}
-
 export default function StagePayment({
                                        deal,
                                        readonly,
@@ -127,17 +105,12 @@ export default function StagePayment({
       setIsWaiting(true);
 
       const validUntil = Math.floor(Date.now() / 1000) + 5 * 60;
-      const memo = `Deal:${deal.id}`;
-
-      const payload = await buildCommentPayloadBase64(memo);
-
       await tonConnectUI.sendTransaction({
         validUntil,
         messages: [
           {
             address: paymentAddress,
             amount: toNanoString(escrowAmountNano),
-            payload,
           },
         ],
       });
