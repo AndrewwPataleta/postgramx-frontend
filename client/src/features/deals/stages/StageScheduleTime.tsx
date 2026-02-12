@@ -6,15 +6,16 @@ import { scheduleDeal } from "@/api/features/dealsApi";
 import { getErrorMessage } from "@/lib/api/errors";
 import InfoCard from "@/features/deals/ui/InfoCard";
 import { cn } from "@/lib/utils";
-import { formatDateTime } from "@/i18n/formatters";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { DealStage } from "@/models/enums";
+import { getDeviceTimeZone, buildDualTimeLabel } from "@/shared/lib/time/timezone";
+import DualTimeLabel from "@/features/deals/ui/DualTimeLabel";
 
 interface StageScheduleTimeProps {
   deal: DealEntity;
   readonly: boolean;
   onAction?: {
-    onConfirmSchedule?: (scheduledAt: string) => Promise<void> | void;
+    onConfirmSchedule?: (publishAtUtc: string) => Promise<void> | void;
   };
 }
 
@@ -85,8 +86,9 @@ const toUtcIsoString = (date: Date) => date.toISOString();
 
 export default function StageScheduleTime({ deal, readonly, onAction }: StageScheduleTimeProps) {
   const queryClient = useQueryClient();
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   const isLocalDev = import.meta.env.DEV;
+  const timeZone = getDeviceTimeZone();
 
   const isAwaitingScheduleChanges = deal.stage === DealStage.SCHEDULE_AWAITING_FOR_CHANGES;
   const titleKey = isAwaitingScheduleChanges
@@ -103,7 +105,7 @@ export default function StageScheduleTime({ deal, readonly, onAction }: StageSch
   const [timeValue, setTimeValue] = useState("");
 
   useEffect(() => {
-    const parsed = parseScheduleDate(deal.scheduledAt);
+    const parsed = parseScheduleDate(deal.publishAtUtc ?? deal.scheduledAt ?? undefined);
     if (!parsed) {
       setDateValue("");
       setTimeValue("");
@@ -111,7 +113,7 @@ export default function StageScheduleTime({ deal, readonly, onAction }: StageSch
     }
     setDateValue(formatDateInputValue(parsed));
     setTimeValue(formatTimeInputValue(parsed));
-  }, [deal.scheduledAt]);
+  }, [deal.publishAtUtc, deal.scheduledAt]);
 
   const scheduledLocal = useMemo(
     () => buildLocalDateFromInputs(dateValue, timeValue),
@@ -131,7 +133,7 @@ export default function StageScheduleTime({ deal, readonly, onAction }: StageSch
         throw new Error(t("deals.stage.scheduleTime.selectDateError"));
       }
       const scheduledAtUtc = toUtcIsoString(scheduledLocal);
-      return scheduleDeal({ id: deal.id, scheduledAt: scheduledAtUtc });
+      return scheduleDeal({ id: deal.id, publishAtUtc: scheduledAtUtc, timeZone });
     },
     onSuccess: () => {
       toast.success(t("deals.stage.scheduleTime.updatedToast"));
@@ -147,12 +149,12 @@ export default function StageScheduleTime({ deal, readonly, onAction }: StageSch
       <InfoCard title={t(titleKey)}>
         <p className="text-xs text-muted-foreground">{t("deals.stage.scheduleTime.readonly")}</p>
         <p className="text-xs text-muted-foreground">
-          {t("deals.scheduledAt")}:{" "}
-          <span className="font-semibold text-foreground">
-            {deal.scheduledAt
-              ? formatDateTime(deal.scheduledAt, language)
-              : t("deals.stage.scheduleTime.notScheduled")}
-          </span>
+          {t("deals.scheduledAt")}: {" "}
+          <DualTimeLabel
+            dateIso={deal.publishAtUtc ?? deal.scheduledAt}
+            display={deal.publishAtDisplay}
+            emptyLabel={t("deals.stage.scheduleTime.notScheduled")}
+          />
         </p>
       </InfoCard>
     );
@@ -212,7 +214,10 @@ export default function StageScheduleTime({ deal, readonly, onAction }: StageSch
               <p className="text-[11px] text-muted-foreground">
                 {t("deals.stage.scheduleTime.preview") ?? "Selected"}:{" "}
                 <span className="font-semibold text-foreground">
-                  {formatDateTime(scheduledLocal.toISOString(), language)}
+                  {buildDualTimeLabel(scheduledLocal.toISOString(), timeZone).localLabel}
+                </span>
+                <span className="ml-1 text-muted-foreground">
+                  · UTC: {buildDualTimeLabel(scheduledLocal.toISOString(), timeZone).utcLabel}
                 </span>
               </p>
             ) : (

@@ -1,4 +1,5 @@
 import { apiPost } from "@/api/core/http";
+import { getDeviceTimeZone } from "@/shared/lib/time/timezone";
 import type { AuthResponse, TelegramAuthData, TelegramUserLike } from "@/types/auth";
 
 const resolveUserValue = (user: TelegramUserLike, key: keyof TelegramUserLike) =>
@@ -24,6 +25,9 @@ const normalizeUser = (user: TelegramUserLike): TelegramAuthData => {
     (resolveUserValue(user, "is_premium") as boolean | null | undefined) ??
     false;
 
+  const timeZone = getDeviceTimeZone();
+  const utcOffsetMinutes = -new Date().getTimezoneOffset();
+
   return {
     id: user.id,
     username: username ?? "",
@@ -31,6 +35,8 @@ const normalizeUser = (user: TelegramUserLike): TelegramAuthData => {
     lastName,
     lang,
     isPremium,
+    timeZone,
+    utcOffsetMinutes,
   };
 };
 
@@ -38,7 +44,9 @@ export const authTelegram = async (
   user?: TelegramUserLike | null
 ): Promise<AuthResponse> => {
   if (!user) {
-    return post<AuthResponse, Record<string, never>>("/auth", {});
+    const timeZone = getDeviceTimeZone();
+    const utcOffsetMinutes = -new Date().getTimezoneOffset();
+    return apiPost<AuthResponse, Pick<TelegramAuthData, "timeZone" | "utcOffsetMinutes">>("/auth", { timeZone, utcOffsetMinutes });
   }
 
   const payload = normalizeUser(user);
