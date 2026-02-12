@@ -303,6 +303,8 @@
   "deals.stage.requested.label": "Requested",
   "deals.stage.scheduleTime.confirm": "Confirm schedule",
   "deals.stage.scheduleTime.description": "Choose a time for the post that matches the campaign schedule and timezone. The selected time must be at least 1 hour from now.",
+  "deals.stage.scheduleTime.descriptionIntro": "Choose a time for the post that matches the campaign schedule and timezone.",
+  "deals.stage.scheduleTime.descriptionHighlight": "The selected time must be at least 1 hour from now.",
   "deals.stage.scheduleTime.dateHint": "Specify date",
   "deals.stage.scheduleTime.notScheduled": "Not scheduled",
   "deals.stage.scheduleTime.readonly": "Schedule is set by the advertiser.",
