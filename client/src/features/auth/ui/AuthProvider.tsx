@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import { authTelegram } from "@/api/features/authApi";
 import type { ApiError } from "@/api/core/apiErrors";
 import type { TelegramUserLike } from "@/types/auth";
+import { getDeviceTimeZone } from "@/shared/lib/time/timezone";
 import { ROUTES } from "@/constants/routes";
 
 type AuthError = {
@@ -28,10 +29,15 @@ type AuthError = {
   debug?: string;
 };
 
+type AuthUser = {
+  id?: string;
+  timeZone?: string | null;
+} & Record<string, unknown>;
+
 type AuthContextValue = {
   isReady: boolean;
   isLoading: boolean;
-  user: unknown | null;
+  user: AuthUser | null;
   accessToken: string | null;
   error: AuthError | null;
   initSession: () => Promise<{ ok: boolean }>;
@@ -78,7 +84,7 @@ const extractAuthResult = (payload: unknown) => {
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isReady, setIsReady] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [user, setUser] = useState<unknown | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [error, setError] = useState<AuthError | null>(null);
   const inFlightRef = useRef(false);
@@ -100,6 +106,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         ? mockTelegramAuth.user
         : getTelegramUser(webApp);
 
+      const deviceTimeZone = getDeviceTimeZone();
       const response = await authTelegram(
         (telegramUser ?? mockTelegramAuth.user) as TelegramUserLike
       );
@@ -112,7 +119,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setAccessToken(null);
       }
 
-      setUser(profile ?? telegramUser ?? null);
+      const resolvedUser = (profile ?? telegramUser ?? null) as AuthUser | null;
+      if (resolvedUser) {
+        resolvedUser.timeZone =
+          typeof resolvedUser.timeZone === "string" && resolvedUser.timeZone
+            ? resolvedUser.timeZone
+            : deviceTimeZone;
+      }
+
+      setUser(resolvedUser);
       setIsReady(true);
       setError(null);
       return { ok: true };

@@ -18,6 +18,8 @@ export type TelegramAuthData = {
   lastName: string;
   lang: string;
   isPremium: boolean;
+  timeZone?: string;
+  utcOffsetMinutes?: number;
 };
 
 export type AuthRequest = {

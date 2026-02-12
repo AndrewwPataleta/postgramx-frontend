@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { formatTon } from "@/i18n/formatters";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { useWalletContext } from "@/contexts/WalletContext";
+import DualTimeLabel from "@/features/deals/ui/DualTimeLabel";
 
 interface StagePaymentProps {
   deal: DealEntity;
@@ -176,6 +177,14 @@ export default function StagePayment({
                   {t("deals.stage.payment.expiresIn", { time: timeRemaining })}
                 </span>
               </p>
+            ) : null}
+
+            {paymentDeadlineAt ? (
+              <DualTimeLabel
+                dateIso={paymentDeadlineAt}
+                display={deal.escrow.paymentDeadlineAtDisplay}
+                emptyLabel={t("common.emptyValue")}
+              />
             ) : null}
           </div>
         </div>

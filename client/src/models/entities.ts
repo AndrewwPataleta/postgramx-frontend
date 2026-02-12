@@ -9,6 +9,11 @@ import type {
   PublicationStatus,
 } from "@/models/enums";
 
+export type PublishAtDisplay = {
+  local?: string | null;
+  utc?: string | null;
+};
+
 export type DealListingSnapshot = {
   listingId: string;
   channelId: string;
@@ -37,6 +42,7 @@ export type DealEscrowEntity = {
   walletId: string | null;
   depositAddress: string | null;
   paymentDeadlineAt: string | null;
+  paymentDeadlineAtDisplay?: PublishAtDisplay | null;
   confirmedAt: string | null;
   releasedAt: string | null;
   refundedAt: string | null;
@@ -189,8 +195,11 @@ export type DealEntity = {
   status: DealStatus;
   stage: DealStage;
   scheduledAt: string | null;
+  publishAtUtc?: string | null;
+  publishAtDisplay?: PublishAtDisplay | null;
   lastActivityAt: string;
   idleExpiresAt: string | null;
+  idleExpiresAtDisplay?: PublishAtDisplay | null;
   cancelReason: string | null;
   listingSnapshot: DealListingSnapshot;
   createdAt: string;
@@ -220,6 +229,7 @@ export type User = {
   fbPushToken?: string;
   lastLoginAt: string;
   createdAt: string;
+  timeZone?: string | null;
 };
 
 export type DealDetailResponse = DealEntity & {

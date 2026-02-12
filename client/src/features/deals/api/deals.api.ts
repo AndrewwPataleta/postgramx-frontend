@@ -52,12 +52,16 @@ export const getDealDetail = async (data: { id: string }): Promise<DealEntity> =
 
 export const scheduleDeal = async (data: {
   id: string;
-  scheduledAt: string;
-}): Promise<{ id: string; status: DealStatus; stage: DealStage; scheduledAt: string }> =>
-  apiPost<{ id: string; status: DealStatus; stage: DealStage; scheduledAt: string }, typeof data>(
-    "/deals/schedule",
-    data
-  );
+  publishAtUtc: string;
+  timeZone?: string;
+}): Promise<{ id: string; status: DealStatus; stage: DealStage; scheduledAt?: string; publishAtUtc?: string }> =>
+  apiPost<
+    { id: string; status: DealStatus; stage: DealStage; scheduledAt?: string; publishAtUtc?: string },
+    typeof data & { scheduledAt?: string }
+  >("/deals/schedule", {
+    ...data,
+    scheduledAt: data.publishAtUtc,
+  });
 
 export const submitCreative = async (data: { id: string }): Promise<DealDetailResponse> =>
   apiPost<DealDetailResponse, typeof data>("/deals/creative/submit", data);

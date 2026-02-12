@@ -1,8 +1,8 @@
 import InfoCard from "@/features/deals/ui/InfoCard";
 import type { DealEntity } from "@/models/entities";
 import { EscrowStatus } from "@/models/enums";
-import { formatDateTime } from "@/i18n/formatters";
 import { useLanguage } from "@/i18n/LanguageProvider";
+import DualTimeLabel from "@/features/deals/ui/DualTimeLabel";
 
 interface StageScheduledProps {
   deal: DealEntity;
@@ -11,10 +11,7 @@ interface StageScheduledProps {
 }
 
 export default function StageScheduled({ deal }: StageScheduledProps) {
-  const { t, language } = useLanguage();
-  const scheduledLabel = deal.scheduledAt
-    ? formatDateTime(deal.scheduledAt, language)
-    : t("deals.stage.scheduled.notScheduled");
+  const { t } = useLanguage();
 
   return (
     <InfoCard title={t("deals.stage.scheduled.title")}>
@@ -27,9 +24,13 @@ export default function StageScheduled({ deal }: StageScheduledProps) {
       ) : null}
       <p className="text-xs text-muted-foreground">
         {t("deals.stage.scheduled.time")}:{" "}
-        <span className="font-semibold text-foreground">{scheduledLabel}</span>
+        <DualTimeLabel
+          dateIso={deal.publishAtUtc ?? deal.scheduledAt}
+          display={deal.publishAtDisplay}
+          emptyLabel={t("deals.stage.scheduled.notScheduled")}
+        />
       </p>
-      {!deal.scheduledAt ? (
+      {!(deal.publishAtUtc ?? deal.scheduledAt) ? (
         <p className="text-xs text-muted-foreground">
           {t("deals.stage.scheduled.noSchedule")}
         </p>

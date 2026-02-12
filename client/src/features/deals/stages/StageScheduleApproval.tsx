@@ -12,6 +12,7 @@ import { getErrorMessage } from "@/lib/api/errors";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { COUNTDOWN_TICK_MS, formatHmsCountdown } from "@/features/deals/time";
+import DualTimeLabel from "@/features/deals/ui/DualTimeLabel";
 
 interface StageAdminApprovalProps {
   deal: DealEntity;
@@ -103,6 +104,15 @@ export default function StageScheduleApproval({
             {t("deals.stage.adminApproval.timeLeft", { time: countdown })}
           </p>
         ) : null}
+        {deal.idleExpiresAt ? (
+          <p className="text-xs text-muted-foreground">
+            <DualTimeLabel
+              dateIso={deal.idleExpiresAt}
+              display={deal.idleExpiresAtDisplay}
+              emptyLabel={t("common.emptyValue")}
+            />
+          </p>
+        ) : null}
       </InfoCard>
     );
   }
@@ -141,6 +151,15 @@ export default function StageScheduleApproval({
           {t("deals.stage.adminApproval.timeLeft", { time: countdown })}
         </p>
       ) : null}
+        {deal.idleExpiresAt ? (
+          <p className="text-xs text-muted-foreground">
+            <DualTimeLabel
+              dateIso={deal.idleExpiresAt}
+              display={deal.idleExpiresAtDisplay}
+              emptyLabel={t("common.emptyValue")}
+            />
+          </p>
+        ) : null}
       <div className="flex flex-wrap gap-2">
         <button
           type="button"
