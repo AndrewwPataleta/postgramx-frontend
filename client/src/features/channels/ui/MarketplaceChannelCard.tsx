@@ -47,7 +47,7 @@ export default function MarketplaceChannelCard({ channel }: MarketplaceChannelCa
   const telegramLink = trimmedUsername ? `https://t.me/${trimmedUsername}` : null;
   const listings = channel.listings ?? [];
   const hasListings = listings.length > 0;
-  const placementsCount = channel.placementsCount ?? listings.length;
+  const placementsCount = channel.preview.listingCount ?? listings.length;
   const hasExpandableListings = placementsCount > 0;
   const rules = hasListings ? collectRules(listings, t) : null;
 
