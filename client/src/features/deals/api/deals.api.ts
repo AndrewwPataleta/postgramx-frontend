@@ -13,6 +13,15 @@ type ChannelAvatarPayload = {
   photo_url?: string | null;
 };
 
+type DealAvatarPayload = DealEntity & {
+  avatarUrl?: string | null;
+  photoUrl?: string | null;
+  avatar?: string | null;
+  photo?: string | null;
+  avatar_url?: string | null;
+  photo_url?: string | null;
+};
+
 type DealsGroupedResponseRaw = {
   pending: Paged<DealListItem>;
   active: Paged<DealListItem>;
@@ -25,21 +34,23 @@ export type DealsGroupedResponse = {
   completed: Paged<DealEntity>;
 };
 
+const resolveAvatarUrl = (payload?: ChannelAvatarPayload | null): string | null => {
+  if (!payload) {
+    return null;
+  }
+
+  return payload.avatarUrl ?? payload.photoUrl ?? payload.avatar ?? payload.photo ?? payload.avatar_url ?? payload.photo_url ?? null;
+};
+
 const normalizeDealChannelAvatar = (deal: DealEntity): DealEntity => {
+  const avatarAwareDeal = deal as DealAvatarPayload;
   const channel = deal.channel as ChannelAvatarPayload | undefined;
 
   if (!channel) {
     return deal;
   }
 
-  const resolvedAvatarUrl =
-    channel.avatarUrl ??
-    channel.photoUrl ??
-    channel.avatar ??
-    channel.photo ??
-    channel.avatar_url ??
-    channel.photo_url ??
-    null;
+  const resolvedAvatarUrl = resolveAvatarUrl(channel) ?? resolveAvatarUrl(avatarAwareDeal);
 
   return {
     ...deal,
