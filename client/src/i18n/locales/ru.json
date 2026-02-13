@@ -419,8 +419,8 @@
   "deals.timeline.steps": "{count} этапов",
   "deals.timeline.title": "Хронология",
   "deals.title": "Сделки",
-  "errors.genericSubtitle": "errors.genericSubtitle",
-  "errors.genericTitle": "errors.genericTitle",
+  "errors.genericSubtitle": "Повторите загрузку страницы.",
+  "errors.genericTitle": "Произошла ошибка",
   "errors.validation.channelUsernameRequired": "errors.validation.channelUsernameRequired",
   "flowgramx.mockDeals": "flowgramx.mockDeals",
   "listings.adFormatSubtitle": "Выберите формат размещения.",
@@ -706,5 +706,6 @@
   "splash.modulesTitle": "Запускаем основные модули",
   "splash.visualsSubtitle": "Готовим интерфейс к запуску",
   "splash.visualsTitle": "Инициализируем визуалы",
-  "channels.errors.not_admin": "Вы не администратор этого канала."
+  "channels.errors.not_admin": "Вы не администратор этого канала.",
+  "errors.retryHint": "Если не помогло, перезайдите пожалуйста."
 }
