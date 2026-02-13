@@ -6,6 +6,7 @@ import { channelDetail } from "@/api/features/channelsApi";
 import { listListingsByChannel } from "@/api/features/listingsApi";
 import ErrorState from "@/design-system/components/ErrorState";
 import { PageContainer } from "@/design-system/components/PageContainer";
+import ChannelAvatar from "@/components/ChannelAvatar";
 import ChannelDetailsSkeleton, {
   ChannelDetailsListingsSkeleton,
 } from "@/features/channels/ui/skeletons/ChannelDetailsSkeleton";
@@ -201,9 +202,15 @@ export default function ChannelDetailsView() {
           <>
             <div className="rounded-2xl border border-border/60 bg-card/80 p-4">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
-                <div className="space-y-2">
+                <ChannelAvatar
+                  title={resolvedChannel.title}
+                  username={resolvedChannel.username}
+                  avatarUrl={resolvedChannel.avatarUrl}
+                  className="h-14 w-14 shrink-0"
+                />
+                <div className="space-y-2 min-w-0">
                   <div className="flex items-center gap-2">
-                    <h2 className="text-lg font-semibold text-foreground">
+                    <h2 className="text-lg font-semibold text-foreground break-words">
                       {resolvedChannel.title}
                     </h2>
                   </div>
