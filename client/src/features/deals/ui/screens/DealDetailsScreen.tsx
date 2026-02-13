@@ -15,7 +15,6 @@ const DealDetailsScreen = () => {
       errorMessage={vm.meta.error?.message ?? null}
       errorDescription={vm.meta.errorDescription}
       onRetry={vm.actions.onRetry}
-      onSelectStage={vm.actions.onSelectStage}
     />
   );
 };
