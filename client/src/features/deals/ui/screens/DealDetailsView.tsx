@@ -17,7 +17,6 @@ interface DealDetailsViewProps {
   errorMessage: string | null;
   errorDescription: string;
   onRetry: () => void;
-  onSelectStage: (stage: DealStage) => void;
 }
 
 export function DealDetailsView(props: DealDetailsViewProps) {
@@ -35,7 +34,6 @@ export function DealDetailsView(props: DealDetailsViewProps) {
               stages={props.stages}
               selectedStage={props.selectedStage}
               currentStage={props.currentStage}
-              onSelect={props.onSelectStage}
             />
             {props.stagePanel}
           </>
