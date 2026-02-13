@@ -419,8 +419,8 @@
   "deals.timeline.steps": "{count} steps",
   "deals.timeline.title": "Timeline",
   "deals.title": "Deals",
-  "errors.genericSubtitle": "errors.genericSubtitle",
-  "errors.genericTitle": "errors.genericTitle",
+  "errors.genericSubtitle": "Please try reloading the page.",
+  "errors.genericTitle": "Something went wrong",
   "errors.validation.channelUsernameRequired": "errors.validation.channelUsernameRequired",
   "flowgramx.mockDeals": "flowgramx.mockDeals",
   "listings.adFormatSubtitle": "Choose how the ad will appear.",
@@ -706,5 +706,6 @@
   "splash.modulesTitle": "Starting core modules",
   "splash.visualsSubtitle": "Preparing the interface for launch",
   "splash.visualsTitle": "Initializing visuals",
-  "channels.errors.not_admin": "You are not an admin of this channel."
+  "channels.errors.not_admin": "You are not an admin of this channel.",
+  "errors.retryHint": "If this does not help, please re-open the app."
 }

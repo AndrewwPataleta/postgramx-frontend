@@ -35,6 +35,16 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
             <p className="text-sm text-muted-foreground">
               {t("errors.genericSubtitle")}
             </p>
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={() => window.location.reload()}
+                className="inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground"
+              >
+                {t("common.retry")}
+              </button>
+              <p className="mt-2 text-xs text-muted-foreground">{t("errors.retryHint")}</p>
+            </div>
           </div>
         </div>
       );
