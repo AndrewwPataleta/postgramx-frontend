@@ -1,0 +1,104 @@
+import {
+  DEAL_ESCROW_STATUS,
+  DEAL_STATUS,
+  LEGACY_DEAL_STATUS,
+  LEGACY_ESCROW_STATUS,
+  PREDEAL_STATUS,
+} from "@/constants/deals";
+import { TRANSACTION_STATUS, TRANSACTION_TYPE } from "@/constants/payments";
+import { CHANNEL_STATUS } from "@/constants/channels";
+
+export const DEAL_STATUS_LABELS = {
+  [DEAL_STATUS.PENDING]: "Pending",
+  [DEAL_STATUS.ACTIVE]: "Active",
+  [DEAL_STATUS.COMPLETED]: "Completed",
+  [DEAL_STATUS.CANCELED]: "Canceled",
+} as const;
+
+export const ESCROW_STATUS_LABELS = {
+  [DEAL_ESCROW_STATUS.CREATIVE_AWAITING_SUBMIT]: "Submit creative",
+  [DEAL_ESCROW_STATUS.CREATIVE_AWAITING_ADMIN_REVIEW]: "Admin review",
+  [DEAL_ESCROW_STATUS.PAYMENT_AWAITING]: "Awaiting payment",
+  [DEAL_ESCROW_STATUS.FUNDS_PENDING]: "Payment in progress",
+  [DEAL_ESCROW_STATUS.FUNDS_CONFIRMED]: "Payment confirmed",
+  [DEAL_ESCROW_STATUS.APPROVED_SCHEDULED]: "Scheduled",
+  [DEAL_ESCROW_STATUS.POSTED_VERIFYING]: "Post verifying",
+  [DEAL_ESCROW_STATUS.COMPLETED]: "Completed",
+  [DEAL_ESCROW_STATUS.CANCELED]: "Canceled",
+  [DEAL_ESCROW_STATUS.REFUNDED]: "Refunded",
+  [DEAL_ESCROW_STATUS.DISPUTED]: "Disputed",
+  [DEAL_ESCROW_STATUS.DRAFT]: "Draft",
+} as const;
+
+export const LEGACY_DEAL_STATUS_LABELS = {
+  [LEGACY_DEAL_STATUS.REQUESTED]: "Requested",
+  [LEGACY_DEAL_STATUS.OWNER_ACCEPTED]: "Accepted",
+  [LEGACY_DEAL_STATUS.PAYMENT_REQUIRED]: "Payment required",
+  [LEGACY_DEAL_STATUS.PAYMENT_CONFIRMING]: "Payment confirming",
+  [LEGACY_DEAL_STATUS.FUNDS_LOCKED]: "Funds locked",
+  [LEGACY_DEAL_STATUS.CREATIVE_DRAFTING]: "Creative drafting",
+  [LEGACY_DEAL_STATUS.CREATIVE_SUBMITTED]: "Creative submitted",
+  [LEGACY_DEAL_STATUS.CREATIVE_APPROVED]: "Creative approved",
+  [LEGACY_DEAL_STATUS.SCHEDULED]: "Scheduled",
+  [LEGACY_DEAL_STATUS.POSTED]: "Posted",
+  [LEGACY_DEAL_STATUS.VERIFYING]: "Verifying",
+  [LEGACY_DEAL_STATUS.RELEASED]: "Released",
+  [LEGACY_DEAL_STATUS.REFUNDED]: "Refunded",
+} as const;
+
+export const LEGACY_ESCROW_STATUS_LABELS = {
+  [LEGACY_ESCROW_STATUS.PAYMENT_AWAITING]: "Awaiting payment",
+  [LEGACY_ESCROW_STATUS.PAYMENT_CONFIRMING]: "Payment confirming",
+  [LEGACY_ESCROW_STATUS.FUNDS_LOCKED]: "Funds locked",
+  [LEGACY_ESCROW_STATUS.RELEASED]: "Released",
+  [LEGACY_ESCROW_STATUS.REFUNDED]: "Refunded",
+} as const;
+
+export const PREDEAL_STATUS_LABELS = {
+  [PREDEAL_STATUS.AWAITING_CREATIVE]: "Awaiting creative",
+  [PREDEAL_STATUS.AWAITING_CONFIRMATION]: "Awaiting confirmation",
+  [PREDEAL_STATUS.AWAITING_ADMIN_APPROVAL]: "Awaiting admin approval",
+  [PREDEAL_STATUS.READY_FOR_PAYMENT]: "Ready for payment",
+  [PREDEAL_STATUS.REJECTED]: "Rejected",
+  [PREDEAL_STATUS.EXPIRED]: "Expired",
+  [PREDEAL_STATUS.CANCELED]: "Canceled",
+} as const;
+
+export const TRANSACTION_STATUS_LABELS = {
+  [TRANSACTION_STATUS.PENDING]: "Pending",
+  [TRANSACTION_STATUS.AWAITING_CONFIRMATION]: "Awaiting confirmation",
+  [TRANSACTION_STATUS.CONFIRMED]: "Confirmed",
+  [TRANSACTION_STATUS.COMPLETED]: "Completed",
+  [TRANSACTION_STATUS.FAILED]: "Failed",
+  [TRANSACTION_STATUS.CANCELED]: "Canceled",
+} as const;
+
+export const TRANSACTION_TYPE_LABELS = {
+  [TRANSACTION_TYPE.DEPOSIT]: "Deposit",
+  [TRANSACTION_TYPE.WITHDRAW]: "Withdraw",
+  [TRANSACTION_TYPE.ESCROW_HOLD]: "Escrow hold",
+  [TRANSACTION_TYPE.ESCROW_RELEASE]: "Escrow release",
+  [TRANSACTION_TYPE.ESCROW_REFUND]: "Refund",
+  [TRANSACTION_TYPE.FEE]: "Fee",
+} as const;
+
+export const CHANNEL_STATUS_LABELS = {
+  [CHANNEL_STATUS.DRAFT]: "Draft",
+  [CHANNEL_STATUS.PENDING_VERIFY]: "Pending",
+  [CHANNEL_STATUS.VERIFIED]: "Verified",
+  [CHANNEL_STATUS.FAILED]: "Failed",
+  [CHANNEL_STATUS.REVOKED]: "Revoked",
+} as const;
+
+export const STATUS_LABELS = {
+  ...DEAL_STATUS_LABELS,
+  ...ESCROW_STATUS_LABELS,
+  ...LEGACY_DEAL_STATUS_LABELS,
+  ...LEGACY_ESCROW_STATUS_LABELS,
+  ...PREDEAL_STATUS_LABELS,
+  ...TRANSACTION_STATUS_LABELS,
+  ...TRANSACTION_TYPE_LABELS,
+  ...CHANNEL_STATUS_LABELS,
+} as const;
+
+// TODO: Add ESLint rule to disallow direct status string comparisons in favor of constants.

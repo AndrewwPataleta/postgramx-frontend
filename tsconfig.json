@@ -5,8 +5,6 @@
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
-
-    /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "isolatedModules": true,
@@ -15,25 +13,24 @@
     "jsx": "react-jsx",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
     "forceConsistentCasingInFileNames": true,
-
-    /* Linting */
     "strict": false,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noImplicitAny": false,
     "noFallthroughCasesInSwitch": false,
     "strictNullChecks": false,
-
-    /* Path mapping */
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./client/*"]
+      "@/*": ["./client/src/*"],
+      "@app/*": ["./client/src/app/*"],
+      "@shared/*": ["./client/src/shared/*"],
+      "@entities/*": ["./client/src/entities/*"],
+      "@features/*": ["./client/src/features/*"],
+      "@pages/*": ["./client/src/pages/*"]
     }
   },
-  "include": [
-    "client/**/*",
-    "vite.config.ts"
-  ],
+  "include": ["client/src/**/*", "vite.config.ts"],
   "exclude": ["node_modules", "dist"]
 }
