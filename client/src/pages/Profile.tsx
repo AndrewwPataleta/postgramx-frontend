@@ -331,7 +331,7 @@ export default function Profile() {
                   </div>
                   <div className="px-5 py-5 space-y-4 pb-8">
                     <div className="space-y-4">
-                      <div className="grid gap-3 sm:grid-cols-2">
+                      <div className="grid grid-cols-2 gap-3">
                         <div className="glass p-4">
                           <p className="text-xs text-muted-foreground">
                             {t("profile.availableBalance")}
@@ -350,7 +350,7 @@ export default function Profile() {
                           </p>
                         </div>
                       </div>
-                      <div className="grid gap-3 sm:grid-cols-2">
+                      <div className="grid grid-cols-2 gap-3">
                         <div className="rounded-2xl border border-border/40 bg-background/60 p-4 text-xs text-muted-foreground">
                           <p>{t("profile.lifetimeEarned")}</p>
                           <p className="text-sm font-semibold text-foreground">
