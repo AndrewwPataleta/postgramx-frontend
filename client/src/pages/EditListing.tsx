@@ -36,20 +36,6 @@ const resolveHours = (choice: string, customValue: string, fallback: number) => 
   return Number.isFinite(parsed) ? parsed : fallback;
 };
 
-const parseTonInputToNano = (value: string): string => {
-  const trimmed = value.trim();
-  if (!trimmed || trimmed === ".") {
-    return "0";
-  }
-  if (!/^\d*\.?\d*$/.test(trimmed)) {
-    return "0";
-  }
-  const [integerPartRaw, fractionRaw = ""] = trimmed.split(".");
-  const integerPart = integerPartRaw === "" ? "0" : integerPartRaw;
-  const fractionPadded = (fractionRaw + "000000000").slice(0, 9);
-  return (BigInt(integerPart) * 1_000_000_000n + BigInt(fractionPadded)).toString();
-};
-
 export default function EditListing() {
   const { id, listingId } = useParams<{ id: string; listingId: string }>();
   const location = useLocation();
@@ -229,13 +215,12 @@ export default function EditListing() {
       : [...selectedTags, "Must be pre-approved"];
 
     const submittedPriceTon = latestPriceTonRef.current.trim();
-    const computedPriceNano = parseTonInputToNano(submittedPriceTon);
 
     await updateListing({
       id: listing.id,
       patch: {
         format: ListingFormat.Post,
-        priceNano: computedPriceNano,
+        priceTon: submittedPriceTon,
         currency: CurrencyCode.Ton,
         pinDurationHours,
         visibilityDurationHours,
