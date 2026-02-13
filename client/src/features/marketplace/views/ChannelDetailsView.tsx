@@ -20,14 +20,43 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/design-system/ui/tab
 import type {
   ChannelEntity,
   ListingEntity,
+  MarketplaceChannelSummary,
   Paged,
 } from "@/models/entities";
+
+type ChannelDetailsState = ChannelEntity | MarketplaceChannelSummary;
+
+const getSubscribersValue = (channel: ChannelDetailsState | null): number | null => {
+  if (!channel) {
+    return null;
+  }
+
+  if ("subscribers" in channel && typeof channel.subscribers === "number") {
+    return channel.subscribers;
+  }
+
+  if (typeof channel.subscribersCount === "number") {
+    return channel.subscribersCount;
+  }
+
+  if (typeof channel.memberCount === "number") {
+    return channel.memberCount;
+  }
+
+  if (typeof channel.preview?.subsCount === "number") {
+    return channel.preview.subsCount;
+  }
+
+  return null;
+};
 
 export default function ChannelDetailsView() {
   const { t, language } = useLanguage();
   const { channelId } = useParams<{ channelId: string }>();
   const location = useLocation();
-  const state = location.state as { channel?: ChannelEntity } | null;
+  const state = location.state as {
+    channel?: ChannelDetailsState;
+  } | null;
   const stateChannel = state?.channel ?? null;
   const listingsSectionRef = useRef<HTMLDivElement | null>(null);
   const [activeListingId, setActiveListingId] = useState<string | null>(null);
@@ -102,12 +131,11 @@ export default function ChannelDetailsView() {
     [activeListings, language, t]
   );
 
+  const subscribersValue = getSubscribersValue(resolvedChannel);
   const formattedSubscribers =
-    typeof resolvedChannel?.subscribersCount === "number"
-      ? formatNumber(resolvedChannel.subscribersCount, language)
-      : typeof resolvedChannel?.memberCount === "number"
-        ? formatNumber(resolvedChannel.memberCount, language)
-        : t("common.emptyValue");
+    typeof subscribersValue === "number"
+      ? formatNumber(subscribersValue, language)
+      : t("common.emptyValue");
 
   const buildTagList = (tags: string[]) => {
     const cleaned = filterListingTags(tags).map((tag) => tag.trim()).filter(Boolean);
