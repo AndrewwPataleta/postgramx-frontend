@@ -19,31 +19,6 @@ export type RequestPayoutResponse = {
   status: "CREATED" | "PROCESSING";
 };
 
-const apiPostWithOptionalFanout = async <TResp, TData>(
-  path: string,
-  data: TData
-): Promise<TResp> => {
-  const shouldFanOutRequests = import.meta.env.VITE_API_TRIPLE_PAYMENT_REQUESTS === "true";
-  const requestCount = shouldFanOutRequests ? 3 : 1;
-
-  if (requestCount === 1) {
-    return apiPost<TResp, TData>(path, data);
-  }
-
-  const results = await Promise.allSettled(
-    Array.from({ length: requestCount }, () => apiPost<TResp, TData>(path, data))
-  );
-  const fulfilled = results.find(
-    (result): result is PromiseFulfilledResult<TResp> => result.status === "fulfilled"
-  );
-  if (fulfilled) {
-    return fulfilled.value;
-  }
-  const rejected = results.find(
-    (result): result is PromiseRejectedResult => result.status === "rejected"
-  );
-  throw rejected?.reason ?? new Error("All payment API requests failed.");
-};
 
 export const getBalanceOverview = async (): Promise<BalanceOverviewResponse> => {
   return apiPost<BalanceOverviewResponse, Record<string, never>>(
@@ -55,7 +30,7 @@ export const getBalanceOverview = async (): Promise<BalanceOverviewResponse> => 
 export const requestPayout = async (
   data: RequestPayoutRequest
 ): Promise<RequestPayoutResponse> => {
-  return apiPostWithOptionalFanout<RequestPayoutResponse, RequestPayoutRequest>(
+  return apiPost<RequestPayoutResponse, RequestPayoutRequest>(
     "/payments/payouts/request",
     data
   );
