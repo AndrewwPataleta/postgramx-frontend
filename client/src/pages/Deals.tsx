@@ -275,7 +275,6 @@ export default function Deals() {
                   }
                 >
                   <SlidersHorizontal size={14} />
-                  {t("deals.filters.title")}
                   {activeFiltersCount > 0 ? (
                     <span className="rounded-full bg-primary px-1.5 py-0 text-[10px] font-semibold leading-4 text-primary-foreground">
                       {activeFiltersCount}
