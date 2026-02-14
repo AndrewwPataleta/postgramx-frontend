@@ -248,9 +248,6 @@ export default function StageScheduleTime({ deal, readonly, onAction }: StageSch
                 <span className="font-semibold text-foreground">
                   {buildDualTimeLabel(scheduledLocal.toISOString(), timeZone).localLabel}
                 </span>
-                <span className="ml-1 text-muted-foreground">
-                  · UTC: {buildDualTimeLabel(scheduledLocal.toISOString(), timeZone).utcLabel}
-                </span>
               </p>
             ) : (
               <p className="text-[11px] text-muted-foreground">

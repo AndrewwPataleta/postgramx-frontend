@@ -49,11 +49,12 @@ export default function StagePayment({
 
   const [isWaiting, setIsWaiting] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState<string | null>(null);
+  const showPaymentActions = !readonly;
 
-  const paymentDeadlineAt = deal.escrow.paymentDeadlineAt;
+  const paymentDeadlineAt = deal.escrow?.paymentDeadlineAt;
 
-  const escrowAmountNano = deal.escrow.amountNano ?? deal.listingSnapshot.priceNano;
-  const paymentAddress = deal.escrow.depositAddress ?? "";
+  const escrowAmountNano = deal.escrow?.amountNano ?? deal.listingSnapshot.priceNano;
+  const paymentAddress = deal.escrow?.depositAddress ?? "";
 
   const displayAmount = escrowAmountNano
     ? `${formatTon(escrowAmountNano, language)} ${t("common.ton")}`
@@ -91,7 +92,7 @@ export default function StagePayment({
 
   useEffect(() => {
     setIsWaiting(false);
-  }, [deal.id, deal.escrow.status]);
+  }, [deal.id, deal.escrow?.status]);
 
   const handlePay = async () => {
     if (readonly || !paymentAddress || !escrowAmountNano) return;
@@ -141,15 +142,17 @@ export default function StagePayment({
 
   return (
     <InfoCard title={t("deals.stage.payment.title")}>
-      <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-        <span
-          className={cn(
-            "h-2 w-2 rounded-full",
-            isConnected ? "bg-success" : "bg-muted-foreground/50"
-          )}
-        />
-        <span className="text-xs text-muted-foreground">{walletStatusLabel}</span>
-      </div>
+      {showPaymentActions ? (
+        <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+          <span
+            className={cn(
+              "h-2 w-2 rounded-full",
+              isConnected ? "bg-success" : "bg-muted-foreground/50"
+            )}
+          />
+          <span className="text-xs text-muted-foreground">{walletStatusLabel}</span>
+        </div>
+      ) : null}
 
       <div className="space-y-3">
         <div className="rounded-xl border border-border/60 bg-background/40 p-3">
@@ -193,36 +196,40 @@ export default function StagePayment({
           </div>
         ) : null}
 
-        {/*  Official SDK button + Pay logic */}
-        <div className="flex flex-wrap items-center gap-2">
-          <TonConnectButton className="!w-auto" />
+        {showPaymentActions ? (
+          <>
+            {/*  Official SDK button + Pay logic */}
+            <div className="flex flex-wrap items-center gap-2">
+              <TonConnectButton className="!w-auto" />
 
-          <button
-            type="button"
-            onClick={handlePay}
-            disabled={readonly || isWaiting || !paymentAddress || !escrowAmountNano}
-            className={cn(
-              "rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground transition",
-              readonly || isWaiting
-                ? "cursor-not-allowed opacity-60"
-                : "hover:bg-primary/90"
-            )}
-          >
-            {t("deals.stage.payment.payWithWallet")}
-          </button>
+              <button
+                type="button"
+                onClick={handlePay}
+                disabled={readonly || isWaiting || !paymentAddress || !escrowAmountNano}
+                className={cn(
+                  "rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground transition",
+                  readonly || isWaiting
+                    ? "cursor-not-allowed opacity-60"
+                    : "hover:bg-primary/90"
+                )}
+              >
+                {t("deals.stage.payment.payWithWallet")}
+              </button>
 
-          <button
-            type="button"
-            onClick={handleCopyAddress}
-            disabled={readonly}
-            className={cn(
-              "rounded-lg border border-border/60 px-4 py-2 text-xs font-semibold text-foreground transition",
-              readonly ? "cursor-not-allowed opacity-60" : "hover:border-primary/40"
-            )}
-          >
-            {t("deals.stage.payment.copyAddress")}
-          </button>
-        </div>
+              <button
+                type="button"
+                onClick={handleCopyAddress}
+                disabled={readonly}
+                className={cn(
+                  "rounded-lg border border-border/60 px-4 py-2 text-xs font-semibold text-foreground transition",
+                  readonly ? "cursor-not-allowed opacity-60" : "hover:border-primary/40"
+                )}
+              >
+                {t("deals.stage.payment.copyAddress")}
+              </button>
+            </div>
+          </>
+        ) : null}
 
         {isWaiting ? (
           <button

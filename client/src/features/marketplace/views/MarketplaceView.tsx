@@ -56,10 +56,10 @@ export default function MarketplaceView() {
             <button
               type="button"
               onClick={actions.openFilters}
-              className="absolute right-5 inline-flex items-center gap-2 rounded-lg bg-secondary/60 px-3 py-1 text-xs text-muted-foreground"
+              aria-label={t("marketplace.filters.title")}
+              className="absolute right-5 inline-flex items-center rounded-lg bg-secondary/60 p-1.5 text-muted-foreground"
             >
               <SlidersHorizontal size={14} />
-              {t("marketplace.filters.title")}
             </button>
           </div>
           <ActiveFiltersChips filters={state.filters} onRemoveFilter={actions.removeFilter} />

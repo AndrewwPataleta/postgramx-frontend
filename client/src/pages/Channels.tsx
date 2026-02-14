@@ -15,10 +15,7 @@ import { useAuth } from "@/features/auth/ui/AuthProvider";
 import { ROUTES } from "@/constants/routes";
 import ChannelsListSkeleton from "@/features/channels/ui/skeletons/ChannelsListSkeleton";
 import { AnimatedList, AnimatedListItem } from "@/motion/AnimatedList";
-import type {
-  ChannelEntity,
-  ListingEntity,
-} from "@/models/entities";
+import type { ChannelEntity, ListingEntity } from "@/models/entities";
 import { ChannelStatus } from "@/models/enums";
 import { filterListingTags } from "@/features/listings/tagOptions";
 
@@ -29,18 +26,23 @@ const getListingSummary = (listings?: ListingEntity[]) => {
   if (!listings) {
     return null;
   }
-  const activeListings = listings.filter((listing) => listing.isActive !== false);
-  const minPriceNano = activeListings.reduce<bigint | null>((currentMin, listing) => {
-    try {
-      const price = BigInt(listing.priceNano);
-      if (currentMin === null || price < currentMin) {
-        return price;
+  const activeListings = listings.filter(
+    (listing) => listing.isActive !== false,
+  );
+  const minPriceNano = activeListings.reduce<bigint | null>(
+    (currentMin, listing) => {
+      try {
+        const price = BigInt(listing.priceNano);
+        if (currentMin === null || price < currentMin) {
+          return price;
+        }
+        return currentMin;
+      } catch {
+        return currentMin;
       }
-      return currentMin;
-    } catch {
-      return currentMin;
-    }
-  }, null);
+    },
+    null,
+  );
   return {
     placementsCount: activeListings.length,
     minPriceNano: minPriceNano ? minPriceNano.toString() : null,
@@ -51,13 +53,15 @@ const getAggregatedTags = (listings?: ListingEntity[]) => {
   if (!listings?.length) {
     return [];
   }
-  const tags = listings.flatMap((listing) => filterListingTags(listing.tags ?? []));
+  const tags = listings.flatMap((listing) =>
+    filterListingTags(listing.tags ?? []),
+  );
   return Array.from(new Set(tags.map((tag) => tag.trim()).filter(Boolean)));
 };
 
 const buildRulesSummary = (
   listings: ListingEntity[] | undefined,
-  t: (key: string) => string
+  t: (key: string) => string,
 ) => {
   if (!listings?.length) {
     return null;
@@ -90,9 +94,11 @@ export default function Channels() {
   const [activeTab, setActiveTab] = useState<"owner" | "moderator">("owner");
   const [unlinkTarget, setUnlinkTarget] = useState<ChannelEntity | null>(null);
   const [isUnlinking, setIsUnlinking] = useState(false);
-  const [removedChannelIds, setRemovedChannelIds] = useState<Set<string>>(() => new Set());
+  const [removedChannelIds, setRemovedChannelIds] = useState<Set<string>>(
+    () => new Set(),
+  );
   const [expandedChannelIds, setExpandedChannelIds] = useState<Set<string>>(
-    () => new Set()
+    () => new Set(),
   );
   const [listingSummaries, setListingSummaries] = useState<
     Record<string, { placementsCount: number; minPriceNano: string | null }>
@@ -144,18 +150,19 @@ export default function Channels() {
   const ownerChannels = useMemo(
     () =>
       visibleItems.filter((channel) =>
-        currentUserId ? isOwnerChannel(channel) : false
+        currentUserId ? isOwnerChannel(channel) : false,
       ),
     [visibleItems, currentUserId, isOwnerChannel],
   );
   const moderatorChannels = useMemo(
     () =>
       visibleItems.filter((channel) =>
-        currentUserId ? !isOwnerChannel(channel) : false
+        currentUserId ? !isOwnerChannel(channel) : false,
       ),
     [visibleItems, currentUserId, isOwnerChannel],
   );
-  const tabbedChannels = activeTab === "owner" ? ownerChannels : moderatorChannels;
+  const tabbedChannels =
+    activeTab === "owner" ? ownerChannels : moderatorChannels;
   const emptyCopy =
     activeTab === "moderator"
       ? t("channels.emptyModerator")
@@ -252,7 +259,9 @@ export default function Channels() {
                       : "text-muted-foreground"
                   }`}
                 >
-                  {tab === "owner" ? t("channels.tabs.owner") : t("channels.tabs.moderator")}
+                  {tab === "owner"
+                    ? t("channels.tabs.owner")
+                    : t("channels.tabs.moderator")}
                 </button>
               ))}
             </div>
@@ -263,14 +272,21 @@ export default function Channels() {
                 className="space-y-3"
               >
                 {tabbedChannels.map((channel, index) => {
+                  const isModeratorView = activeTab === "moderator";
                   const isExpanded = expandedChannelIds.has(channel.id);
-                  const canExpand = channel.status === ChannelStatus.Verified;
+                  const canExpand =
+                    !isModeratorView &&
+                    channel.status === ChannelStatus.Verified;
                   const listingSummary = getListingSummary(channel.listings);
                   const fallbackSummary = listingSummaries[channel.id];
                   const placementsCount =
-                    listingSummary?.placementsCount ?? fallbackSummary?.placementsCount ?? null;
+                    listingSummary?.placementsCount ??
+                    fallbackSummary?.placementsCount ??
+                    null;
                   const minPriceNano =
-                    listingSummary?.minPriceNano ?? fallbackSummary?.minPriceNano ?? null;
+                    listingSummary?.minPriceNano ??
+                    fallbackSummary?.minPriceNano ??
+                    null;
                   const tags = getAggregatedTags(channel.listings);
                   const rules = buildRulesSummary(channel.listings, t);
                   return (
@@ -295,13 +311,16 @@ export default function Channels() {
                         }
                         isExpanded={isExpanded}
                         onToggleExpand={
-                          canExpand ? () => handleToggleExpand(channel.id) : undefined
+                          canExpand
+                            ? () => handleToggleExpand(channel.id)
+                            : undefined
                         }
                         expandedContent={
                           canExpand ? (
                             <ChannelListingsPreview
                               channelId={channel.id}
                               isExpanded={isExpanded}
+                              mode="owner"
                               onSummaryChange={(summary) => {
                                 setListingSummaries((prev) => ({
                                   ...prev,
@@ -311,8 +330,16 @@ export default function Channels() {
                             />
                           ) : null
                         }
-                        createListingTo={ROUTES.CHANNEL_MANAGE_LISTINGS_CREATE(channel.id)}
-                        createListingState={{ channel, rootBackTo: ROUTES.CHANNELS }}
+                        createListingTo={
+                          isModeratorView
+                            ? undefined
+                            : ROUTES.CHANNEL_MANAGE_LISTINGS_CREATE(channel.id)
+                        }
+                        createListingState={
+                          isModeratorView
+                            ? undefined
+                            : { channel, rootBackTo: ROUTES.CHANNELS }
+                        }
                       />
                     </AnimatedListItem>
                   );
@@ -338,7 +365,9 @@ export default function Channels() {
                 {isFetchingNextPage ? (
                   <Loader2 size={14} className="animate-spin" />
                 ) : null}
-                {isFetchingNextPage ? t("common.loading") : t("common.loadMore")}
+                {isFetchingNextPage
+                  ? t("common.loading")
+                  : t("common.loadMore")}
               </button>
             ) : null}
           </div>

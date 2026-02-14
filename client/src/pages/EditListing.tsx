@@ -1,13 +1,21 @@
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Info } from "lucide-react";
-import { useLocation, useNavigate, useOutletContext, useParams } from "react-router-dom";
+import {
+  useLocation,
+  useNavigate,
+  useOutletContext,
+  useParams,
+} from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ListingPreviewDetails } from "@/features/listings/ui/ListingPreviewDetails";
 import { PageContainer } from "@/design-system/components/PageContainer";
 import EditListingSkeleton from "@/features/listings/ui/skeletons/EditListingSkeleton";
-import { listListingsByChannel, updateListing } from "@/api/features/listingsApi";
+import {
+  listListingsByChannel,
+  updateListing,
+} from "@/api/features/listingsApi";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,7 +26,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/design-system/ui/alert-dialog";
-import { filterListingTags, getListingTagLabel, listingTagCategories } from "@/features/listings/tagOptions";
+import {
+  filterListingTags,
+  getListingTagLabel,
+  listingTagCategories,
+} from "@/features/listings/tagOptions";
 import { getErrorMessage } from "@/lib/api/errors";
 import { nanoToTonString } from "@/lib/ton";
 import type { ListingEntity } from "@/models/entities";
@@ -27,27 +39,17 @@ import { useLanguage } from "@/i18n/LanguageProvider";
 import type { ChannelManageContext } from "@/pages/channel-manage/ChannelManageLayout";
 import { ROUTES } from "@/constants/routes";
 
-const resolveHours = (choice: string, customValue: string, fallback: number) => {
+const resolveHours = (
+  choice: string,
+  customValue: string,
+  fallback: number,
+) => {
   if (choice === "custom") {
     const parsed = Number(customValue);
     return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
   }
   const parsed = Number(choice);
   return Number.isFinite(parsed) ? parsed : fallback;
-};
-
-const parseTonInputToNano = (value: string): string => {
-  const trimmed = value.trim();
-  if (!trimmed || trimmed === ".") {
-    return "0";
-  }
-  if (!/^\d*\.?\d*$/.test(trimmed)) {
-    return "0";
-  }
-  const [integerPartRaw, fractionRaw = ""] = trimmed.split(".");
-  const integerPart = integerPartRaw === "" ? "0" : integerPartRaw;
-  const fractionPadded = (fractionRaw + "000000000").slice(0, 9);
-  return (BigInt(integerPart) * 1_000_000_000n + BigInt(fractionPadded)).toString();
 };
 
 export default function EditListing() {
@@ -60,25 +62,59 @@ export default function EditListing() {
   const pinDurationOptions = useMemo(
     () => [
       { label: t("listings.pinDuration.none"), value: "none" },
-      { label: t("listings.pinDuration.optionHours", { hours: 6 }), value: "6" },
-      { label: t("listings.pinDuration.optionHours", { hours: 12 }), value: "12" },
-      { label: t("listings.pinDuration.optionHours", { hours: 24 }), value: "24" },
-      { label: t("listings.pinDuration.optionHours", { hours: 48 }), value: "48" },
+      {
+        label: t("listings.pinDuration.optionHours", { hours: 6 }),
+        value: "6",
+      },
+      {
+        label: t("listings.pinDuration.optionHours", { hours: 12 }),
+        value: "12",
+      },
+      {
+        label: t("listings.pinDuration.optionHours", { hours: 24 }),
+        value: "24",
+      },
+      {
+        label: t("listings.pinDuration.optionHours", { hours: 48 }),
+        value: "48",
+      },
       { label: t("common.custom"), value: "custom" },
     ],
-    [t]
+    [t],
   );
   const visibilityDurationOptions = useMemo(
     () => [
-      { label: t("listings.visibilityDuration.optionHours", { hours: 24 }), value: "24" },
-      { label: t("listings.visibilityDuration.optionHours", { hours: 48 }), value: "48" },
-      { label: t("listings.visibilityDuration.optionHours", { hours: 72 }), value: "72" },
-      { label: t("listings.visibilityDuration.optionDays", { days: 7 }), value: "168" },
+      {
+        label: t("listings.visibilityDuration.optionHours", { hours: 24 }),
+        value: "24",
+      },
+      {
+        label: t("listings.visibilityDuration.optionHours", { hours: 48 }),
+        value: "48",
+      },
+      {
+        label: t("listings.visibilityDuration.optionHours", { hours: 72 }),
+        value: "72",
+      },
+      {
+        label: t("listings.visibilityDuration.optionDays", { days: 7 }),
+        value: "168",
+      },
       { label: t("common.custom"), value: "custom" },
     ],
-    [t]
+    [t],
   );
-  const rootBackTo = (location.state as { rootBackTo?: string } | null)?.rootBackTo;
+  const rootBackTo = (location.state as { rootBackTo?: string } | null)
+    ?.rootBackTo;
+  const isOwner = channel?.membership?.role === "OWNER";
+
+  useEffect(() => {
+    if (channel && !isOwner) {
+      navigate(ROUTES.CHANNEL_MANAGE_LISTINGS(id ?? channel.id), {
+        replace: true,
+      });
+    }
+  }, [channel, id, isOwner, navigate]);
 
   const listingsQuery = useQuery({
     queryKey: [
@@ -93,12 +129,14 @@ export default function EditListing() {
         limit: 50,
         activeOnly: false,
       }),
-    enabled: Boolean(id),
+    enabled: Boolean(id) && isOwner,
   });
 
   useEffect(() => {
     if (listingsQuery.error) {
-      toast.error(getErrorMessage(listingsQuery.error, t("listings.loadError"), t));
+      toast.error(
+        getErrorMessage(listingsQuery.error, t("listings.loadError"), t),
+      );
     }
   }, [listingsQuery.error, t]);
 
@@ -113,14 +151,17 @@ export default function EditListing() {
   const priceInputRef = useRef<HTMLInputElement | null>(null);
   const [pinDurationChoice, setPinDurationChoice] = useState("none");
   const [pinCustomHours, setPinCustomHours] = useState("");
-  const [visibilityDurationChoice, setVisibilityDurationChoice] = useState("24");
+  const [visibilityDurationChoice, setVisibilityDurationChoice] =
+    useState("24");
   const [visibilityCustomHours, setVisibilityCustomHours] = useState("");
   const [allowEdits, setAllowEdits] = useState(true);
   const [allowLinkTracking, setAllowLinkTracking] = useState(true);
   const [contentRulesText, setContentRulesText] = useState("");
   const [tagQuery, setTagQuery] = useState("");
   const [customTag, setCustomTag] = useState("");
-  const [selectedTags, setSelectedTags] = useState<string[]>(["Must be pre-approved"]);
+  const [selectedTags, setSelectedTags] = useState<string[]>([
+    "Must be pre-approved",
+  ]);
   const [showVisibilityWarning, setShowVisibilityWarning] = useState(false);
   const lastListingIdRef = useRef<string | null>(null);
   const parsedPrice = Number(priceTon);
@@ -160,15 +201,21 @@ export default function EditListing() {
         ? String(initialPinDuration)
         : "";
     const initialVisibilityDuration = listing.visibilityDurationHours ?? 24;
-    const initialVisibilityChoice = [24, 48, 72, 168].includes(initialVisibilityDuration)
+    const initialVisibilityChoice = [24, 48, 72, 168].includes(
+      initialVisibilityDuration,
+    )
       ? String(initialVisibilityDuration)
       : "custom";
-    const initialVisibilityCustom = [24, 48, 72, 168].includes(initialVisibilityDuration)
+    const initialVisibilityCustom = [24, 48, 72, 168].includes(
+      initialVisibilityDuration,
+    )
       ? ""
       : String(initialVisibilityDuration);
     const listingPrice = Number.parseFloat(nanoToTonString(listing.priceNano));
 
-    const nextPriceTon = Number.isFinite(listingPrice) ? String(listingPrice) : "25";
+    const nextPriceTon = Number.isFinite(listingPrice)
+      ? String(listingPrice)
+      : "25";
     latestPriceTonRef.current = nextPriceTon;
     setPriceTon(nextPriceTon);
     setPinDurationChoice(initialPinChoice);
@@ -178,7 +225,9 @@ export default function EditListing() {
     setAllowEdits(listing.allowEdits);
     setAllowLinkTracking(listing.allowLinkTracking);
     setContentRulesText(listing.contentRulesText ?? "");
-    const initialTags = listing.tags?.length ? filterListingTags(listing.tags) : ["Must be pre-approved"];
+    const initialTags = listing.tags?.length
+      ? filterListingTags(listing.tags)
+      : ["Must be pre-approved"];
     setSelectedTags(
       initialTags.includes("Must be pre-approved")
         ? initialTags
@@ -192,14 +241,20 @@ export default function EditListing() {
   }, [priceTon]);
 
   const pinDurationHours =
-    pinDurationChoice === "none" ? null : resolveHours(pinDurationChoice, pinCustomHours, 24);
+    pinDurationChoice === "none"
+      ? null
+      : resolveHours(pinDurationChoice, pinCustomHours, 24);
   const visibilityDurationHours = resolveHours(
     visibilityDurationChoice,
     visibilityCustomHours,
     24,
   );
 
-  if (!channel || (listingsQuery.isLoading && !listingsQuery.data)) {
+  if (
+    !channel ||
+    !isOwner ||
+    (listingsQuery.isLoading && !listingsQuery.data)
+  ) {
     return (
       <div className="w-full max-w-2xl mx-auto">
         <PageContainer className="py-6">
@@ -229,13 +284,12 @@ export default function EditListing() {
       : [...selectedTags, "Must be pre-approved"];
 
     const submittedPriceTon = latestPriceTonRef.current.trim();
-    const computedPriceNano = parseTonInputToNano(submittedPriceTon);
 
     await updateListing({
       id: listing.id,
       patch: {
         format: ListingFormat.Post,
-        priceNano: computedPriceNano,
+        priceTon: submittedPriceTon,
         currency: CurrencyCode.Ton,
         pinDurationHours,
         visibilityDurationHours,
@@ -249,7 +303,9 @@ export default function EditListing() {
       },
     });
 
-    queryClient.invalidateQueries({ queryKey: ["channelListingsPreview", channel.id] });
+    queryClient.invalidateQueries({
+      queryKey: ["channelListingsPreview", channel.id],
+    });
     queryClient.invalidateQueries({ queryKey: ["channelsList"] });
     navigate(ROUTES.CHANNEL_MANAGE_LISTINGS(channel.id), {
       state: rootBackTo ? { rootBackTo } : undefined,
@@ -272,7 +328,9 @@ export default function EditListing() {
 
   const handleDisable = async () => {
     await updateListing({ id: listing.id, patch: { isActive: false } });
-    queryClient.invalidateQueries({ queryKey: ["channelListingsPreview", channel.id] });
+    queryClient.invalidateQueries({
+      queryKey: ["channelListingsPreview", channel.id],
+    });
     queryClient.invalidateQueries({ queryKey: ["channelsList"] });
     navigate(ROUTES.CHANNEL_MANAGE_LISTINGS(channel.id), {
       state: rootBackTo ? { rootBackTo } : undefined,
@@ -281,7 +339,9 @@ export default function EditListing() {
 
   const handleEnable = async () => {
     await updateListing({ id: listing.id, patch: { isActive: true } });
-    queryClient.invalidateQueries({ queryKey: ["channelListingsPreview", channel.id] });
+    queryClient.invalidateQueries({
+      queryKey: ["channelListingsPreview", channel.id],
+    });
     queryClient.invalidateQueries({ queryKey: ["channelsList"] });
     navigate(ROUTES.CHANNEL_MANAGE_LISTINGS(channel.id), {
       state: rootBackTo ? { rootBackTo } : undefined,
@@ -293,8 +353,12 @@ export default function EditListing() {
       <PageContainer className="py-6 space-y-6">
         <section className="space-y-3">
           <div>
-            <h2 className="text-sm font-semibold text-foreground">{t("listings.adFormatTitle")}</h2>
-            <p className="text-xs text-muted-foreground">{t("listings.adFormatSubtitle")}</p>
+            <h2 className="text-sm font-semibold text-foreground">
+              {t("listings.adFormatTitle")}
+            </h2>
+            <p className="text-xs text-muted-foreground">
+              {t("listings.adFormatSubtitle")}
+            </p>
           </div>
           <select
             disabled
@@ -306,8 +370,12 @@ export default function EditListing() {
 
         <section className="space-y-3">
           <div>
-            <h2 className="text-sm font-semibold text-foreground">{t("listings.pricePerPostTitle")}</h2>
-            <p className="text-xs text-muted-foreground">{t("listings.pricePerPostSubtitle")}</p>
+            <h2 className="text-sm font-semibold text-foreground">
+              {t("listings.pricePerPostTitle")}
+            </h2>
+            <p className="text-xs text-muted-foreground">
+              {t("listings.pricePerPostSubtitle")}
+            </p>
           </div>
           <input
             ref={priceInputRef}
@@ -320,7 +388,9 @@ export default function EditListing() {
             className="w-full rounded-xl border border-border/60 bg-card px-3 py-3 text-sm text-foreground"
           />
           {showPriceError && (
-            <p className="text-xs text-destructive">{t("listings.priceMinError")}</p>
+            <p className="text-xs text-destructive">
+              {t("listings.priceMinError")}
+            </p>
           )}
         </section>
 
@@ -396,7 +466,9 @@ export default function EditListing() {
             </label>
             <select
               value={visibilityDurationChoice}
-              onChange={(event) => setVisibilityDurationChoice(event.target.value)}
+              onChange={(event) =>
+                setVisibilityDurationChoice(event.target.value)
+              }
               className="w-full rounded-xl border border-border/60 bg-card px-3 py-2 text-sm text-foreground"
             >
               {visibilityDurationOptions.map((option) => (
@@ -427,7 +499,9 @@ export default function EditListing() {
               <input
                 type="number"
                 value={visibilityCustomHours}
-                onChange={(event) => setVisibilityCustomHours(event.target.value)}
+                onChange={(event) =>
+                  setVisibilityCustomHours(event.target.value)
+                }
                 placeholder={t("listings.customHours")}
                 className="w-full rounded-xl border border-border/60 bg-card px-3 py-2 text-sm text-foreground"
               />
@@ -438,7 +512,9 @@ export default function EditListing() {
           </div>
 
           <div className="rounded-xl border border-primary/30 bg-primary/10 px-3 py-3 text-xs text-primary">
-            <p className="font-semibold text-foreground">{t("listings.escrowRuleTitle")}</p>
+            <p className="font-semibold text-foreground">
+              {t("listings.escrowRuleTitle")}
+            </p>
             <p className="mt-1 text-[11px] text-muted-foreground">
               {t("listings.escrowRuleSubtitle")}
             </p>
@@ -450,7 +526,9 @@ export default function EditListing() {
             <h2 className="text-sm font-semibold text-foreground">
               {t("listings.conditionsTitle")}
             </h2>
-            <p className="text-xs text-muted-foreground">{t("listings.conditionsSubtitle")}</p>
+            <p className="text-xs text-muted-foreground">
+              {t("listings.conditionsSubtitle")}
+            </p>
           </div>
           <div className="space-y-2">
             <label className="flex items-center justify-between rounded-xl border border-border/40 bg-card/60 px-3 py-3 text-sm opacity-80">
@@ -467,9 +545,15 @@ export default function EditListing() {
 
         <section className="space-y-4">
           <div>
-            <h2 className="text-sm font-semibold text-foreground">{t("listings.tagsTitle")}</h2>
-            <p className="text-xs text-muted-foreground">{t("listings.tagsSubtitle")}</p>
-            <p className="text-[11px] text-muted-foreground">{t("listings.tagsHint")}</p>
+            <h2 className="text-sm font-semibold text-foreground">
+              {t("listings.tagsTitle")}
+            </h2>
+            <p className="text-xs text-muted-foreground">
+              {t("listings.tagsSubtitle")}
+            </p>
+            <p className="text-[11px] text-muted-foreground">
+              {t("listings.tagsHint")}
+            </p>
           </div>
 
           <div className="space-y-2">
@@ -520,7 +604,9 @@ export default function EditListing() {
                       if (isLocked) {
                         return;
                       }
-                      setSelectedTags((prev) => prev.filter((item) => item !== tag));
+                      setSelectedTags((prev) =>
+                        prev.filter((item) => item !== tag),
+                      );
                     }}
                     className={`rounded-lg px-2.5 py-1 ${
                       isLocked
@@ -529,7 +615,9 @@ export default function EditListing() {
                     }`}
                   >
                     {label}
-                    {isLocked ? ` • ${t("listings.lockedLabel")}` : ` ${t("common.removeSymbol")}`}
+                    {isLocked
+                      ? ` • ${t("listings.lockedLabel")}`
+                      : ` ${t("common.removeSymbol")}`}
                   </button>
                 );
               })}
@@ -544,7 +632,10 @@ export default function EditListing() {
                   return true;
                 }
                 const label = t(tag.labelKey).toLowerCase();
-                return label.includes(query) || tag.value.toLowerCase().includes(query);
+                return (
+                  label.includes(query) ||
+                  tag.value.toLowerCase().includes(query)
+                );
               });
               const displayTags = query ? filteredTags : category.tags;
               if (displayTags.length === 0) {
@@ -597,7 +688,9 @@ export default function EditListing() {
             <h2 className="text-sm font-semibold text-foreground">
               {t("listings.additionalRequirementsTitle")}
             </h2>
-            <p className="text-xs text-muted-foreground">{t("listings.additionalRequirementsSubtitle")}</p>
+            <p className="text-xs text-muted-foreground">
+              {t("listings.additionalRequirementsSubtitle")}
+            </p>
           </div>
           <textarea
             value={contentRulesText}
@@ -609,8 +702,12 @@ export default function EditListing() {
 
         <section className="space-y-3">
           <div>
-            <h2 className="text-sm font-semibold text-foreground">{t("listings.previewTitle")}</h2>
-            <p className="text-xs text-muted-foreground">{t("listings.previewSubtitle")}</p>
+            <h2 className="text-sm font-semibold text-foreground">
+              {t("listings.previewTitle")}
+            </h2>
+            <p className="text-xs text-muted-foreground">
+              {t("listings.previewSubtitle")}
+            </p>
           </div>
           <ListingPreviewDetails
             priceTon={Number(priceTon || 0)}
@@ -633,25 +730,30 @@ export default function EditListing() {
           >
             {t("listings.saveChanges")}
           </button>
-          <AlertDialog open={showVisibilityWarning} onOpenChange={setShowVisibilityWarning}>
+          <AlertDialog
+            open={showVisibilityWarning}
+            onOpenChange={setShowVisibilityWarning}
+          >
             <AlertDialogContent className="max-w-sm rounded-2xl">
               <AlertDialogHeader>
-                <AlertDialogTitle>{t("listings.visibilityWarningTitle")}</AlertDialogTitle>
+                <AlertDialogTitle>
+                  {t("listings.visibilityWarningTitle")}
+                </AlertDialogTitle>
                 <AlertDialogDescription>
                   {t("listings.visibilityWarningDescription")}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
-                <AlertDialogAction onClick={applySave}>{t("common.continue")}</AlertDialogAction>
+                <AlertDialogAction onClick={applySave}>
+                  {t("common.continue")}
+                </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
           <div className="flex items-start gap-2 rounded-xl border border-border/60 bg-card px-3 py-3 text-xs text-muted-foreground">
             <Info size={16} className="text-primary" />
-            <span>
-              {t("listings.escrowNote")}
-            </span>
+            <span>{t("listings.escrowNote")}</span>
           </div>
         </div>
       </PageContainer>

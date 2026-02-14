@@ -1,12 +1,20 @@
 import { useMemo, useRef, useState, type ChangeEvent } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Info } from "lucide-react";
-import { useLocation, useNavigate, useOutletContext, useParams } from "react-router-dom";
+import {
+  useLocation,
+  useNavigate,
+  useOutletContext,
+  useParams,
+} from "react-router-dom";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/api/errors";
 import { ListingPreviewDetails } from "@/features/listings/ui/ListingPreviewDetails";
 import { PageContainer } from "@/design-system/components/PageContainer";
-import { filterListingTags, listingTagCategories } from "@/features/listings/tagOptions";
+import {
+  filterListingTags,
+  listingTagCategories,
+} from "@/features/listings/tagOptions";
 import { createListing } from "@/api/features/listingsApi";
 import type { ChannelManageContext } from "@/pages/channel-manage/ChannelManageLayout";
 import { useLanguage } from "@/i18n/LanguageProvider";
@@ -16,7 +24,11 @@ import { formatDuration } from "@/i18n/labels";
 import { CurrencyCode, ListingFormat } from "@/models/enums";
 import { ROUTES } from "@/constants/routes";
 
-const resolveHours = (choice: string, customValue: string, fallback: number) => {
+const resolveHours = (
+  choice: string,
+  customValue: string,
+  fallback: number,
+) => {
   if (choice === "custom") {
     const parsed = Number(customValue);
     return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
@@ -36,7 +48,10 @@ const parseTonInputToNano = (value: string): string => {
   const [integerPartRaw, fractionRaw = ""] = trimmed.split(".");
   const integerPart = integerPartRaw === "" ? "0" : integerPartRaw;
   const fractionPadded = (fractionRaw + "000000000").slice(0, 9);
-  return (BigInt(integerPart) * 1_000_000_000n + BigInt(fractionPadded)).toString();
+  return (
+    BigInt(integerPart) * 1_000_000_000n +
+    BigInt(fractionPadded)
+  ).toString();
 };
 
 export default function CreateListing() {
@@ -47,19 +62,24 @@ export default function CreateListing() {
   const channel = outletContext?.channel ?? null;
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const rootBackTo = (location.state as { rootBackTo?: string } | null)?.rootBackTo;
+  const rootBackTo = (location.state as { rootBackTo?: string } | null)
+    ?.rootBackTo;
   const [priceTon, setPriceTon] = useState("25");
   const priceInputRef = useRef<HTMLInputElement | null>(null);
   const [pinDurationChoice, setPinDurationChoice] = useState("none");
   const [pinCustomHours, setPinCustomHours] = useState("");
-  const [visibilityDurationChoice, setVisibilityDurationChoice] = useState("24");
+  const [visibilityDurationChoice, setVisibilityDurationChoice] =
+    useState("24");
   const [visibilityCustomHours, setVisibilityCustomHours] = useState("");
   const [contentRulesText, setContentRulesText] = useState("");
   const [tagQuery, setTagQuery] = useState("");
   const [customTag, setCustomTag] = useState("");
-  const [selectedTags, setSelectedTags] = useState<string[]>(["Must be pre-approved"]);
+  const [selectedTags, setSelectedTags] = useState<string[]>([
+    "Must be pre-approved",
+  ]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const parsedPrice = Number(priceTon);
+  const isOwner = channel?.membership?.role === "OWNER";
   const isPriceValid = Number.isFinite(parsedPrice) && parsedPrice >= 1;
   const showPriceError = priceTon.trim() !== "" && !isPriceValid;
 
@@ -82,34 +102,60 @@ export default function CreateListing() {
   const pinDurationOptions = useMemo(
     () => [
       { label: t("listings.pinDuration.none"), value: "none" },
-      { label: t("listings.pinDuration.optionHours", { hours: 6 }), value: "6" },
-      { label: t("listings.pinDuration.optionHours", { hours: 12 }), value: "12" },
-      { label: t("listings.pinDuration.optionHours", { hours: 24 }), value: "24" },
-      { label: t("listings.pinDuration.optionHours", { hours: 48 }), value: "48" },
+      {
+        label: t("listings.pinDuration.optionHours", { hours: 6 }),
+        value: "6",
+      },
+      {
+        label: t("listings.pinDuration.optionHours", { hours: 12 }),
+        value: "12",
+      },
+      {
+        label: t("listings.pinDuration.optionHours", { hours: 24 }),
+        value: "24",
+      },
+      {
+        label: t("listings.pinDuration.optionHours", { hours: 48 }),
+        value: "48",
+      },
       { label: t("common.custom"), value: "custom" },
     ],
-    [t]
+    [t],
   );
   const visibilityDurationOptions = useMemo(
     () => [
-      { label: t("listings.visibilityDuration.optionHours", { hours: 24 }), value: "24" },
-      { label: t("listings.visibilityDuration.optionHours", { hours: 48 }), value: "48" },
-      { label: t("listings.visibilityDuration.optionHours", { hours: 72 }), value: "72" },
-      { label: t("listings.visibilityDuration.optionDays", { days: 7 }), value: "168" },
+      {
+        label: t("listings.visibilityDuration.optionHours", { hours: 24 }),
+        value: "24",
+      },
+      {
+        label: t("listings.visibilityDuration.optionHours", { hours: 48 }),
+        value: "48",
+      },
+      {
+        label: t("listings.visibilityDuration.optionHours", { hours: 72 }),
+        value: "72",
+      },
+      {
+        label: t("listings.visibilityDuration.optionDays", { days: 7 }),
+        value: "168",
+      },
       { label: t("common.custom"), value: "custom" },
     ],
-    [t]
+    [t],
   );
 
   const pinDurationHours =
-    pinDurationChoice === "none" ? null : resolveHours(pinDurationChoice, pinCustomHours, 24);
+    pinDurationChoice === "none"
+      ? null
+      : resolveHours(pinDurationChoice, pinCustomHours, 24);
   const visibilityDurationHours = resolveHours(
     visibilityDurationChoice,
     visibilityCustomHours,
     24,
   );
 
-  if (!channel) {
+  if (!channel || !isOwner) {
     return (
       <div className="w-full max-w-2xl mx-auto">
         <PageContainer className="py-6">
@@ -157,7 +203,9 @@ export default function CreateListing() {
       await queryClient.invalidateQueries({
         queryKey: ["marketplaceListingsByChannel", channel.id],
       });
-      queryClient.invalidateQueries({ queryKey: ["channelListingsPreview", channel.id] });
+      queryClient.invalidateQueries({
+        queryKey: ["channelListingsPreview", channel.id],
+      });
       queryClient.invalidateQueries({ queryKey: ["channelsList"] });
       navigate(ROUTES.CHANNEL_MANAGE_LISTINGS(channel.id), {
         state: rootBackTo ? { rootBackTo } : undefined,
@@ -174,12 +222,14 @@ export default function CreateListing() {
       <PageContainer className="px-3 pt-4 pb-20 space-y-6">
         <section className="space-y-3">
           <div>
-            <h2 className="text-sm font-semibold text-foreground">{t("listings.adFormatTitle")}</h2>
-            <p className="text-xs text-muted-foreground">{t("listings.adFormatSubtitle")}</p>
+            <h2 className="text-sm font-semibold text-foreground">
+              {t("listings.adFormatTitle")}
+            </h2>
+            <p className="text-xs text-muted-foreground">
+              {t("listings.adFormatSubtitle")}
+            </p>
           </div>
-          <select
-            className="w-full rounded-xl border border-border/60 bg-card px-3 py-3 text-sm text-foreground"
-          >
+          <select className="w-full rounded-xl border border-border/60 bg-card px-3 py-3 text-sm text-foreground">
             <option value="POST">{t("listings.format.POST")}</option>
             <option value="FORWARD" disabled>
               {t("listings.format.forwardComingSoon")}
@@ -192,8 +242,12 @@ export default function CreateListing() {
 
         <section className="space-y-3">
           <div>
-            <h2 className="text-sm font-semibold text-foreground">{t("listings.pricePerPostTitle")}</h2>
-            <p className="text-xs text-muted-foreground">{t("listings.pricePerPostSubtitle")}</p>
+            <h2 className="text-sm font-semibold text-foreground">
+              {t("listings.pricePerPostTitle")}
+            </h2>
+            <p className="text-xs text-muted-foreground">
+              {t("listings.pricePerPostSubtitle")}
+            </p>
           </div>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             <input
@@ -222,7 +276,9 @@ export default function CreateListing() {
             </div>
           </div>
           {showPriceError && (
-            <p className="text-xs text-destructive">{t("listings.priceMinError")}</p>
+            <p className="text-xs text-destructive">
+              {t("listings.priceMinError")}
+            </p>
           )}
           <div className="flex flex-wrap gap-2">
             {[10, 25, 50].map((value) => (
@@ -310,7 +366,9 @@ export default function CreateListing() {
             </label>
             <select
               value={visibilityDurationChoice}
-              onChange={(event) => setVisibilityDurationChoice(event.target.value)}
+              onChange={(event) =>
+                setVisibilityDurationChoice(event.target.value)
+              }
               className="w-full rounded-xl border border-border/60 bg-card px-3 py-2 text-sm text-foreground"
             >
               {visibilityDurationOptions.map((option) => (
@@ -339,7 +397,9 @@ export default function CreateListing() {
               <input
                 type="number"
                 value={visibilityCustomHours}
-                onChange={(event) => setVisibilityCustomHours(event.target.value)}
+                onChange={(event) =>
+                  setVisibilityCustomHours(event.target.value)
+                }
                 placeholder={t("listings.customHours")}
                 className="w-full rounded-xl border border-border/60 bg-card px-3 py-2 text-sm text-foreground"
               />
@@ -350,7 +410,9 @@ export default function CreateListing() {
           </div>
 
           <div className="rounded-xl border border-primary/30 bg-primary/10 px-3 py-3 text-xs text-primary">
-            <p className="font-semibold text-foreground">{t("listings.escrowRuleTitle")}</p>
+            <p className="font-semibold text-foreground">
+              {t("listings.escrowRuleTitle")}
+            </p>
             <p className="mt-1 text-[11px] text-muted-foreground">
               {t("listings.escrowRuleSubtitle")}
             </p>
@@ -359,7 +421,9 @@ export default function CreateListing() {
 
         <section className="space-y-3">
           <div>
-            <h2 className="text-sm font-semibold text-foreground">{t("listings.conditionsTitle")}</h2>
+            <h2 className="text-sm font-semibold text-foreground">
+              {t("listings.conditionsTitle")}
+            </h2>
             <p className="text-xs text-muted-foreground">
               {t("listings.conditionsSubtitle")}
             </p>
@@ -379,7 +443,9 @@ export default function CreateListing() {
 
         <section className="space-y-4">
           <div>
-            <h2 className="text-sm font-semibold text-foreground">{t("listings.tagsTitle")}</h2>
+            <h2 className="text-sm font-semibold text-foreground">
+              {t("listings.tagsTitle")}
+            </h2>
             <p className="text-xs text-muted-foreground">
               {t("listings.tagsSubtitle")}
             </p>
@@ -435,7 +501,9 @@ export default function CreateListing() {
                       if (isLocked) {
                         return;
                       }
-                      setSelectedTags((prev) => prev.filter((item) => item !== tag));
+                      setSelectedTags((prev) =>
+                        prev.filter((item) => item !== tag),
+                      );
                     }}
                     className={`rounded-lg px-2.5 py-1 ${
                       isLocked
@@ -444,7 +512,9 @@ export default function CreateListing() {
                     }`}
                   >
                     {getListingTagLabel(tag, t)}
-                    {isLocked ? ` • ${t("common.locked")}` : ` ${t("common.removeTagSuffix")}`}
+                    {isLocked
+                      ? ` • ${t("common.locked")}`
+                      : ` ${t("common.removeTagSuffix")}`}
                   </button>
                 );
               })}
@@ -467,7 +537,9 @@ export default function CreateListing() {
               }
               return (
                 <div key={category.titleKey} className="space-y-2">
-                  <p className="text-xs font-semibold text-foreground">{t(category.titleKey)}</p>
+                  <p className="text-xs font-semibold text-foreground">
+                    {t(category.titleKey)}
+                  </p>
                   <div className="flex flex-wrap gap-2">
                     {displayTags.map((tag) => {
                       const isLocked = tag.value === "Must be pre-approved";
@@ -523,8 +595,12 @@ export default function CreateListing() {
 
         <section className="space-y-3">
           <div>
-            <h2 className="text-sm font-semibold text-foreground">{t("listings.previewTitle")}</h2>
-            <p className="text-xs text-muted-foreground">{t("listings.previewSubtitle")}</p>
+            <h2 className="text-sm font-semibold text-foreground">
+              {t("listings.previewTitle")}
+            </h2>
+            <p className="text-xs text-muted-foreground">
+              {t("listings.previewSubtitle")}
+            </p>
           </div>
           <ListingPreviewDetails
             priceTon={Number(priceTon || 0)}
@@ -545,13 +621,13 @@ export default function CreateListing() {
             disabled={isSubmitting || !isPriceValid}
             className="w-full button-primary py-3 text-base font-semibold disabled:opacity-70"
           >
-            {isSubmitting ? t("listings.publishing") : t("listings.publishAction")}
+            {isSubmitting
+              ? t("listings.publishing")
+              : t("listings.publishAction")}
           </button>
           <div className="flex items-start gap-2 rounded-xl border border-border/60 bg-card px-3 py-3 text-xs text-muted-foreground">
             <Info size={16} className="text-primary" />
-            <span>
-              {t("listings.escrowNote")}
-            </span>
+            <span>{t("listings.escrowNote")}</span>
           </div>
         </div>
       </PageContainer>
