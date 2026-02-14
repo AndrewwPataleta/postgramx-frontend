@@ -70,7 +70,6 @@ export const useChannelModeratorsViewModel = (
     try {
       await reviewToggleMutation.mutateAsync({ channelId, userId, canReviewDeals });
     } catch {
-      // handled
     }
   };
 

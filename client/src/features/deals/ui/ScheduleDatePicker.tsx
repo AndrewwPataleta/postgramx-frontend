@@ -38,7 +38,6 @@ const toDateInputValue = (date: Date) =>
 
 const toTimeInputValue = (date: Date) => `${pad2(date.getHours())}:${pad2(date.getMinutes())}`;
 
-// min для <input type="time">, если выбран день = сегодня(minSelectableDay)
 const minTimeStringForDay = (selectedDay: Date, minSelectableTime: Date) => {
   if (!isSameDay(selectedDay, minSelectableTime)) return "00:00";
   return toTimeInputValue(minSelectableTime);
@@ -46,7 +45,6 @@ const minTimeStringForDay = (selectedDay: Date, minSelectableTime: Date) => {
 
 export function ScheduleDatePicker({ value, onChange }: ScheduleDatePickerProps) {
   const isLocalDev = import.meta.env.DEV;
-  // В локальной разработке убираем ограничение "+1 час" для более удобного тестирования.
   const minDateTime = useMemo(() => (isLocalDev ? new Date(0) : addHours(new Date(), 1)), [isLocalDev]);
   const minSelectableTime = useMemo(
     () => roundUpToInterval(minDateTime, TIME_INTERVAL_MINUTES),
@@ -57,14 +55,11 @@ export function ScheduleDatePicker({ value, onChange }: ScheduleDatePickerProps)
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<"date" | "time">("date");
 
-  // draft хранит выбранную пользователем дату-время внутри поповера
   const [draft, setDraft] = useState<Date | null>(value);
 
-  // значения для native inputs
   const [dateValue, setDateValue] = useState<string>("");
   const [timeValue, setTimeValue] = useState<string>("");
 
-  // sync при открытии
   useEffect(() => {
     if (!open) {
       setDraft(value);
@@ -83,7 +78,6 @@ export function ScheduleDatePicker({ value, onChange }: ScheduleDatePickerProps)
   const displayValue = formatDisplayDateTime(value);
 
   const handlePickDate = (nextDateStr: string) => {
-    // nextDateStr: "YYYY-MM-DD"
     if (!nextDateStr) return;
 
     const [y, m, d] = nextDateStr.split("-").map((x) => Number(x));
@@ -95,7 +89,6 @@ export function ScheduleDatePicker({ value, onChange }: ScheduleDatePickerProps)
     next.setFullYear(y, m - 1, d);
     next.setSeconds(0, 0);
 
-    // если выбрали сегодня — время не меньше minSelectableTime
     const minForThisDay = isSameDay(next, minSelectableTime)
       ? minSelectableTime
       : startOfDay(next);
@@ -105,15 +98,12 @@ export function ScheduleDatePicker({ value, onChange }: ScheduleDatePickerProps)
     setDraft(clamped);
     setDateValue(nextDateStr);
 
-    // если после clamp время "сдвинулось" — обновим time input
     setTimeValue(toTimeInputValue(clamped));
 
-    // перейти к времени
     setStep("time");
   };
 
   const handlePickTime = (nextTimeStr: string) => {
-    // nextTimeStr: "HH:MM"
     if (!nextTimeStr) return;
 
     const [hh, mm] = nextTimeStr.split(":").map((x) => Number(x));
@@ -124,7 +114,6 @@ export function ScheduleDatePicker({ value, onChange }: ScheduleDatePickerProps)
     const next = new Date(base);
     next.setHours(hh, mm, 0, 0);
 
-    // общий минимальный clamp (сейчас+1ч)
     const clamped = clampToMin(next, minSelectableTime);
 
     setDraft(clamped);
@@ -134,7 +123,6 @@ export function ScheduleDatePicker({ value, onChange }: ScheduleDatePickerProps)
     setOpen(false);
   };
 
-  // ограничения для инпутов
   const minDateStr = useMemo(() => toDateInputValue(minSelectableDay), [minSelectableDay]);
 
   const selectedDayForMinTime = useMemo(() => {

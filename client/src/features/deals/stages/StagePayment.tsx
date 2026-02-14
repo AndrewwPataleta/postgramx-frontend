@@ -98,7 +98,6 @@ export default function StagePayment({
     if (readonly || !paymentAddress || !escrowAmountNano) return;
 
     try {
-      // if not connected — open official modal (same as TonConnectButton)
       if (!tonConnectUI.connected) {
         tonConnectUI.openModal();
         return;
@@ -198,7 +197,6 @@ export default function StagePayment({
 
         {showPaymentActions ? (
           <>
-            {/*  Official SDK button + Pay logic */}
             <div className="flex flex-wrap items-center gap-2">
               <TonConnectButton className="!w-auto" />
 

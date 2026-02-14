@@ -29,7 +29,6 @@ const resolveAvatarUrl = (
     return null;
   }
 
-  // Telegram bot file URLs can be inaccessible from client apps and expose bot token.
   if (avatarUrl.includes("api.telegram.org/file/bot")) {
     const cleanUsername = username?.replace(/^@/, "");
     return cleanUsername

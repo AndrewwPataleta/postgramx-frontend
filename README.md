@@ -66,14 +66,14 @@ Main user journeys in UI:
 
 ## Documentation map
 
-- `client/src/app/App.tsx` — app bootstrap and route wiring
-- `client/src/app/routes/index.tsx` — route tree and navigation entry points
-- `client/src/features/deals/` — deal lifecycle UI, stage mapping, filters
-- `client/src/features/channels/` — channels domain hooks, api and UI
-- `client/src/features/listings/` — listings domain hooks, api and UI
-- `client/src/features/marketplace/` — marketplace views and view models
-- `client/src/features/wallet/` — TON wallet integration facade
-- `client/src/i18n/locales/en.json` and `client/src/i18n/locales/ru.json` — locale dictionaries
+- `client/src/app/App.tsx` - app bootstrap and route wiring
+- `client/src/app/routes/index.tsx` - route tree and navigation entry points
+- `client/src/features/deals/` - deal lifecycle UI, stage mapping, filters
+- `client/src/features/channels/` - channels domain hooks, api and UI
+- `client/src/features/listings/` - listings domain hooks, api and UI
+- `client/src/features/marketplace/` - marketplace views and view models
+- `client/src/features/wallet/` - TON wallet integration facade
+- `client/src/i18n/locales/en.json` and `client/src/i18n/locales/ru.json` - locale dictionaries
 
 ## Tech stack
 

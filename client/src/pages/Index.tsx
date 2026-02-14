@@ -34,7 +34,7 @@ export default function Index() {
             username="cryptoatlas"
             price="48 TON"
             dealId="DL-1006"
-            status="Post Live — Verifying"
+            status="Post Live - Verifying"
             statusKey="verifying"
             icon="view"
             timelineItems={data.timelineVerifying}

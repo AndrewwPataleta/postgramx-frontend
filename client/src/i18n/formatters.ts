@@ -13,20 +13,16 @@ export const formatNumber = (
 
 export const formatTon = (amountNano: string | bigint, language: Language) => {
   try {
-    const s = nanoToTonString(amountNano); // "0.1" / "1.23456789"
-    // ограничим до 2 знаков, но как строку (без float)
+    const s = nanoToTonString(amountNano);
     const [whole, frac = ""] = s.split(".");
     const frac2 = frac.slice(0, 2).replace(/0+$/, "");
     const normalized = frac2 ? `${whole}.${frac2}` : whole;
 
-    // красивое форматирование целой части по локали
-    const wholeNumber = Number(whole); // тут safe, это целая часть
+    const wholeNumber = Number(whole);
     const formattedWhole = new Intl.NumberFormat(getLocale(language)).format(
       Number.isNaN(wholeNumber) ? 0 : wholeNumber
     );
 
-    // если whole было большим или отрицательным — проще:
-    // return formatTonString(normalized) — но у тебя там запятые всегда по en
     return frac2 ? `${formattedWhole}.${frac2}` : formattedWhole;
   } catch {
     return String(amountNano);

@@ -7,9 +7,7 @@ export default function EscrowPayment() {
 
   return (
     <div className="w-full max-w-2xl mx-auto">
-      {/* Main content */}
       <PageContainer className="pt-6 space-y-4">
-        {/* Secure Payment Card */}
         <div className="glass p-8 rounded-lg border-2 border-primary/30 text-center">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/20 rounded-full mb-4">
             <Lock size={32} className="text-primary" />
@@ -29,7 +27,6 @@ export default function EscrowPayment() {
           </div>
         </div>
 
-        {/* Main placeholder */}
         <div className="glass p-8 rounded-lg text-center">
           <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
             <span className="text-sm font-semibold text-primary">Ton</span>
@@ -52,7 +49,6 @@ export default function EscrowPayment() {
           </p>
         </div>
 
-        {/* Manual Transfer Section */}
         <button
           onClick={() => setShowManualTransfer(!showManualTransfer)}
           className="w-full glass p-4 rounded-lg flex items-center justify-between hover:bg-card/60 transition-colors"
@@ -83,7 +79,6 @@ export default function EscrowPayment() {
           </div>
         )}
 
-        {/* Action Buttons */}
         <div className="sticky bottom-[calc(5.5rem+var(--tg-safe-bottom))] -mx-4 mt-6 border-t border-border/50 bg-background/90 backdrop-blur-glass safe-area-bottom">
           <div className="px-4 py-4 space-y-3">
             <button className="button-primary text-center py-4 text-base font-semibold">
