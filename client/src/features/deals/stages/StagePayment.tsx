@@ -38,11 +38,11 @@ const toNanoString = (value: string | bigint) =>
   typeof value === "bigint" ? value.toString() : value;
 
 export default function StagePayment({
-                                       deal,
-                                       readonly,
-                                       onAction,
-                                       isRefreshing,
-                                     }: StagePaymentProps) {
+  deal,
+  readonly,
+  onAction,
+  isRefreshing,
+}: StagePaymentProps) {
   const { t, language } = useLanguage();
   const [tonConnectUI] = useTonConnectUI();
   const { isConnected, walletAppName, network } = useWalletContext();
@@ -53,7 +53,8 @@ export default function StagePayment({
 
   const paymentDeadlineAt = deal.escrow?.paymentDeadlineAt;
 
-  const escrowAmountNano = deal.escrow?.amountNano ?? deal.listingSnapshot.priceNano;
+  const escrowAmountNano =
+    deal.escrow?.amountNano ?? deal.listingSnapshot.priceNano;
   const paymentAddress = deal.escrow?.depositAddress ?? "";
 
   const displayAmount = escrowAmountNano
@@ -98,7 +99,9 @@ export default function StagePayment({
     if (readonly || !paymentAddress || !escrowAmountNano) return;
 
     try {
-      if (!tonConnectUI.connected) {
+      await tonConnectUI.connectionRestored;
+
+      if (!isConnected && !tonConnectUI.connected) {
         tonConnectUI.openModal();
         return;
       }
@@ -134,7 +137,9 @@ export default function StagePayment({
       toast.success(t("deals.stage.payment.addressCopied"));
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : t("deals.stage.payment.copyFailed")
+        error instanceof Error
+          ? error.message
+          : t("deals.stage.payment.copyFailed"),
       );
     }
   };
@@ -146,10 +151,12 @@ export default function StagePayment({
           <span
             className={cn(
               "h-2 w-2 rounded-full",
-              isConnected ? "bg-success" : "bg-muted-foreground/50"
+              isConnected ? "bg-success" : "bg-muted-foreground/50",
             )}
           />
-          <span className="text-xs text-muted-foreground">{walletStatusLabel}</span>
+          <span className="text-xs text-muted-foreground">
+            {walletStatusLabel}
+          </span>
         </div>
       ) : null}
 
@@ -180,7 +187,6 @@ export default function StagePayment({
                 </span>
               </p>
             ) : null}
-
           </div>
         </div>
 
@@ -203,12 +209,14 @@ export default function StagePayment({
               <button
                 type="button"
                 onClick={handlePay}
-                disabled={readonly || isWaiting || !paymentAddress || !escrowAmountNano}
+                disabled={
+                  readonly || isWaiting || !paymentAddress || !escrowAmountNano
+                }
                 className={cn(
                   "rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground transition",
                   readonly || isWaiting
                     ? "cursor-not-allowed opacity-60"
-                    : "hover:bg-primary/90"
+                    : "hover:bg-primary/90",
                 )}
               >
                 {t("deals.stage.payment.payWithWallet")}
@@ -220,7 +228,9 @@ export default function StagePayment({
                 disabled={readonly}
                 className={cn(
                   "rounded-lg border border-border/60 px-4 py-2 text-xs font-semibold text-foreground transition",
-                  readonly ? "cursor-not-allowed opacity-60" : "hover:border-primary/40"
+                  readonly
+                    ? "cursor-not-allowed opacity-60"
+                    : "hover:border-primary/40",
                 )}
               >
                 {t("deals.stage.payment.copyAddress")}
@@ -238,10 +248,12 @@ export default function StagePayment({
               "rounded-lg border border-border/60 px-4 py-2 text-xs font-semibold text-foreground",
               isRefreshing || !onAction?.onRefresh
                 ? "cursor-not-allowed opacity-60"
-                : "hover:border-primary/40"
+                : "hover:border-primary/40",
             )}
           >
-            {isRefreshing ? t("common.refreshing") : t("deals.stage.payment.checkStatus")}
+            {isRefreshing
+              ? t("common.refreshing")
+              : t("deals.stage.payment.checkStatus")}
           </button>
         ) : null}
       </div>
