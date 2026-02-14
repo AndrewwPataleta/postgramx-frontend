@@ -16,7 +16,8 @@ interface StageDoneProps {
 export default function StageDone({ deal }: StageDoneProps) {
   const { t, language } = useLanguage();
   const navigate = useNavigate();
-  const isCanceled = deal.escrow.status === EscrowStatus.Canceled;
+  const escrowStatus = deal.escrow?.status;
+  const isCanceled = escrowStatus === EscrowStatus.Canceled;
 
   const handleCreateNewDeal = () => {
     navigate(ROUTES.DEAL_CREATE(deal.listingSnapshot.listingId));
@@ -40,7 +41,7 @@ export default function StageDone({ deal }: StageDoneProps) {
       <p className="text-xs text-muted-foreground">
           {t("deals.statusLabel")}:{" "}
         <span className="font-semibold text-foreground">
-          {getEscrowStatusLabel(t, deal.escrow.status)}
+          {escrowStatus ? getEscrowStatusLabel(t, escrowStatus) : t("common.emptyValue")}
         </span>
       </p>
       <p className="text-xs text-muted-foreground">
