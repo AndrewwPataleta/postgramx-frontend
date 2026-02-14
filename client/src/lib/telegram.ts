@@ -1,6 +1,6 @@
 export interface TelegramUser {
   id: number;
-  first_name?: string;
+  first_name: string;
   last_name?: string;
   username?: string;
   language_code?: string;
@@ -99,12 +99,6 @@ export const DEFAULT_INSETS: TelegramInsets = {
   left: 0,
 };
 
-const IS_TELEGRAM_MOCK =
-  typeof import.meta.env.VITE_TELEGRAM_MOCK === "string" &&
-  import.meta.env.VITE_TELEGRAM_MOCK.toLowerCase() === "true";
-
-const MOCK_INIT_DATA = "mock_init_data=postgramx";
-
 export const mockTelegramUser: TelegramUser = {
   id: 999999,
   first_name: "Local",
@@ -114,35 +108,20 @@ export const mockTelegramUser: TelegramUser = {
   is_premium: false,
 };
 
-<<<<<<<< HEAD:client/lib/telegram/telegram.ts
-const mockWebApp: TelegramWebApp = {
-  initData: MOCK_INIT_DATA,
-  initDataUnsafe: {
-    user: mockTelegramUser,
-  },
-  ready: () => undefined,
-  expand: () => undefined,
-========
 export const mockTelegramInitData =
   "user=%7B%22id%22%3A701831837%2C%22first_name%22%3A%22TesterTwo%22%2C%22last_name%22%3A%22%22%2C%22language_code%22%3A%22ru%22%2C%22is_premium%22%3Atrue%2C%22allows_write_to_pm%22%3Atrue%2C%22photo_url%22%3A%22https%3A%5C%2F%5C%2Ft.me%5C%2Fi%5C%2Fuserpic%5C%2F320%5C%2FWAAqxD0XRTi2ZRg_jpupi5rmt6cyvdCRpEPWQQnDCRc.svg%22%7D&chat_instance=5325968562620564049&chat_type=sender&auth_date=1739958508&signature=QyNk2aUQUIw6aq2ppG5odd1UnZt41zL-j1Ulx9sHmGMADwGlQFyfHr5oij2d4__X-QdM7e84pb8wtwdDmuP1Dg&hash=66cd49b163827889fc650a5f64d775a6938ac3e0640bfc4cbe3501cd24da95b2";
 
 export const mockTelegramAuth = {
   initData: mockTelegramInitData,
   user: mockTelegramUser,
->>>>>>>> developer:client/src/lib/telegram.ts
 };
 
 export const getTelegramWebApp = (): TelegramWebApp | null => {
   if (typeof window === "undefined") {
-    return IS_TELEGRAM_MOCK ? mockWebApp : null;
+    return null;
   }
 
-  return window.Telegram?.WebApp ?? (IS_TELEGRAM_MOCK ? mockWebApp : null);
-};
-
-export const getInitData = (): string => {
-  const webApp = getTelegramWebApp();
-  return webApp?.initData ?? "";
+  return window.Telegram?.WebApp ?? null;
 };
 
 export const normalizeInsets = (
@@ -176,15 +155,6 @@ const parseUserFromInitData = (initData?: string): TelegramUser | null => {
   }
 };
 
-export const getUserUnsafe = (): TelegramUser | null => {
-  const webApp = getTelegramWebApp();
-  if (!webApp) {
-    return null;
-  }
-
-  return webApp.initDataUnsafe?.user ?? parseUserFromInitData(webApp.initData);
-};
-
 export const getTelegramUser = (webApp: TelegramWebApp | null): TelegramUser | null => {
   if (!webApp) {
     return null;
@@ -193,12 +163,6 @@ export const getTelegramUser = (webApp: TelegramWebApp | null): TelegramUser | n
   return webApp.initDataUnsafe?.user ?? parseUserFromInitData(webApp.initData);
 };
 
-<<<<<<<< HEAD:client/lib/telegram/telegram.ts
-export const ensureReady = () => {
-  const webApp = getTelegramWebApp();
-  webApp?.ready?.();
-  webApp?.expand?.();
-========
 export const isTelegramWebAppConnected = (webApp: TelegramWebApp | null): boolean => {
   if (!webApp || typeof window === "undefined") {
     return false;
@@ -213,7 +177,6 @@ export const isTelegramWebAppConnected = (webApp: TelegramWebApp | null): boolea
   }
 
   return Boolean(webApp.initDataUnsafe && Object.keys(webApp.initDataUnsafe).length > 0);
->>>>>>>> developer:client/src/lib/telegram.ts
 };
 
 export const ensureWebAppReady = (webApp: TelegramWebApp) => {
