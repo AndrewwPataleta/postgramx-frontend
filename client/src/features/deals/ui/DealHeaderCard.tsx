@@ -6,6 +6,7 @@ import { useLanguage } from "@/i18n/LanguageProvider";
 import { ChevronDown } from "lucide-react";
 import { COUNTDOWN_TICK_MS, formatHmsCountdown } from "@/features/deals/time";
 import ChannelAvatar from "@/components/ChannelAvatar";
+import { DealStatus } from "@/models/enums";
 
 interface DealHeaderCardProps {
   deal: DealEntity;
@@ -45,7 +46,7 @@ export default function DealHeaderCard({ deal }: DealHeaderCardProps) {
   );
 
   useEffect(() => {
-    if (!deal.idleExpiresAt) {
+    if (!deal.idleExpiresAt || deal.status === DealStatus.Completed) {
       setIdleCountdown(null);
       return;
     }

@@ -15,6 +15,7 @@ import { useAuth } from "@/features/auth/ui/AuthProvider";
 import { stageToLabel } from "@/features/deals/dealStageMachine";
 import ChannelAvatar from "@/components/ChannelAvatar";
 import { COUNTDOWN_TICK_MS, formatHmsCountdown } from "@/features/deals/time";
+import { DealStatus } from "@/models/enums";
 
 const roleToneMap: Record<string, string> = {
   [USER_ROLE.ADVERTISER]: "bg-success/10 text-success",
@@ -32,7 +33,9 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
   const { user } = useAuth();
   const [expanded, setExpanded] = useState(false);
   const [idleCountdown, setIdleCountdown] = useState<string | null>(() =>
-    formatHmsCountdown(deal.idleExpiresAt),
+    deal.status === DealStatus.Completed
+      ? null
+      : formatHmsCountdown(deal.idleExpiresAt),
   );
 
   const currentUserId = (user as { id?: string } | null)?.id;
@@ -82,7 +85,7 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
   }, [deal]);
 
   useEffect(() => {
-    if (!deal.idleExpiresAt) {
+    if (!deal.idleExpiresAt || deal.status === DealStatus.Completed) {
       setIdleCountdown(null);
       return;
     }
@@ -92,7 +95,7 @@ const DealListCard = ({ deal, onSelect }: DealListCardProps) => {
     updateCountdown();
     const interval = window.setInterval(updateCountdown, COUNTDOWN_TICK_MS);
     return () => window.clearInterval(interval);
-  }, [deal.idleExpiresAt]);
+  }, [deal.idleExpiresAt, deal.status]);
 
   return (
     <div
