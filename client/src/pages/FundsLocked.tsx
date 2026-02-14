@@ -7,22 +7,18 @@ export default function FundsLocked() {
   return (
     <div className="w-full max-w-2xl mx-auto flex flex-col min-h-screen">
       <PageContainer className="flex-1 flex flex-col">
-        {/* Main content - centered */}
         <div className="flex-1 flex items-center justify-center py-6">
           <div className="text-center space-y-6 w-full">
-            {/* Success Icon */}
             <div className="inline-flex items-center justify-center w-20 h-20 bg-primary/20 rounded-full">
               <Check size={48} className="text-primary" />
             </div>
 
-            {/* Main Content */}
             <div className="glass p-8 rounded-lg space-y-4">
               <h1 className="text-2xl font-bold text-foreground">Payment Secure</h1>
               <p className="text-muted-foreground">
                 Your funds have been locked in escrow
               </p>
 
-              {/* Locked Funds Info */}
               <div className="bg-secondary/50 p-6 rounded-lg space-y-2">
                 <div className="flex items-center justify-center gap-2 mb-3">
                   <Lock size={20} className="text-primary" />
@@ -39,7 +35,6 @@ export default function FundsLocked() {
                 </p>
               </div>
 
-              {/* Explanation */}
               <div className="bg-secondary/30 p-4 rounded-lg">
                 <p className="text-sm text-muted-foreground">
                   Your payment is now secured. It will be released once the
@@ -49,7 +44,6 @@ export default function FundsLocked() {
               </div>
             </div>
 
-            {/* Additional info placeholder */}
             <div className="glass p-8 rounded-lg text-center">
               <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                 <span className="text-3xl"></span>
@@ -73,7 +67,6 @@ export default function FundsLocked() {
           </div>
         </div>
 
-        {/* Bottom button */}
         <div className="py-6 space-y-3">
           <Link
             to={ROUTES.DEALS}

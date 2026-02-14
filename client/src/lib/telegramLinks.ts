@@ -16,6 +16,5 @@ export function openTonDeepLink(url: string) {
     return;
   }
 
-  // fallback
   window.location.href = url;
 }

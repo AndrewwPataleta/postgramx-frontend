@@ -137,16 +137,13 @@ export const FilterModal = ({
 
   return (
     <>
-      {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black/40 z-40"
         onClick={onClose}
         aria-label={t("common.close")}
       />
 
-      {/* Bottom Sheet Modal */}
       <div className="fixed inset-x-0 bottom-0 top-auto bg-card rounded-t-2xl z-50 animate-in slide-in-from-bottom-10 duration-300 flex flex-col max-h-[85dvh] sm:max-h-[80vh] overflow-hidden shadow-2xl">
-        {/* Header */}
         <div className="bg-card border-b border-border/50 px-4 py-4 flex items-center justify-between rounded-t-2xl shrink-0">
           <h2 className="text-lg font-semibold text-foreground">
             {t("marketplace.filters.title")}
@@ -160,9 +157,7 @@ export const FilterModal = ({
           </button>
         </div>
 
-        {/* Content */}
         <div className="px-4 py-4 space-y-4 flex-1 overflow-y-auto">
-          {/* Pricing Section */}
           <div className="space-y-3">
             <button
               onClick={() => toggleSection("pricing")}
@@ -231,7 +226,6 @@ export const FilterModal = ({
             )}
           </div>
 
-          {/* Audience Section */}
           <div className="space-y-3">
             <button
               onClick={() => toggleSection("audience")}
@@ -249,7 +243,6 @@ export const FilterModal = ({
             </button>
             {expandedSections.audience && (
               <div className="px-3 space-y-4 pb-3">
-                {/* Subscribers */}
                 <div>
                   <p className="text-xs font-medium text-muted-foreground mb-2">
                     {t("marketplace.filters.subscribersLabel")}
@@ -304,7 +297,6 @@ export const FilterModal = ({
             )}
           </div>
 
-          {/* Tags Section */}
           <div className="space-y-3">
             <button
               onClick={() => toggleSection("tags")}
@@ -410,7 +402,6 @@ export const FilterModal = ({
 
 
 
-          {/* Verification Section */}
           <div className="space-y-3">
             <button
               onClick={() => toggleSection("verification")}
@@ -449,7 +440,6 @@ export const FilterModal = ({
           </div>
         </div>
 
-        {/* Footer */}
         <div className="sticky bottom-0 bg-card border-t border-border/50 px-4 py-4 space-y-3">
           <button
             onClick={handleApply}

@@ -78,7 +78,6 @@ const AddChannelStep2 = () => {
         return;
       }
       if (shouldLogChannelErrors) {
-        // eslint-disable-next-line no-console
         console.warn("[channels] verify response not verified", response);
       }
       setVerifyStatus("error");

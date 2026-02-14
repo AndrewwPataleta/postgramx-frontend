@@ -21,7 +21,7 @@ import ChannelAvatar from "@/components/ChannelAvatar";
 
 const formatMetric = (value?: number | null) => {
   if (value == null) {
-    return "–";
+    return "-";
   }
 
   if (value >= 1_000_000) {

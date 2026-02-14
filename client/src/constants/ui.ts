@@ -101,4 +101,3 @@ export const STATUS_LABELS = {
   ...CHANNEL_STATUS_LABELS,
 } as const;
 
-// TODO: Add ESLint rule to disallow direct status string comparisons in favor of constants.

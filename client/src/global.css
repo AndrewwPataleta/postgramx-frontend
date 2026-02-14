@@ -1,4 +1,4 @@
-/** @import must precede all other statements */
+
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 
 @tailwind base;
@@ -6,11 +6,7 @@
 @tailwind utilities;
 
 @layer base {
-  /**
-   * Telegram-style dark theme
-   * tailwind.config.ts expects the following color variables to be expressed as HSL values.
-   * A different format will require also updating the theme in tailwind.config.ts.
-  */
+  
   :root {
     --tg-safe-top: env(safe-area-inset-top, 0px);
     --tg-safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -70,7 +66,7 @@
     --sidebar-border: 213 20% 25%;
     --sidebar-ring: 197 91% 52%;
 
-    /* Radius - Telegram style rounded cards */
+    
     --radius: 0.75rem;
     --shadow-sm: 0 1px 2px hsl(213 20% 8% / 0.4);
     --shadow-md: 0 10px 30px hsl(213 30% 8% / 0.45);

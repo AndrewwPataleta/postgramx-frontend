@@ -171,7 +171,7 @@ const Splash = () => {
       <div className="flex w-full max-w-sm flex-col items-center gap-6">
         {TELEGRAM_MOCK ? (
           <span className="rounded-full border border-dashed border-primary/40 px-3 py-1 text-[0.65rem] font-semibold tracking-[0.2em] text-primary">
-            Dev mode — Telegram mock
+            Dev mode - Telegram mock
           </span>
         ) : null}
 

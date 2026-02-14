@@ -76,7 +76,6 @@ export const getChannelErrorMessage = (
     readString(nestedData?.message);
 
   if (shouldLogChannelErrors) {
-    // eslint-disable-next-line no-console
     console.warn("[channels] verify error payload", {
       error,
       apiError,
