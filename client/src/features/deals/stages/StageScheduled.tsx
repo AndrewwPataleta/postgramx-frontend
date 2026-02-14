@@ -12,10 +12,11 @@ interface StageScheduledProps {
 
 export default function StageScheduled({ deal }: StageScheduledProps) {
   const { t } = useLanguage();
+  const escrowStatus = deal.escrow?.status;
 
   return (
     <InfoCard title={t("deals.stage.scheduled.title")}>
-      {deal.escrow.status === EscrowStatus.FundsConfirmed ? (
+      {escrowStatus === EscrowStatus.FundsConfirmed ? (
         <div className="flex flex-wrap items-center gap-2">
           <span className="rounded-full border border-success/40 bg-success/10 px-2.5 py-1 text-[11px] font-semibold text-success">
             {t("deals.stage.payment.paymentDetected")}

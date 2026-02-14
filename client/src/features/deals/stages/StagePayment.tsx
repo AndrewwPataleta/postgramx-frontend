@@ -51,10 +51,10 @@ export default function StagePayment({
   const [timeRemaining, setTimeRemaining] = useState<string | null>(null);
   const showPaymentActions = !readonly;
 
-  const paymentDeadlineAt = deal.escrow.paymentDeadlineAt;
+  const paymentDeadlineAt = deal.escrow?.paymentDeadlineAt;
 
-  const escrowAmountNano = deal.escrow.amountNano ?? deal.listingSnapshot.priceNano;
-  const paymentAddress = deal.escrow.depositAddress ?? "";
+  const escrowAmountNano = deal.escrow?.amountNano ?? deal.listingSnapshot.priceNano;
+  const paymentAddress = deal.escrow?.depositAddress ?? "";
 
   const displayAmount = escrowAmountNano
     ? `${formatTon(escrowAmountNano, language)} ${t("common.ton")}`
@@ -92,7 +92,7 @@ export default function StagePayment({
 
   useEffect(() => {
     setIsWaiting(false);
-  }, [deal.id, deal.escrow.status]);
+  }, [deal.id, deal.escrow?.status]);
 
   const handlePay = async () => {
     if (readonly || !paymentAddress || !escrowAmountNano) return;
