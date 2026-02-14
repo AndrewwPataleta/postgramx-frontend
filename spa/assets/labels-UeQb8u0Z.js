@@ -1,0 +1,1 @@
+const s=(t,a)=>t>=24&&t%24===0?`${t/24}${a("common.daysShort")}`:`${t}${a("common.hoursShort")}`,e=(t,a)=>t(`deals.escrowStatus.${a}`),n=(t,a)=>t(`deals.role.${a}`),o=(t,a)=>t(`listings.format.${a}`),i=(t,a)=>`${t("listings.meta.pinned")} ${s(a,t)}`,l=(t,a)=>`${t("listings.meta.visible")} ${s(a,t)}`;export{l as a,o as b,e as c,n as d,s as f,i as g};
