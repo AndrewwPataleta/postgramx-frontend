@@ -1,0 +1,6 @@
+import{c as i,a,j as e}from"./index-CqQc76e9.js";/**
+ * @license lucide-react v0.539.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const l=[["path",{d:"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3",key:"wmoenq"}],["path",{d:"M12 9v4",key:"juzpu7"}],["path",{d:"M12 17h.01",key:"p32p05"}]],x=i("triangle-alert",l),u=({message:s,description:n,onRetry:r})=>{const{t}=a(),o=s??t("errors.genericTitle"),c=n??t("errors.genericSubtitle"),d=t("errors.retryHint");return e.jsxs("div",{className:"rounded-2xl border border-border/60 bg-card/80 p-6 text-center text-sm text-muted-foreground",children:[e.jsx("div",{className:"mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10 text-destructive",children:e.jsx(x,{size:20})}),e.jsx("p",{className:"text-sm font-semibold text-foreground",children:o}),e.jsx("p",{className:"mt-1 text-xs text-muted-foreground",children:c}),r?e.jsxs("div",{className:"mt-4 space-y-2",children:[e.jsx("button",{type:"button",onClick:r,className:"inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground",children:t("common.retry")}),e.jsx("p",{className:"text-xs text-muted-foreground",children:d})]}):null]})};export{u as E};
