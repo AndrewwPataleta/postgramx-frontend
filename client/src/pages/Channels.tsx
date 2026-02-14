@@ -274,7 +274,9 @@ export default function Channels() {
                 {tabbedChannels.map((channel, index) => {
                   const isModeratorView = activeTab === "moderator";
                   const isExpanded = expandedChannelIds.has(channel.id);
-                  const canExpand = channel.status === ChannelStatus.Verified;
+                  const canExpand =
+                    !isModeratorView &&
+                    channel.status === ChannelStatus.Verified;
                   const listingSummary = getListingSummary(channel.listings);
                   const fallbackSummary = listingSummaries[channel.id];
                   const placementsCount =
@@ -318,7 +320,7 @@ export default function Channels() {
                             <ChannelListingsPreview
                               channelId={channel.id}
                               isExpanded={isExpanded}
-                              mode={isModeratorView ? "viewer" : "owner"}
+                              mode="owner"
                               onSummaryChange={(summary) => {
                                 setListingSummaries((prev) => ({
                                   ...prev,
