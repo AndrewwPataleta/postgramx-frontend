@@ -1,6 +1,7 @@
 import { CheckCircle2, XCircle } from "lucide-react";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { listMyChannels } from "@/api/features/channelsApi";
 import { Button } from "@/design-system/ui/button";
 import { Card, CardContent } from "@/design-system/ui/card";
 import { useAddChannelFlow } from "@/pages/add-channel/useAddChannelFlow";
@@ -14,6 +15,7 @@ const AddChannelStep3 = () => {
   const { t } = useLanguage();
   const { state } = useAddChannelFlow();
   const preview = state.preview;
+  const [isOpeningChannel, setIsOpeningChannel] = useState(false);
 
   useEffect(() => {
     if (!preview) {
@@ -36,6 +38,31 @@ const AddChannelStep3 = () => {
   const message =
     state.lastError || t("channels.add.step3.defaultError");
   const linkedChannelId = state.linkedChannelId;
+
+  const handleManageChannelClick = async () => {
+    if (!linkedChannelId || isOpeningChannel) {
+      return;
+    }
+
+    setIsOpeningChannel(true);
+    try {
+      const channels = await listMyChannels({ page: 1, limit: 50 });
+      const actualChannel = channels.items.find((channel) => channel.id === linkedChannelId);
+
+      navigate(ROUTES.CHANNEL_MANAGE_LISTINGS(linkedChannelId), {
+        state: {
+          rootBackTo: ROUTES.CHANNELS,
+          ...(actualChannel
+            ? { channel: actualChannel }
+            : channelState
+              ? { channel: channelState }
+              : {}),
+        },
+      });
+    } finally {
+      setIsOpeningChannel(false);
+    }
+  };
 
   const channelState: ChannelEntity | null =
     preview && linkedChannelId
@@ -93,17 +120,11 @@ const AddChannelStep3 = () => {
         {isSuccess ? (
           <>
             <Button
-              onClick={() =>
-                linkedChannelId
-                  ? navigate(ROUTES.CHANNEL_MANAGE_LISTINGS(linkedChannelId), {
-                      state: channelState
-                        ? { channel: channelState, rootBackTo: ROUTES.CHANNELS }
-                        : { rootBackTo: ROUTES.CHANNELS },
-                    })
-                  : undefined
-              }
+              onClick={() => {
+                void handleManageChannelClick();
+              }}
               className="w-full text-sm font-semibold"
-              disabled={!linkedChannelId}
+              disabled={!linkedChannelId || isOpeningChannel}
             >
               {t("channels.add.step3.manageChannel")}
             </Button>
