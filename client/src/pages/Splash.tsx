@@ -1,32 +1,12 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { useQueryClient } from "@tanstack/react-query";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/design-system/ui/button";
 import { SkeletonLine } from "@/design-system/skeletons/Shimmer";
 import { useAuth } from "@/features/auth/ui/AuthProvider";
-import { listMarketplaceChannels, listMyChannels } from "@/api/features/channelsApi";
-import { listDeals } from "@/api/features/dealsApi";
-import { getBalanceOverview } from "@/api/paymentsBalanceApi";
-import { listTransactions } from "@/api/paymentsTransactionsApi";
 import { TELEGRAM_MOCK } from "@/config/env";
-import { ROUTES } from "@/constants/routes";
-import {
-  buildMarketplaceFiltersKey,
-  buildMarketplaceQueryFilters,
-  defaultMarketplaceFilters,
-  marketplaceKeys,
-} from "@/features/marketplace/viewmodels/marketplaceQuery";
-import { buildTransactionsFiltersHash } from "@/hooks/useTransactions";
 
 const Splash = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const queryClient = useQueryClient();
   const { initSession, retry, isLoading, isReady, error, user } = useAuth();
   const [copied, setCopied] = useState(false);
-  const hasPrefetchedRef = useRef(false);
-  const redirectTo =
-    (location.state as { from?: string } | null)?.from ?? ROUTES.MARKETPLACE;
 
   useEffect(() => {
     if (isReady && user) {
@@ -34,106 +14,6 @@ const Splash = () => {
     }
     void initSession();
   }, [initSession, isReady, user]);
-
-  useEffect(() => {
-    if (!isReady || !user) {
-      return;
-    }
-    let isActive = true;
-
-    const preloadMarketplace = async () => {
-      if (!hasPrefetchedRef.current) {
-        hasPrefetchedRef.current = true;
-        const page = 1;
-        const limit = 20;
-        const sort = "recent" as const;
-        const order = "desc" as const;
-        const filtersKey = buildMarketplaceFiltersKey(
-          defaultMarketplaceFilters,
-          ""
-        );
-        const queryFilters = buildMarketplaceQueryFilters({
-          filters: defaultMarketplaceFilters,
-          query: "",
-          page,
-          limit,
-          sort,
-          order,
-        });
-
-        const channelsFilters = { sort: "recent", order: "desc" };
-        const dealsParams = {
-          role: "all" as const,
-          pendingPage: 1,
-          pendingLimit: 5,
-          activePage: 1,
-          activeLimit: 5,
-          completedPage: 1,
-          completedLimit: 5,
-        };
-        const transactionsFilters = { page: 1, limit: 10 };
-        const transactionsFiltersHash = buildTransactionsFiltersHash(transactionsFilters);
-
-        await Promise.allSettled([
-          queryClient.prefetchQuery({
-            queryKey: marketplaceKeys.channels(
-              filtersKey,
-              page,
-              limit,
-              sort,
-              order
-            ),
-            queryFn: () => listMarketplaceChannels(queryFilters),
-          }),
-          queryClient.prefetchInfiniteQuery({
-            queryKey: ["channelsList", channelsFilters],
-            queryFn: ({ pageParam = 1 }) =>
-              listMyChannels({
-                ...channelsFilters,
-                page: Number(pageParam),
-                limit: 10,
-              }),
-            getNextPageParam: (lastPage) =>
-              lastPage.hasNext ? lastPage.page + 1 : undefined,
-            initialPageParam: 1,
-          }),
-          queryClient.prefetchQuery({
-            queryKey: [
-              "deals",
-              dealsParams.role,
-              dealsParams.pendingPage,
-              dealsParams.activePage,
-              dealsParams.completedPage,
-            ],
-            queryFn: () => listDeals(dealsParams),
-          }),
-          queryClient.prefetchQuery({
-            queryKey: ["balanceOverview"],
-            queryFn: () => getBalanceOverview(),
-          }),
-          queryClient.prefetchInfiniteQuery({
-            queryKey: ["transactions", transactionsFiltersHash],
-            queryFn: ({ pageParam = 1 }) =>
-              listTransactions({ ...transactionsFilters, page: pageParam }),
-            initialPageParam: 1,
-          }),
-        ]);
-      }
-
-      if (!isActive) {
-        return;
-      }
-      navigate(redirectTo === ROUTES.SPLASH ? ROUTES.MARKETPLACE : redirectTo, {
-        replace: true,
-      });
-    };
-
-    void preloadMarketplace();
-
-    return () => {
-      isActive = false;
-    };
-  }, [isReady, navigate, queryClient, redirectTo, user]);
 
   useEffect(() => {
     if (!copied) {
@@ -146,6 +26,19 @@ const Splash = () => {
   const isMissingTelegram = error?.type === "missing_telegram";
   const isAuthError = error?.type === "auth_failed";
 
+  const title = useMemo(() => {
+    if (isMissingTelegram) {
+      return "Open in Telegram";
+    }
+    if (isAuthError) {
+      return "Couldn’t connect";
+    }
+    if (isReady && user) {
+      return "Authentication complete";
+    }
+    return "Connecting to Telegram";
+  }, [isAuthError, isMissingTelegram, isReady, user]);
+
   const subtitle = useMemo(() => {
     if (isMissingTelegram) {
       return "This mini app must be opened from Telegram.";
@@ -153,8 +46,11 @@ const Splash = () => {
     if (isAuthError) {
       return error?.message ?? "Could not connect to the server.";
     }
-    return "Connecting to Telegram…";
-  }, [error?.message, isAuthError, isMissingTelegram]);
+    if (isReady && user) {
+      return "Auth architecture is ready to use as a template.";
+    }
+    return "Preparing authorization session…";
+  }, [error?.message, isAuthError, isMissingTelegram, isReady, user]);
 
   const handleCopyDebug = async () => {
     const debugPayload = {
@@ -167,56 +63,72 @@ const Splash = () => {
   };
 
   return (
-    <div className="safe-area-top safe-area-bottom flex min-h-screen w-full items-center justify-center overflow-hidden bg-background px-6 text-center">
-      <div className="flex w-full max-w-sm flex-col items-center gap-6">
+    <div className="safe-area-top safe-area-bottom relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-gradient-to-b from-[#F8F6FA] to-[#F3ECF7] px-6 py-8 text-foreground">
+      <div className="pointer-events-none absolute -left-12 top-24 h-40 w-40 rounded-full bg-primary/20 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-12 right-0 h-44 w-44 rounded-full bg-primary/20 blur-3xl" />
+
+      <div className="relative z-10 flex w-full max-w-3xl flex-col gap-6 rounded-[2rem] border border-white/60 bg-white/35 p-6 shadow-[0_12px_40px_rgba(31,19,40,0.08)] backdrop-blur-md lg:p-10">
         {TELEGRAM_MOCK ? (
-          <span className="rounded-full border border-dashed border-primary/40 px-3 py-1 text-[0.65rem] font-semibold tracking-[0.2em] text-primary">
+          <span className="w-fit rounded-full border border-dashed border-primary/50 px-3 py-1 text-[0.65rem] font-semibold tracking-[0.2em] text-primary">
             Dev mode — Telegram mock
           </span>
         ) : null}
 
-        <div className="relative flex h-60 w-60 items-center justify-center">
-          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/70 via-accent/70 to-primary/60 blur-2xl opacity-80" />
-          <div className="relative z-10 flex h-40 w-40 items-center justify-center rounded-full shadow-[0_0_25px_hsl(var(--primary)/0.45)]">
-            <img
-              src="/logo.jpeg"
-              alt="PostgramX logo"
-              className="h-full w-full rounded-full object-cover"
-            />
+        <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary">
+          PostgramX Template
+        </p>
+
+        <h1 className="text-4xl font-semibold leading-[1.05] sm:text-5xl">
+          <span className="text-primary">Telegram auth</span> starter
+        </h1>
+
+        <p className="max-w-2xl text-base leading-relaxed text-foreground/80">
+          We removed extra product screens and kept only the authorization
+          architecture, so you can use this project as a clean template base.
+        </p>
+
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="rounded-2xl border border-white/60 bg-white/50 px-4 py-3">
+            <p className="text-xs text-foreground/60">Status</p>
+            <p className="text-base font-semibold">{title}</p>
+          </div>
+          <div className="rounded-2xl border border-white/60 bg-white/50 px-4 py-3">
+            <p className="text-xs text-foreground/60">Session</p>
+            <p className="text-base font-semibold">
+              {isLoading
+                ? "Initializing"
+                : isReady && user
+                  ? "Ready"
+                  : "Waiting"}
+            </p>
           </div>
         </div>
 
-        <div className="space-y-2">
-          <h1 className="text-lg font-semibold">
-            {isMissingTelegram
-              ? "Open in Telegram"
-              : isAuthError
-                ? "Couldn’t connect"
-                : ""}
-          </h1>
-          <p className="text-sm text-muted-foreground">{subtitle}</p>
-          {error?.debug ? (
-            <p className="text-xs text-muted-foreground">{error.debug}</p>
-          ) : null}
-        </div>
+        <p className="text-sm text-muted-foreground">{subtitle}</p>
+        {error?.debug ? (
+          <p className="text-xs text-muted-foreground">{error.debug}</p>
+        ) : null}
 
         {!isMissingTelegram && !isAuthError ? (
           <div className="flex items-center gap-3 text-xs text-muted-foreground">
-            <SkeletonLine className="h-3 w-20" />
-            <span>{isLoading ? "Authorizing session…" : "Preparing session…"}</span>
+            <SkeletonLine className="h-2 w-32" />
+            <span>{isLoading ? "Authorizing…" : "Session prepared"}</span>
           </div>
         ) : null}
 
         {(isMissingTelegram || isAuthError) && (
-          <div className="flex w-full flex-col gap-3">
-            <Button onClick={retry} className="w-full">
+          <div className="flex flex-wrap gap-3">
+            <Button
+              onClick={retry}
+              className="min-w-[9rem] bg-primary text-white hover:bg-primary/90"
+            >
               Retry
             </Button>
             {isAuthError ? (
               <Button
                 onClick={handleCopyDebug}
                 variant="outline"
-                className="w-full"
+                className="min-w-[9rem] border-primary/40 bg-white/70 hover:bg-white"
               >
                 {copied ? "Copied" : "Copy debug info"}
               </Button>
