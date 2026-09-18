@@ -1,0 +1,29 @@
+export const TRANSACTION_STATUS = {
+  PENDING: "PENDING",
+  AWAITING_CONFIRMATION: "AWAITING_CONFIRMATION",
+  CONFIRMED: "CONFIRMED",
+  COMPLETED: "COMPLETED",
+  FAILED: "FAILED",
+  CANCELED: "CANCELED",
+} as const;
+
+export const TRANSACTION_DIRECTION = {
+  IN: "IN",
+  OUT: "OUT",
+  INTERNAL: "INTERNAL",
+} as const;
+
+export const TRANSACTION_TYPE = {
+  DEPOSIT: "DEPOSIT",
+  WITHDRAW: "WITHDRAW",
+  ESCROW_HOLD: "ESCROW_HOLD",
+  ESCROW_RELEASE: "ESCROW_RELEASE",
+  ESCROW_REFUND: "ESCROW_REFUND",
+  FEE: "FEE",
+} as const;
+
+export type TransactionStatus =
+  typeof TRANSACTION_STATUS[keyof typeof TRANSACTION_STATUS];
+export type TransactionDirection =
+  typeof TRANSACTION_DIRECTION[keyof typeof TRANSACTION_DIRECTION];
+export type TransactionType = typeof TRANSACTION_TYPE[keyof typeof TRANSACTION_TYPE];
